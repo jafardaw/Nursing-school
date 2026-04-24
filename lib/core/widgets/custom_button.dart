@@ -1,5 +1,6 @@
 import 'package:finalproject/core/theme/app_colors.dart';
 import 'package:finalproject/core/theme/text_styles.dart';
+import 'package:finalproject/core/theme/theme_extination.dart';
 import 'package:finalproject/core/widgets/loading_widget.dart';
 import 'package:flutter/material.dart';
 
@@ -60,7 +61,12 @@ class CustomButton extends StatelessWidget {
               ? SizedBox(
                   width: 20,
                   height: 20,
-                  child: ButtonLoadingWidget(color: textColor ?? Colors.white),
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    valueColor: AlwaysStoppedAnimation<Color>(
+                      context.styles.primaryColor,
+                    ),
+                  ),
                 )
               : Row(
                   mainAxisSize:
@@ -71,7 +77,7 @@ class CustomButton extends StatelessWidget {
                     const SizedBox(width: 8),
                     Text(
                       text,
-                      style: TextStyles.size16W700White.copyWith(
+                      style: AppTextStyles.size16W600.copyWith(
                         color: textColor ?? AppColors.white,
                         fontSize: screenSize.width < 350 ? 14 : 16,
                       ),

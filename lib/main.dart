@@ -2,6 +2,7 @@ import 'package:finalproject/core/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 import 'core/routing/app_router.dart';
+
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
   runApp(MyApp());
@@ -16,12 +17,11 @@ class MyApp extends StatelessWidget {
       title: 'مشروعي الاحترافي',
       debugShowCheckedModeBanner: false,
 
-      // تفعيل الثيم
-      theme: AppTheme.lightTheme,
-      darkTheme: AppTheme.darkTheme,
-      themeMode: ThemeMode.system,
-
-      // تفعيل Responsive Framework
+      // 🟢 الثيمات
+      theme: AppTheme.lightTheme, // الثيم الفاتح
+      darkTheme: AppTheme.darkTheme, // الثيم الداكن
+      themeMode: ThemeMode.system, // يتبع نظام الجهاز (Dark/Light)
+      // 🟢 التصميم المتجاوب
       builder: (context, child) => ResponsiveBreakpoints.builder(
         child: child!,
         breakpoints: [
@@ -32,7 +32,7 @@ class MyApp extends StatelessWidget {
         ],
       ),
 
-      // استخدام GoRouter مع التحميل المؤجل التلقائي
+      // 🟢 نظام التنقل
       routerConfig: AppRouter.router,
     );
   }
@@ -45,3 +45,32 @@ class MyApp extends StatelessWidget {
 // } else {
 //   return قائمة_أفقية;
 // }
+
+
+////
+///
+///
+// final styles = context.styles;
+
+// // 🎨 ألوان ديناميكية
+// Container(color: styles.backgroundColor)
+// Container(color: styles.surfaceColor)
+// Container(color: styles.cardColor)
+
+// // 🎯 ألوان ثابتة
+// Icon(Icons.error, color: styles.errorColor)
+// Icon(Icons.check, color: styles.successColor)
+
+// // 🔄 ألوان خاصة
+// CircularProgressIndicator(
+//   valueColor: AlwaysStoppedAnimation<Color>(styles.loadingSpinnerColor),
+// )
+
+// final styles = context.styles;
+
+// // 📝 نصوص
+// Text('عنوان كبير', style: styles.headline1)
+// Text('نص عادي', style: styles.bodyLarge)
+// Text('خطأ', style: styles.errorText)
+// Text('نجاح', style: styles.successText)
+// Text('رابط', style: styles.linkText)

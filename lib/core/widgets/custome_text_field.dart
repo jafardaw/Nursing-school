@@ -77,7 +77,7 @@ class CustomTextFieldState extends State<CustomeTextField> {
         onChanged: widget.onChanged,
         decoration: InputDecoration(
           floatingLabelBehavior: widget.floatingLabelBehavior,
-          errorStyle: TextStyles.size13W700Error,
+          errorStyle: AppTextStyles.size16W600,
           isDense: widget.isDense,
           suffixIcon: widget.obscureText
               ? IconButton(
@@ -99,7 +99,7 @@ class CustomTextFieldState extends State<CustomeTextField> {
           hintText: widget.hintText,
           hintStyle:
               widget.hintStyle?.copyWith(fontSize: textSize) ??
-              TextStyles.size14W400DarkGrey.copyWith(
+              AppTextStyles.size16W700.copyWith(
                 fontSize: textSize,
                 color: AppColors.primary,
               ),
