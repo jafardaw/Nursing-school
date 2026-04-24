@@ -1,294 +1,169 @@
-import 'package:finalproject/core/network/api_client.dart';
-import 'package:finalproject/core/security/encryption_service.dart';
-import 'package:finalproject/core/services/auth_event_stream.dart';
 import 'package:dio/dio.dart';
-import '../constants/app_constants.dart';
-import '../constants/api_endpoints.dart';
-import '../storage/storage_service.dart';
-import '../errors/error_handler.dart';
-import 'dart:developer' as developer;
+import 'package:finalproject/core/errors/error_handler.dart';
+import 'package:flutter/foundation.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiService {
-  static ApiService? _instance;
-  static ApiService get instance => _instance ??= ApiService._();
+  final Dio _dio;
 
-  ApiService._();
+  ApiService()
+    : _dio = Dio(
+        BaseOptions(
+          baseUrl: 'http://127.0.0.1:8000/api/',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+          },
+          connectTimeout: const Duration(seconds: 30),
+          receiveTimeout: const Duration(seconds: 30),
+        ),
+      ) {
+    _dio.interceptors.add(
+      InterceptorsWrapper(
+        onRequest: (options, handler) async {
+          // إضافة headers الـ CORS
+          options.headers['Access-Control-Allow-Origin'] = '*';
+          options.headers['Access-Control-Allow-Methods'] =
+              'GET, POST, PUT, DELETE, OPTIONS';
+          options.headers['Access-Control-Allow-Headers'] =
+              'Origin, Content-Type, X-Auth-Token, Authorization';
+          // options.headers['Authorization'] =
+          //     'Bearer ';
 
-  late final ApiClient _apiClient;
-  late final StorageService _storage;
-  late final EncryptionService _encryptionService;
+          try {
+            final prefs = await SharedPreferences.getInstance();
+            final token = prefs.getString('token');
+            if (token != null) {
+              options.headers['Authorization'] = 'Bearer $token';
+            }
+          } catch (e) {
+            if (kDebugMode) {
+              print('Error getting token: $e');
+            }
+          }
 
-  // Initialize the service
-  Future<void> initialize({
-    required String baseUrl,
-    Map<String, String>? defaultHeaders,
-    StorageService? storage,
-  }) async {
-    _storage = storage ?? await StorageServiceImpl.create();
-    _encryptionService = await EncryptionService.create();
-
-    _apiClient = ApiClient(
-      baseUrl: baseUrl,
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        ...?defaultHeaders,
-      },
-    );
-
-    // ⚙️ تعيين callback للـ token refresh التلقائي
-    _apiClient.setTokenRefreshCallback(_refreshTokenCallback);
-
-    // 🔐 تحديث الـ Token من التخزين إن وُجد
-    await _setAuthTokenFromStorage();
-  }
-
-  /// 🔄 Callback لتجديد الـ Token عند استقبال 401
-  /// Phase C: يتم استدعاؤه تلقائياً عند انتهاء صلاحية الـ Session Token
-  Future<String?> _refreshTokenCallback() async {
-    try {
-      final refreshToken = await _storage.getString(
-        AppConstants.refreshTokenKey,
-      );
-      final uuid = await _storage.getString(AppConstants.userUuidKey);
-
-      if (refreshToken == null ||
-          refreshToken.isEmpty ||
-          uuid == null ||
-          uuid.isEmpty) {
-        await _clearSessionData();
-        return null;
-      }
-
-      final response = await _apiClient.post(
-        ApiEndpoints.refreshSession,
-        data: {
-          AppConstants.uuidKey: uuid,
-          AppConstants.refreshTokenKey: refreshToken,
+          return handler.next(options);
         },
+
+        // 🔑 مكان معالجة خطأ 401 وتجديد التوكن
+        onError: (error, handler) async {
+          final is401Error = error.response?.statusCode == 401;
+          final isRefreshRequest = error.requestOptions.path == 'refresh';
+
+          // 1. إذا كان الخطأ 401 ولم يكن طلب التجديد نفسه
+          if (is401Error && !isRefreshRequest) {
+            try {
+              // 2. محاولة تجديد التوكن
+              final response = await _dio.post('refresh');
+
+              if (response.statusCode == 200 &&
+                  response.data['status'] == "success") {
+                final newToken = response.data['data']['token'];
+
+                // تخزين التوكن الجديد
+                final prefs = await SharedPreferences.getInstance();
+                await prefs.setString('token', newToken);
+
+                // 3. تحديث Header الطلب الأصلي الفاشل
+                final originalRequest = error.requestOptions;
+                originalRequest.headers['Authorization'] = 'Bearer $newToken';
+
+                // 4. إعادة إرسال الطلب الأصلي (Re-send the failed request)
+                final newResponse = await _dio.request(
+                  originalRequest.path,
+                  options: Options(
+                    method: originalRequest.method,
+                    headers: originalRequest.headers,
+                  ),
+                  data: originalRequest.data,
+                  queryParameters: originalRequest.queryParameters,
+                );
+
+                // 5. إرجاع الرد الجديد بدلاً من الخطأ 401
+                return handler.resolve(newResponse);
+              }
+            } catch (e) {
+              // إذا فشل التجديد لسبب ما (خطأ في الشبكة، انتهاء صلاحية التوكن القديم، إلخ)
+              if (kDebugMode) {
+                print('Refresh attempt failed, forcing logout: $e');
+              }
+              // 6. إزالة التوكن وإجبار المستخدم على تسجيل الدخول مجدداً
+              final prefs = await SharedPreferences.getInstance();
+              await prefs.remove('token');
+
+              // 7. تمرير الخطأ الأصلي ليتم التعامل معه في Cubit (غالباً رسالة خطأ أو توجيه لصفحة الدخول)
+            }
+          }
+
+          // في حال فشل التجديد أو لم يكن الخطأ 401، نمرر الخطأ
+          return handler.next(error);
+        },
+      ),
+    );
+
+    if (kDebugMode) {
+      // إضافة Log Interceptor لمرحلة التطوير فقط
+      _dio.interceptors.add(
+        LogInterceptor(responseBody: true, requestBody: true),
       );
-
-      final dataList = response['data'] as List?;
-      final first = (dataList != null && dataList.isNotEmpty)
-          ? dataList.first as Map<String, dynamic>
-          : null;
-
-      final newSessionToken = first?['token']?.toString();
-      developer.log('Token Refresh Response: $response');
-
-      developer.log('Extracted New Session Token: $newSessionToken');
-      if (newSessionToken == null || newSessionToken.isEmpty) {
-        await _clearSessionData();
-        return null;
-      }
-
-      await setAuthToken(newSessionToken, uuid);
-
-      final expiresAt = first?['expires_at']?.toString();
-      if (expiresAt != null && expiresAt.isNotEmpty) {
-        await _storage.saveString(AppConstants.tokenExpiresAtKey, expiresAt);
-      }
-
-      return newSessionToken;
-    } catch (_) {
-      await _clearSessionData();
-      return null;
     }
   }
 
-  Future<void> _clearSessionData() async {
-    await _storage.remove(AppConstants.tokenKey);
-    await _storage.remove(AppConstants.refreshTokenKey);
-    await _storage.remove(AppConstants.tokenExpiresAtKey);
-
-    await _storage.remove(AppConstants.userUuidKey);
-    await _storage.remove(AppConstants.userDataKey);
-    _apiClient.clearAuthToken();
-
-    authEventStream.logOut();
-  }
-
-  /// 🔐 دالة محسّنة لتعيين الـ Token
-  /// تحفظ كل من Session Token و UUID
-  Future<void> setAuthToken(String token, [String? uuid]) async {
-    final encryptedToken = _encryptionService.encryptToken(token);
-    await _storage.saveString(AppConstants.tokenKey, encryptedToken);
-
-    if (uuid != null) {
-      await _storage.saveString(AppConstants.userUuidKey, uuid);
-    }
-    _apiClient.setAuthToken(token);
-  }
-
-  Future<void> _setAuthTokenFromStorage() async {
-    final encryptedToken = await _storage.getString(AppConstants.tokenKey);
-    if (encryptedToken == null || encryptedToken.isEmpty) {
-      return;
-    }
-
+  Future<Response> post(String path, dynamic data) async {
     try {
-      final rawToken = _encryptionService.decryptToken(encryptedToken);
-      _apiClient.setAuthToken(rawToken);
-    } catch (e) {
-      await clearAuthToken();
-      return;
+      return await _dio.post(path, data: data);
+    } on DioException catch (e) {
+      throw ErrorHandler.handleDioError(e);
     }
   }
 
-  // Clear auth token
-  Future<void> clearAuthToken() async {
-    await _storage.remove(AppConstants.tokenKey);
-    _apiClient.clearAuthToken();
-  }
-
-  // Get current token
-  Future<String?> getAuthToken() async {
-    final encryptedToken = await _storage.getString(AppConstants.tokenKey);
-    if (encryptedToken == null || encryptedToken.isEmpty) {
-      return null;
-    }
-
+  Future<Response> postwithOutData(String path) async {
     try {
-      return _encryptionService.decryptToken(encryptedToken);
-    } catch (e) {
-      return null;
+      return await _dio.post(path);
+    } on DioException catch (e) {
+      throw ErrorHandler.handleDioError(e);
     }
   }
 
-  // Check if user is authenticated
-  Future<bool> isAuthenticated() async {
-    final token = await getAuthToken();
-    return token != null && token.isNotEmpty;
-  }
-
-  // HTTP Methods
-  Future<dynamic> get(
-    String endpoint, {
-    Map<String, dynamic>? queryParameters,
-    Options? options,
-    bool requireAuth = true,
-  }) async {
-    if (requireAuth) await _checkAuth();
-    return _apiClient.get(
-      endpoint,
-      queryParameters: queryParameters,
-      options: options,
-    );
-  }
-
-  Future<dynamic> post(
-    String endpoint, {
+  Future<Response> get(
+    String path, {
     dynamic data,
     Map<String, dynamic>? queryParameters,
-    Options? options,
-    bool requireAuth = true,
   }) async {
-    if (requireAuth) await _checkAuth();
-    return _apiClient.post(
-      endpoint,
-      data: data,
-      queryParameters: queryParameters,
-      options: options,
-    );
-  }
-
-  Future<dynamic> put(
-    String endpoint, {
-    dynamic data,
-    Map<String, dynamic>? queryParameters,
-    Options? options,
-    bool requireAuth = true,
-  }) async {
-    if (requireAuth) await _checkAuth();
-    return _apiClient.put(
-      endpoint,
-      data: data,
-      queryParameters: queryParameters,
-      options: options,
-    );
-  }
-
-  Future<dynamic> delete(
-    String endpoint, {
-    dynamic data,
-    Map<String, dynamic>? queryParameters,
-    Options? options,
-    bool requireAuth = true,
-  }) async {
-    if (requireAuth) await _checkAuth();
-    return _apiClient.delete(
-      endpoint,
-      data: data,
-      queryParameters: queryParameters,
-      options: options,
-    );
-  }
-
-  Future<dynamic> patch(
-    String endpoint, {
-    dynamic data,
-    Map<String, dynamic>? queryParameters,
-    Options? options,
-    bool requireAuth = true,
-  }) async {
-    if (requireAuth) await _checkAuth();
-    return _apiClient.patch(
-      endpoint,
-      data: data,
-      queryParameters: queryParameters,
-      options: options,
-    );
-  }
-
-  // File upload
-  Future<dynamic> upload(
-    String endpoint,
-    FormData formData, {
-    ProgressCallback? onSendProgress,
-    Options? options,
-    bool requireAuth = true,
-  }) async {
-    if (requireAuth) await _checkAuth();
-    return _apiClient.upload(
-      endpoint,
-      formData,
-      onSendProgress: onSendProgress,
-      options: options,
-    );
-  }
-
-  // File download
-  Future<Response> download(
-    String urlPath,
-    String savePath, {
-    ProgressCallback? onReceiveProgress,
-    Map<String, dynamic>? queryParameters,
-    Options? options,
-    bool requireAuth = true,
-  }) async {
-    if (requireAuth) await _checkAuth();
-    return _apiClient.download(
-      urlPath,
-      savePath,
-      onReceiveProgress: onReceiveProgress,
-      queryParameters: queryParameters,
-      options: options,
-    );
-  }
-
-  void updateHeaders(Map<String, String> headers) {
-    _apiClient.updateHeaders(headers);
-  }
-
-  // Check authentication status
-  Future<void> _checkAuth() async {
-    if (!await isAuthenticated()) {
-      throw ErrorHandler('User not authenticated', statusCode: 401);
+    try {
+      return await _dio.get(path, data: data, queryParameters: queryParameters);
+    } on DioException catch (e) {
+      throw ErrorHandler.handleDioError(e);
     }
   }
 
-  // Dispose
-  void dispose() {
-    _apiClient.dispose();
+  Future<Response> delete(
+    String path, {
+    Map<String, dynamic>? queryParameters,
+  }) async {
+    try {
+      return await _dio.delete(path, queryParameters: queryParameters);
+    } on DioException catch (e) {
+      throw ErrorHandler.handleDioError(e);
+    }
+  }
+
+  Future<Response> update(String path, {dynamic data}) async {
+    try {
+      return await _dio.put(path, data: data);
+    } on DioException catch (e) {
+      throw ErrorHandler.handleDioError(e);
+    }
+  }
+
+  Future<Response> loginWithGoogle(String googleToken) async {
+    try {
+      return await _dio.post(
+        'loginwithGoogel',
+        data: {'googleToken': googleToken},
+      );
+    } on DioException catch (e) {
+      throw ErrorHandler.handleDioError(e);
+    }
   }
 }
