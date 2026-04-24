@@ -9,9 +9,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 import 'core/routing/app_router.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  ServiceLocator.initServiceLocator();
+  await initServiceLocator();
   runApp(MyApp());
 }
 
@@ -21,7 +21,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider<AuthCubit>(
-      create: (context) => AuthCubit(sl<AuthRepo>() as AuthRepoImpl),
+      create: (context) => AuthCubit(sl<AuthRepoImpl>()),
       child: MaterialApp.router(
         title: 'مشروعي الاحترافي',
         debugShowCheckedModeBanner: false,
