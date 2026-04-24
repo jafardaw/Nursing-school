@@ -1,15 +1,19 @@
 import 'package:dio/dio.dart';
+import 'package:finalproject/core/constants/app_constants.dart';
 import 'package:finalproject/core/errors/error_handler.dart';
+import 'package:finalproject/core/storage/storage_service.dart';
+import 'package:finalproject/core/utils/logger.dart';
 import 'package:flutter/foundation.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiService {
   final Dio _dio;
+  final StorageService _storage;
 
-  ApiService()
-    : _dio = Dio(
+  ApiService({required StorageService storageService})
+    : _storage = storageService,
+      _dio = Dio(
         BaseOptions(
-          baseUrl: 'http://127.0.0.1:8000/api/',
+          baseUrl: AppConstants.baseUrlPublic,
           headers: {
             'Content-Type': 'application/json',
             'Accept': 'application/json',
@@ -21,122 +25,86 @@ class ApiService {
     _dio.interceptors.add(
       InterceptorsWrapper(
         onRequest: (options, handler) async {
-          // إضافة headers الـ CORS
-          options.headers['Access-Control-Allow-Origin'] = '*';
-          options.headers['Access-Control-Allow-Methods'] =
-              'GET, POST, PUT, DELETE, OPTIONS';
-          options.headers['Access-Control-Allow-Headers'] =
-              'Origin, Content-Type, X-Auth-Token, Authorization';
-          // options.headers['Authorization'] =
-          //     'Bearer ';
-
+          // 🟢 جلب التوكن من StorageService
           try {
-            final prefs = await SharedPreferences.getInstance();
-            final token = prefs.getString('token');
-            if (token != null) {
+            final token = await _storage.getString(AppConstants.tokenKey);
+            if (token != null && token.isNotEmpty) {
               options.headers['Authorization'] = 'Bearer $token';
+              Logger.debug('Token attached to request: ${options.path}');
             }
           } catch (e) {
             if (kDebugMode) {
-              print('Error getting token: $e');
+              Logger.info('No token found for request: ${options.path}');
             }
           }
 
           return handler.next(options);
         },
 
-        // 🔑 مكان معالجة خطأ 401 وتجديد التوكن
         onError: (error, handler) async {
-          final is401Error = error.response?.statusCode == 401;
-          final isRefreshRequest = error.requestOptions.path == 'refresh';
+          Logger.error('API Error: ${error.requestOptions.path}', error: error);
+          // 🟢 معالجة خطأ 401
+          if (error.response?.statusCode == 401) {
+            Logger.warning('Token expired, clearing auth data');
+            await _storage.remove(AppConstants.tokenKey);
+            await _storage.remove(AppConstants.userKey);
 
-          // 1. إذا كان الخطأ 401 ولم يكن طلب التجديد نفسه
-          if (is401Error && !isRefreshRequest) {
-            try {
-              // 2. محاولة تجديد التوكن
-              final response = await _dio.post('refresh');
-
-              if (response.statusCode == 200 &&
-                  response.data['status'] == "success") {
-                final newToken = response.data['data']['token'];
-
-                // تخزين التوكن الجديد
-                final prefs = await SharedPreferences.getInstance();
-                await prefs.setString('token', newToken);
-
-                // 3. تحديث Header الطلب الأصلي الفاشل
-                final originalRequest = error.requestOptions;
-                originalRequest.headers['Authorization'] = 'Bearer $newToken';
-
-                // 4. إعادة إرسال الطلب الأصلي (Re-send the failed request)
-                final newResponse = await _dio.request(
-                  originalRequest.path,
-                  options: Options(
-                    method: originalRequest.method,
-                    headers: originalRequest.headers,
-                  ),
-                  data: originalRequest.data,
-                  queryParameters: originalRequest.queryParameters,
-                );
-
-                // 5. إرجاع الرد الجديد بدلاً من الخطأ 401
-                return handler.resolve(newResponse);
-              }
-            } catch (e) {
-              // إذا فشل التجديد لسبب ما (خطأ في الشبكة، انتهاء صلاحية التوكن القديم، إلخ)
-              if (kDebugMode) {
-                print('Refresh attempt failed, forcing logout: $e');
-              }
-              // 6. إزالة التوكن وإجبار المستخدم على تسجيل الدخول مجدداً
-              final prefs = await SharedPreferences.getInstance();
-              await prefs.remove('token');
-
-              // 7. تمرير الخطأ الأصلي ليتم التعامل معه في Cubit (غالباً رسالة خطأ أو توجيه لصفحة الدخول)
+            if (kDebugMode) {
+              print('Token expired, user needs to login again');
             }
           }
 
-          // في حال فشل التجديد أو لم يكن الخطأ 401، نمرر الخطأ
           return handler.next(error);
         },
       ),
     );
 
     if (kDebugMode) {
-      // إضافة Log Interceptor لمرحلة التطوير فقط
       _dio.interceptors.add(
-        LogInterceptor(responseBody: true, requestBody: true),
+        LogInterceptor(
+          logPrint: (object) => Logger.debug(object.toString(), tag: 'Dio'),
+          requestBody: true,
+          responseBody: true,
+          error: true,
+          requestHeader: true,
+          responseHeader: true,
+        ),
       );
     }
   }
 
-  Future<Response> post(String path, dynamic data) async {
-    try {
-      return await _dio.post(path, data: data);
-    } on DioException catch (e) {
-      throw ErrorHandler.handleDioError(e);
-    }
-  }
+  // ====== HTTP Methods ======
 
-  Future<Response> postwithOutData(String path) async {
-    try {
-      return await _dio.post(path);
-    } on DioException catch (e) {
-      throw ErrorHandler.handleDioError(e);
-    }
-  }
+// ====== HTTP Methods ======
 
-  Future<Response> get(
-    String path, {
-    dynamic data,
-    Map<String, dynamic>? queryParameters,
-  }) async {
-    try {
-      return await _dio.get(path, data: data, queryParameters: queryParameters);
-    } on DioException catch (e) {
-      throw ErrorHandler.handleDioError(e);
-    }
+Future<Response> post(String path, dynamic data, {Map<String, dynamic>? queryParameters}) async {
+  try {
+    Logger.info('POST $path', tag: 'API');
+    Logger.debug('Data: $data', tag: 'API');
+    
+    final response = await _dio.post(path, data: data, queryParameters: queryParameters);
+    
+    Logger.info('POST $path - Success (${response.statusCode})', tag: 'API');
+    return response;
+  } on DioException catch (e) {
+    Logger.error('POST $path failed', error: e);
+    throw ErrorHandler.handleDioError(e);
   }
+}
 
+Future<Response> get(String path, {Map<String, dynamic>? queryParameters}) async {
+  try {
+    Logger.info('GET $path', tag: 'API');
+    
+    final response = await _dio.get(path, queryParameters: queryParameters);
+    
+    Logger.info('GET $path - Success (${response.statusCode})', tag: 'API');
+    return response;
+  } on DioException catch (e) {
+    Logger.error('GET $path failed', error: e);
+    throw ErrorHandler.handleDioError(e);
+  }
+}
   Future<Response> delete(
     String path, {
     Map<String, dynamic>? queryParameters,
@@ -156,12 +124,9 @@ class ApiService {
     }
   }
 
-  Future<Response> loginWithGoogle(String googleToken) async {
+  Future<Response> patch(String path, {dynamic data}) async {
     try {
-      return await _dio.post(
-        'loginwithGoogel',
-        data: {'googleToken': googleToken},
-      );
+      return await _dio.patch(path, data: data);
     } on DioException catch (e) {
       throw ErrorHandler.handleDioError(e);
     }

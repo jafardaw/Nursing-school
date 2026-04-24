@@ -1,32 +1,34 @@
+import 'package:finalproject/core/constants/app_routes.dart';
 import 'package:finalproject/core/routing/as.dart' deferred as home;
 import 'package:finalproject/core/routing/lazy_page_loader.dart';
+import 'package:finalproject/feature/auth/presentation/views/login_sceen.dart'
+    deferred as login;
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:finalproject/core/routing/asd.dart' deferred as products;
+
 class AppRouter {
   static final _rootNavigatorKey = GlobalKey<NavigatorState>();
 
   static final GoRouter router = GoRouter(
     navigatorKey: _rootNavigatorKey,
-    initialLocation: '/',
+    initialLocation:AppRoutes.loginrout,
     routes: [
       GoRoute(
-        path: '/',
-        name: 'home',
+        path: AppRoutes.loginrout,
+        name: AppRoutes.loginrout,
         builder: (context, state) => LazyPageLoader(
-          loadLibrary:
-              home.loadLibrary, // ✅ loadLibrary موجود تلقائياً من Flutter
-          builder: () => home.HomeScreen(),
+          loadLibrary: login.loadLibrary,
+          builder: () => login.LoginScreen(),
         ),
       ),
       GoRoute(
-  path: '/products',
-  name: 'products',
-  builder: (context, state) => LazyPageLoader(
-    loadLibrary: products.loadLibrary,
-    builder: () =>  products.ProductsScreen(),
-  ),
-),
+        path: AppRoutes.homerout,
+        name: AppRoutes.homerout,
+        builder: (context, state) => LazyPageLoader(
+          loadLibrary: home.loadLibrary,
+          builder: () => home.HomeScreen(),
+        ),
+      ),
     ],
     errorBuilder: (context, state) => Scaffold(
       body: Center(

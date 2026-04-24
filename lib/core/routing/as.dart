@@ -11,7 +11,7 @@ class HomeScreen extends StatelessWidget {
         child: // في HomeScreen
         ElevatedButton(
           onPressed: () {
-            NavigationService().pushTo(context, '/products');
+            NavigationService.pushTo(context, '/products');
           },
           child: const Text('عرض المنتجات'),
         ),

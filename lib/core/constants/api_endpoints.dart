@@ -1,24 +1,17 @@
 class ApiEndpoints {
   // Auth
-  static const String login = 'auth/login';
-  static const String logout = 'auth/logout';
-  static const String validateToken = 'auth/validate_token';
-  static const String refreshSession = 'auth/refresh_session';
-  static const String refreshToken = 'auth/refresh';
-  static const String register = 'auth/register';
-  static const String driverProfile = 'profile/driver';
-  static const String forgetPassword = 'auth/forget_password';
-  static const String assignPassword = 'auth/assign_password';
-  static const String resetPassword = 'auth/reset_pass';
-
-  // Profile
+  static const String login = 'login';
+  static const String logout = 'logout';
+  static const String register = 'register';
   static const String profile = 'profile';
-  static const String updateProfile = 'profile/update';
+  
+  // Users
+  static const String users = 'users';
+  static String userById(int id) => 'users/$id';
+  
+  // مثال تاني لو احتجت
+  // static const String products = 'products';
+  // static String productById(int id) => 'products/$id';
 
-  // Lookup Lists
-  static const String licenseTypes = 'list/license_types';
-  static const String countries = 'list/countries';
-  static const String nationalities = 'list/nationalities';
-  static const String cities = 'list/cities';
   ApiEndpoints._();
 }

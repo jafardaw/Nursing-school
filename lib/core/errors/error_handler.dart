@@ -53,31 +53,24 @@ class ErrorHandler implements Exception {
 
   static String extractErrorMessage(Response? response) {
     if (response != null && response.data is Map) {
-      var responseData = response.data;
-      String message = responseData['message'] ?? "حدث خطأ غير متوقع";
+      final responseData = response.data;
 
-      // إذا كان فيه code نستخدمه في الـ status code
-      if (responseData['code'] != null) {
-        // message كافي لأن ما في errors array
-        return message;
+      // 🟢 نقرأ الـ message مباشرة (للحالتين success و error)
+      if (responseData['message'] != null) {
+        return responseData['message'].toString();
       }
-
-      return message;
     }
     return "حدث خطأ دون معلومات إضافية";
   }
 
   static Map<String, dynamic>? extractErrors(Response? response) {
     if (response != null && response.data is Map) {
-      var responseData = response.data;
+      final responseData = response.data;
 
-      // إذا كان فيه errors array (للحالات القديمة)
-      if (responseData.containsKey('errors')) {
-        return responseData['errors'] as Map<String, dynamic>?;
+      // 🟢 إذا كان فيه errors object (حالات validation)
+      if (responseData.containsKey('errors') && responseData['errors'] is Map) {
+        return responseData['errors'] as Map<String, dynamic>;
       }
-
-      // إذا ما في errors array، نرجع null لأن الرسالة كافية
-      return null;
     }
     return null;
   }
@@ -92,19 +85,16 @@ class ErrorHandler implements Exception {
       statusCode != null && statusCode! >= 400 && statusCode! < 500;
   bool get isNetworkError => statusCode == null;
 
-  // دالة ترجع الرسالة الجاهزة
+  // 🟢 تحسين userFriendlyMessage
   String get userFriendlyMessage {
     if (isUnauthorized) {
-      return message; // الرسالة جاهزة من API
+      return message.isNotEmpty ? message : 'يرجى تسجيل الدخول مرة أخرى';
     } else if (isValidationError && errors != null) {
-      // إذا كان فيه errors array (حالات قديمة)
+      // نأخذ أول خطأ من الـ errors object
       final firstError = errors!.values.first;
       if (firstError is List && firstError.isNotEmpty) {
-        return firstError.first;
+        return firstError.first.toString();
       }
-      return message;
-    } else if (isValidationError) {
-      // حالة 422 بدون errors array - نرجع الرسالة من API
       return message;
     } else if (isNetworkError) {
       return 'مشكلة في الاتصال بالإنترنت';
@@ -115,7 +105,7 @@ class ErrorHandler implements Exception {
     } else if (isForbidden) {
       return 'ليس لديك صلاحية للوصول لهذه الخدمة';
     } else {
-      return message; // نرجع الرسالة من API مباشرة
+      return message; // نرجع الرسالة الأصلية من الـ API
     }
   }
 }

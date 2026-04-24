@@ -7,15 +7,15 @@ class NavigationService {
   NavigationService._();
 
   // التنقل مع التحميل المؤجل التلقائي
-  void goTo(BuildContext context, String route, {Object? extra}) {
+  static void goTo(BuildContext context, String route, {Object? extra}) {
     context.go(route, extra: extra);
   }
 
-  void pushTo(BuildContext context, String route, {Object? extra}) {
+  static void pushTo(BuildContext context, String route, {Object? extra}) {
     context.push(route, extra: extra);
   }
 
-  void goBack(BuildContext context) {
+  static void goBack(BuildContext context) {
     if (context.canPop()) {
       context.pop();
     }
@@ -24,7 +24,4 @@ class NavigationService {
   void replaceWith(BuildContext context, String route, {Object? extra}) {
     context.go(route, extra: extra);
   }
-
- 
-
 }
