@@ -1,5 +1,6 @@
 import 'package:finalproject/core/constants/api_endpoints.dart';
 import 'package:finalproject/core/constants/app_constants.dart';
+import 'package:finalproject/core/model/base_model.dart';
 import 'package:finalproject/core/network/api_service.dart';
 import 'package:finalproject/core/storage/storage_service.dart';
 import 'package:finalproject/core/utils/logger.dart';
@@ -29,16 +30,34 @@ class AuthRepoImpl implements AuthRepo {
         'password': password,
       });
 
-      final userData = response.data['data']['user'];
-      final token = response.data['data']['token'];
+      Logger.info('Response data: ${response.data}', tag: 'Auth');
 
-      await _storage.saveString(AppConstants.tokenKey, token);
-      await _storage.saveObject(AppConstants.userKey, userData);
+      // 🟢 استخدام fromFullJson عشان نجيب baseResponse + user
+      final userModel = UserModel.fromFullJson(response.data);
 
-      Logger.info('Login successful for: $email', tag: 'Auth');
-      Logger.debug('Token: ${token.substring(0, 10)}...', tag: 'Auth');
+      if (userModel.baseResponse.isSuccess) {
+        // حفظ التوكن والبيانات
+        if (userModel.token != null) {
+          await _storage.saveString(AppConstants.tokenKey, userModel.token!);
+        }
 
-      return UserModel.fromJson(userData).copyWith(token: token);
+        await _storage.saveObject(
+          AppConstants.userKey,
+          response.data['data']['user'],
+        );
+
+        Logger.info(
+          'Login successful - Status: ${userModel.baseResponse.status}, Message: ${userModel.baseResponse.message}',
+          tag: 'Auth',
+        );
+      } else {
+        Logger.warning(
+          'Login failed - Status: ${userModel.baseResponse.status}, Message: ${userModel.baseResponse.message}',
+          tag: 'Auth',
+        );
+      }
+
+      return userModel;
     } catch (e) {
       Logger.error('Login failed for: $email', error: e, tag: 'Auth');
       rethrow;
@@ -64,7 +83,7 @@ class AuthRepoImpl implements AuthRepo {
     final token = await _storage.getString(AppConstants.tokenKey);
 
     if (userData != null) {
-      return UserModel.fromJson(userData).copyWith(token: token);
+      return UserModel.fromFullJson(userData).copyWith(token: token);
     }
     return null;
   }
@@ -86,6 +105,7 @@ extension UserModelCopyWith on UserModel {
     String? role,
     List<String>? permissions,
     String? token,
+    BaseResponse? baseResponse,
   }) {
     return UserModel(
       id: id ?? this.id,
@@ -95,6 +115,7 @@ extension UserModelCopyWith on UserModel {
       role: role ?? this.role,
       permissions: permissions ?? this.permissions,
       token: token ?? this.token,
+      baseResponse: baseResponse ?? this.baseResponse,
     );
   }
 }

@@ -1,13 +1,15 @@
 import 'package:finalproject/core/constants/app_routes.dart';
 import 'package:finalproject/core/services/navigation_service.dart';
 import 'package:finalproject/core/theme/theme_extination.dart';
+import 'package:finalproject/core/widgets/custom_button.dart';
+import 'package:finalproject/core/widgets/custome_text_field.dart';
+import 'package:finalproject/core/widgets/show_snak_bar.dart';
 import 'package:finalproject/feature/auth/presentation/manger/auth_cubit.dart';
 import 'package:finalproject/feature/auth/presentation/manger/auth_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:finalproject/core/utils/validators.dart';
 
-import 'package:go_router/go_router.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -26,6 +28,8 @@ class _LoginScreenState extends State<LoginScreen> {
   void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
+    _emailController.clear();
+    _passwordController.clear();
     super.dispose();
   }
 
@@ -65,21 +69,16 @@ class _LoginScreenState extends State<LoginScreen> {
             child: BlocConsumer<AuthCubit, AuthState>(
               listener: (context, state) {
                 if (state is AuthAuthenticated) {
+                  showWebBanner(
+                    context,
+                    state.user.baseResponse.message,
+                    type: BannerType.success,
+                  );
+
                   NavigationService.pushTo(context, AppRoutes.homerout);
                   // 🟢 نجاح → اذهب للرئيسية
-                  
                 } else if (state is AuthError) {
-                  // 🟢 خطأ → Snackbar
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(state.message),
-                      backgroundColor: styles.errorColor,
-                      behavior: SnackBarBehavior.floating,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                    ),
-                  );
+                  showWebBanner(context, state.message, type: BannerType.error);
                 }
               },
               builder: (context, state) {
@@ -101,82 +100,47 @@ class _LoginScreenState extends State<LoginScreen> {
                       const SizedBox(height: 8),
                       Text('أدخل بياناتك للمتابعة', style: styles.bodySmall),
                       const SizedBox(height: 32),
-
-                      // 🟢 بريد إلكتروني
-                      TextFormField(
+                      CustomeTextField(
                         controller: _emailController,
                         enabled: !isLoading,
                         validator: Validators.email,
-                        style: styles.bodyLarge,
+                        hintStyle: styles.bodyLarge,
+                        labelStyle: styles.bodyLarge,
                         keyboardType: TextInputType.emailAddress,
-                        decoration: InputDecoration(
-                          labelText: 'البريد الإلكتروني',
-                          hintText: 'example@email.com',
-                          prefixIcon: Icon(
-                            Icons.email_outlined,
-                            color: styles.textHintColor,
-                          ),
-                          filled: true,
-                          fillColor: styles.inputFillColor,
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
+
+                        labelText: 'البريد الإلكتروني',
+                        hintText: 'example@email.com',
+                        prefixIcon: Icon(
+                          Icons.email_outlined,
+                          color: styles.textHintColor,
                         ),
                       ),
-                      const SizedBox(height: 16),
 
-                      // 🟢 كلمة مرور
-                      TextFormField(
+                      const SizedBox(height: 16),
+                      CustomeTextField(
                         controller: _passwordController,
                         enabled: !isLoading,
                         obscureText: true,
                         validator: (v) => Validators.password(v),
-                        style: styles.bodyLarge,
-                        decoration: InputDecoration(
-                          labelText: 'كلمة المرور',
-                          hintText: '••••••••',
-                          prefixIcon: Icon(
-                            Icons.lock_outlined,
-                            color: styles.textHintColor,
-                          ),
-                          filled: true,
-                          fillColor: styles.inputFillColor,
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
+                        hintStyle: styles.bodyLarge,
+                        labelStyle: styles.bodyLarge,
+                        labelText: 'كلمة المرور',
+                        hintText: '***********',
+                        prefixIcon: Icon(Icons.lock_outlined),
                       ),
+
+                      // 🟢 كلمة مرور
                       const SizedBox(height: 24),
+                      CustomButton(
+                        onTap: () {
+                          isLoading ? null : _handleLogin();
+                        },
+                        text: 'تسجيل الدخول',
+                        isLoading: isLoading,
+                        icon: Icons.login_outlined,
+                      ),
 
                       // 🟢 زر تسجيل الدخول
-                      SizedBox(
-                        width: double.infinity,
-                        height: 50,
-                        child: ElevatedButton(
-                          onPressed: isLoading ? null : _handleLogin,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: styles.primaryColor,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                          ),
-                          child: isLoading
-                              ? SizedBox(
-                                  width: 24,
-                                  height: 24,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2.5,
-                                    valueColor: AlwaysStoppedAnimation<Color>(
-                                      styles.whiteColor,
-                                    ),
-                                  ),
-                                )
-                              : Text(
-                                  'تسجيل الدخول',
-                                  style: styles.buttonMedium,
-                                ),
-                        ),
-                      ),
                     ],
                   ),
                 );

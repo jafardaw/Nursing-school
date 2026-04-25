@@ -25,27 +25,32 @@ class AuthCubit extends Cubit<AuthState> {
   }
 
   // ====== تسجيل الدخول ======
-  Future<void> login({required String email, required String password}) async {
-    emit(const AuthLoading());
+Future<void> login({required String email, required String password}) async {
+  emit(const AuthLoading());
 
-    try {
-      final user = await _authRepo.login(email: email, password: password);
-      emit(AuthAuthenticated(user: user));
-    } on ErrorHandler catch (e) {
-      emit(AuthError(message: e.userFriendlyMessage));
-    } catch (e) {
-      emit(AuthError(message: 'حدث خطأ غير متوقع: ${e.toString()}'));
+  try {
+    final userModel = await _authRepo.login(email: email, password: password);
+
+    // 🟢 نتحقق من baseResponse
+    if (userModel.baseResponse.isSuccess) {
+      emit(AuthAuthenticated(user: userModel));
+    } else {
+      // 🟢 فشل من API - نستخدم الرسالة من baseResponse
+      emit(AuthError(message: userModel.baseResponse.message));
     }
+  } on ErrorHandler catch (e) {
+    // 🟢 خطأ في الشبكة أو السيرفر
+    emit(AuthError(message: e.userFriendlyMessage));
+  } catch (e) {
+    emit(AuthError(message: 'حدث خطأ غير متوقع'));
   }
-
+}
   // ====== تسجيل الخروج ======
   Future<void> logout() async {
     await _authRepo.logout();
     emit(const AuthUnauthenticated());
   }
 
-  // ====== مسح الخطأ ======
-  void clearError() {
-    emit(const AuthInitial());
-  }
+
+
 }

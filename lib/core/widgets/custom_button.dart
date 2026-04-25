@@ -45,8 +45,8 @@ class CustomButton extends StatelessWidget {
         child: ElevatedButton(
           onPressed: isLoading ? null : onTap,
           style: ElevatedButton.styleFrom(
-            backgroundColor: color ?? AppColors.primary,
-            disabledBackgroundColor: (color ?? AppColors.primary).withValues(
+            backgroundColor: color ?? context.styles.primaryColor,
+            disabledBackgroundColor: (color ?? context.styles.primaryColor).withValues(
               alpha: 0.5,
             ),
             elevation: 0,
@@ -78,7 +78,7 @@ class CustomButton extends StatelessWidget {
                     Text(
                       text,
                       style: AppTextStyles.size16W600.copyWith(
-                        color: textColor ?? AppColors.white,
+                        color: textColor ?? context.styles.whiteColor,
                         fontSize: screenSize.width < 350 ? 14 : 16,
                       ),
                     ),

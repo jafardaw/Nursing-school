@@ -25,6 +25,8 @@ class CustomeTextField extends StatefulWidget {
   final Widget? suffix;
   final Function()? onTap;
 
+  final bool? enabled;
+
   const CustomeTextField({
     super.key,
     this.hint,
@@ -48,6 +50,7 @@ class CustomeTextField extends StatefulWidget {
     this.floatingLabelBehavior,
     this.suffix,
     this.onTap,
+    this.enabled,
   });
 
   @override
@@ -66,6 +69,7 @@ class CustomTextFieldState extends State<CustomeTextField> {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
       child: TextFormField(
+        enabled: widget.enabled ?? true,
         onTap: widget.onTap,
         readOnly: widget.readOnly,
         maxLines: widget.maxLines,

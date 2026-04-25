@@ -12,21 +12,22 @@ class AppRouter {
 
   static final GoRouter router = GoRouter(
     navigatorKey: _rootNavigatorKey,
-    initialLocation: AppRoutes.homerout,
+    initialLocation: AppRoutes.loginrout,
     routes: [
-      // GoRoute(
-      //   path: AppRoutes.loginrout,
-      //   name: AppRoutes.loginrout,
-      //   builder: (context, state) => LazyPageLoader(
-      //     loadLibrary: login.loadLibrary,
-      //     builder: () => login.LoginScreen(),
-      //   ),
-      // ),
+      GoRoute(
+        path: AppRoutes.loginrout,
+        name: AppRoutes.loginrout,
+        builder: (context, state) => LazyPageLoader(
+          loadLibrary: login.loadLibrary,
+          builder: () => login.LoginScreen(),
+        ),
+      ),
       GoRoute(
         path: AppRoutes.homerout,
         name: AppRoutes.homerout,
         builder: (context, state) => LazyPageLoader(
           loadLibrary: home.loadLibrary,
+
           builder: () => home.HomeScreen(),
         ),
       ),
