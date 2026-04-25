@@ -1,13 +1,13 @@
 import 'package:finalproject/core/di/service_locator.dart';
-import 'package:finalproject/core/di/service_locator.dart' as ServiceLocator;
+
 import 'package:finalproject/core/theme/app_theme.dart';
 import 'package:finalproject/feature/auth/presentation/manger/auth_cubit.dart';
-import 'package:finalproject/feature/auth/repo/auth_repo.dart';
 import 'package:finalproject/feature/auth/repo/auth_repo_impl.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 import 'core/routing/app_router.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -23,6 +23,16 @@ class MyApp extends StatelessWidget {
     return BlocProvider<AuthCubit>(
       create: (context) => AuthCubit(sl<AuthRepoImpl>()),
       child: MaterialApp.router(
+        locale: const Locale('ar'), // تحديد اللغة العربية كافتراضية
+        supportedLocales: const [
+          Locale('ar'), // دعم العربية
+          Locale('en'), // دعم الإنجليزية إذا أردت لاحقاً
+        ],
+        localizationsDelegates: const [
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
         title: 'مشروعي الاحترافي',
         debugShowCheckedModeBanner: false,
 

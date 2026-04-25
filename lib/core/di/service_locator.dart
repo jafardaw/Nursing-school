@@ -19,12 +19,10 @@ Future<void> initServiceLocator() async {
   sl.registerLazySingleton<ApiService>(() => ApiService(storageService: sl()));
 
   // ====== Repositories ======
-  sl.registerLazySingleton<AuthRepo>(
+  sl.registerLazySingleton<AuthRepoImpl>(
     () => AuthRepoImpl(apiService: sl(), storageService: sl()),
   );
 
   // 🟢 Cubits
-  sl.registerLazySingleton<AuthCubit>(
-    () => AuthCubit(sl<AuthRepoImpl>()),
-  );
+  sl.registerLazySingleton<AuthCubit>(() => AuthCubit(sl<AuthRepoImpl>()));
 }
