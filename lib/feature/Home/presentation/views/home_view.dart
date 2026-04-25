@@ -1,4 +1,7 @@
+import 'package:finalproject/core/constants/app_constants.dart';
+import 'package:finalproject/core/di/service_locator.dart';
 import 'package:finalproject/core/navigation/list_page_home_view.dart';
+import 'package:finalproject/core/storage/storage_service.dart';
 import 'package:finalproject/feature/Home/presentation/views/widget/collapse_botton.dart';
 import 'package:finalproject/feature/Home/presentation/views/widget/customtopbar.dart';
 import 'package:finalproject/feature/Home/presentation/views/widget/railheader.dart';
@@ -6,8 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:finalproject/core/theme/theme_extination.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key, required this.role});
-  final String role;
+  const HomeScreen({super.key});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -21,11 +23,13 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    _activeSections = NavConfig.getSections(widget.role);
   }
 
   @override
   Widget build(BuildContext context) {
+    final storage = sl<StorageService>();
+    final role = storage.getString(AppConstants.roleKey);
+
     return Scaffold(
       body: Row(
         children: [
@@ -40,7 +44,7 @@ class _HomeScreenState extends State<HomeScreen> {
               children: [
                 TopBar(
                   title: _activeSections[_selectedIndex].title,
-                  role: widget.role,
+                  role: role.toString(),
                 ),
                 Expanded(
                   child: Container(

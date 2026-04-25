@@ -39,6 +39,7 @@ class AuthRepoImpl implements AuthRepo {
         // حفظ التوكن والبيانات
         if (userModel.token != null) {
           await _storage.saveString(AppConstants.tokenKey, userModel.token!);
+          await _storage.saveRole(userModel.role);
         }
 
         await _storage.saveObject(
@@ -75,15 +76,19 @@ class AuthRepoImpl implements AuthRepo {
 
     await _storage.remove(AppConstants.tokenKey);
     await _storage.remove(AppConstants.userKey);
+    await _storage.remove(AppConstants.roleKey);
   }
 
   @override
   Future<UserModel?> getSavedUser() async {
     final userData = await _storage.getObject(AppConstants.userKey);
     final token = await _storage.getString(AppConstants.tokenKey);
+    final role = await _storage.getString(AppConstants.roleKey);
 
     if (userData != null) {
-      return UserModel.fromFullJson(userData).copyWith(token: token);
+      return UserModel.fromFullJson(
+        userData,
+      ).copyWith(token: token, role: role);
     }
     return null;
   }

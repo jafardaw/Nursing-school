@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:finalproject/core/constants/app_constants.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../errors/exceptions.dart';
 
@@ -18,6 +19,9 @@ abstract class StorageService {
   Future<void> remove(String key);
   Future<void> clear();
   Future<bool> containsKey(String key);
+  Future<void> saveRole(String role);
+  Future<String?> getRole();
+  
 }
 
 class StorageServiceImpl implements StorageService {
@@ -46,7 +50,6 @@ class StorageServiceImpl implements StorageService {
     } catch (e) {
       throw CacheException('Failed to get string: ${e.toString()}');
     }
-  
   }
 
   @override
@@ -168,5 +171,15 @@ class StorageServiceImpl implements StorageService {
     } catch (e) {
       throw CacheException('Failed to check key: ${e.toString()}');
     }
+  }
+  
+  @override
+  Future<void> saveRole(String role) {
+    return saveString(AppConstants.roleKey, role);
+  }
+  
+  @override
+  Future<String?> getRole() {
+    return getString(AppConstants.roleKey);
   }
 }

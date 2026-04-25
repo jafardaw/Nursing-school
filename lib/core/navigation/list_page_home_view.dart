@@ -24,7 +24,7 @@ class NavConfig {
             title: "لوحة التحكم",
             icon: Icons.dashboard_outlined,
             selectedIcon: Icons.dashboard,
-            page: const AdminControl(),
+            page: Container(),
           ),
           AppSection(
             title: "إدارة الطالبات",
@@ -39,7 +39,7 @@ class NavConfig {
             title: "الرئيسية",
             icon: Icons.home_outlined,
             selectedIcon: Icons.home,
-            page: const StaffControl(),
+            page: Container(),
           ),
           AppSection(
             title: "تسجيل غياب",

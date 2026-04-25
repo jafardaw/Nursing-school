@@ -22,14 +22,14 @@ class AppRouter {
           builder: () => login.LoginScreen(),
         ),
       ),
-      // GoRoute(
-      //   path: AppRoutes.homerout,
-      //   name: AppRoutes.homerout,
-      //   builder: (context, state) => LazyPageLoader(
-      //     loadLibrary: home.loadLibrary,
-      //     builder: () => home.HomeScreen(),
-      //   ),
-      // ),
+      GoRoute(
+        path: AppRoutes.homerout,
+        name: AppRoutes.homerout,
+        builder: (context, state) => LazyPageLoader(
+          loadLibrary: home.loadLibrary,
+          builder: () => home.HomeScreen(),
+        ),
+      ),
     ],
     errorBuilder: (context, state) => Scaffold(
       body: Center(

@@ -15,7 +15,8 @@ class AppConstants {
   // Storage Keys
   static const String tokenKey = 'token';
   static const String userKey = 'user';
-  static const String isFirstTimeKey = 'is_first_time';
+static const String roleKey = 'role';
+
 
   AppConstants._();
 }
