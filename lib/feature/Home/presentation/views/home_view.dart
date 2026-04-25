@@ -1,8 +1,13 @@
-import 'package:finalproject/core/theme/theme_extination.dart';
+import 'package:finalproject/core/navigation/list_page_home_view.dart';
+import 'package:finalproject/feature/Home/presentation/views/widget/collapse_botton.dart';
+import 'package:finalproject/feature/Home/presentation/views/widget/customtopbar.dart';
+import 'package:finalproject/feature/Home/presentation/views/widget/railheader.dart';
 import 'package:flutter/material.dart';
+import 'package:finalproject/core/theme/theme_extination.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+  const HomeScreen({super.key, required this.role});
+  final String role;
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -10,71 +15,40 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 0;
-  bool _isExpanded = true; // ميزة طي القائمة لتوفير مساحة
+  bool _isExpanded = true;
+  late List<AppSection> _activeSections;
+
+  @override
+  void initState() {
+    super.initState();
+    _activeSections = NavConfig.getSections(widget.role);
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Row(
         children: [
-          // القائمة الجانبية الاحترافية
-          NavigationRail(
-            extended: _isExpanded, // يتحكم في ظهور النص بجانب الأيقونة
-            backgroundColor: context.styles.surfaceColor,
-            unselectedIconTheme: IconThemeData(color: context.styles.iconColor),
-            selectedIconTheme: IconThemeData(
-              color: context.styles.primaryColor,
-            ),
-            selectedLabelTextStyle: context.styles.bodyLarge.copyWith(
-              color: context.styles.primaryColor,
-              fontWeight: FontWeight.bold,
-            ),
-            // شعار الكلية في الأعلى
-            leading: _buildRailHeader(),
-            destinations: const [
-              NavigationRailDestination(
-                icon: Icon(Icons.dashboard_outlined),
-                selectedIcon: Icon(Icons.dashboard),
-                label: Text("الرئيسية"),
-              ),
-              NavigationRailDestination(
-                icon: Icon(Icons.school_outlined),
-                selectedIcon: Icon(Icons.school),
-                label: Text("شؤون الطالبات"),
-              ),
-              NavigationRailDestination(
-                icon: Icon(Icons.assignment_late_outlined),
-                selectedIcon: Icon(Icons.assignment_late),
-                label: Text("الغياب والإنذارات"),
-              ),
-              NavigationRailDestination(
-                icon: Icon(Icons.analytics_outlined),
-                selectedIcon: Icon(Icons.analytics),
-                label: Text("الإحصائيات والتقارير"),
-              ),
-            ],
-            selectedIndex: _selectedIndex,
-            onDestinationSelected: (index) =>
-                setState(() => _selectedIndex = index),
-            // زر لتصغير وتكبير القائمة
-            trailing: IconButton(
-              icon: Icon(
-                _isExpanded ? Icons.arrow_back_ios : Icons.arrow_forward_ios,
-              ),
-              onPressed: () => setState(() => _isExpanded = !_isExpanded),
-            ),
-          ),
+          // 1. القائمة الجانبية (SideBar)
+          _buildNavigationRail(),
 
-          const VerticalDivider(thickness: 1, width: 1), // فاصل ناعم جداً
-          // محتوى الصفحة مع AppBar علوي لكل صفحة
+          const VerticalDivider(thickness: 1, width: 1),
+
+          // 2. المحتوى الرئيسي (TopBar + Content)
           Expanded(
             child: Column(
               children: [
-                _buildTopBar(context), // شريط علوي للبحث والتنبيهات والبروفايل
+                TopBar(
+                  title: _activeSections[_selectedIndex].title,
+                  role: widget.role,
+                ),
                 Expanded(
-                  child: AnimatedSwitcher(
-                    duration: const Duration(milliseconds: 300),
-                    child: _getPage(_selectedIndex),
+                  child: Container(
+                    color: context.styles.backgroundColor,
+                    child: AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 400),
+                      child: _activeSections[_selectedIndex].page,
+                    ),
                   ),
                 ),
               ],
@@ -85,102 +59,44 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // شريط علوي احترافي (Top Bar)
-  Widget _buildTopBar(BuildContext context) {
-    return Container(
-      height: 70,
-      padding: const EdgeInsets.symmetric(horizontal: 24),
-      decoration: BoxDecoration(
-        color: context.styles.backgroundColor,
-        boxShadow: [
-          BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 10),
-        ],
+  Widget _buildNavigationRail() {
+    return NavigationRail(
+      extended: _isExpanded,
+      backgroundColor: context.styles.primaryDark,
+      selectedIndex: _selectedIndex,
+      onDestinationSelected: (index) => setState(() => _selectedIndex = index),
+      unselectedIconTheme: IconThemeData(
+        color: Colors.white.withValues(alpha: 0.5),
+        size: 24,
       ),
-      child: Row(
-        children: [
-          Text(_getPageTitle(_selectedIndex), style: context.styles.headline1),
-          const Spacer(),
-          // هنا نضع التنبيهات والبروفايل
-          IconButton(
-            icon: const Icon(Icons.notifications_none),
-            onPressed: () {},
+      selectedIconTheme: const IconThemeData(color: Colors.white, size: 28),
+      selectedLabelTextStyle: context.styles.bodyLarge.copyWith(
+        color: Colors.white,
+        fontWeight: FontWeight.bold,
+      ),
+      unselectedLabelTextStyle: context.styles.bodyMedium.copyWith(
+        color: Colors.white.withValues(alpha: 0.6),
+      ),
+      leading: RailHeader(isExpanded: _isExpanded),
+      destinations: _activeSections.map((section) {
+        return NavigationRailDestination(
+          icon: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8.0),
+            child: Icon(section.icon),
           ),
-          const SizedBox(width: 16),
-          _buildUserAvatar(context),
-        ],
+          selectedIcon: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8.0),
+            child: Icon(section.selectedIcon),
+          ),
+          label: Text(section.title),
+        );
+      }).toList(),
+      trailing: CollapseButton(
+        isExpanded: _isExpanded,
+        onTap: () => setState(() => _isExpanded = !_isExpanded),
       ),
-    );
-  }
-
-  // تابع لبناء محتوى الصفحات
-  Widget _getPage(int index) {
-    switch (index) {
-      case 0:
-        return const Center(child: Text("لوحة التحكم العامة"));
-      case 1:
-        return const Center(child: Text("قائمة الطالبات والبيانات"));
-      default:
-        return const Center(child: Text("قيد التطوير"));
-    }
-  }
-
-  String _getPageTitle(int index) {
-    List<String> titles = ["الرئيسية", "إدارة الطالبات", "الغياب", "التقارير"];
-    return titles[index];
-  } // 1. دالة بناء رأس القائمة الجانبية (الشعار)
-
-  Widget _buildRailHeader() {
-    return AnimatedSwitcher(
-      duration: const Duration(milliseconds: 200),
-      child: _isExpanded
-          ? Padding(
-              padding: const EdgeInsets.symmetric(vertical: 30),
-              child: Column(
-                children: [
-                  const Icon(
-                    Icons.local_hospital,
-                    size: 40,
-                    color: Colors.blue,
-                  ), // أيقونة مؤقتة
-                  const SizedBox(height: 10),
-                  Text(
-                    "كلية التمريض",
-                    style: context.styles.headline4, // تأكد من المسمى هنا
-                  ),
-                ],
-              ),
-            )
-          : const Padding(
-              padding: EdgeInsets.symmetric(vertical: 30),
-              child: Icon(Icons.local_hospital, color: Colors.blue),
-            ),
-    );
-  }
-
-  // 2. دالة بناء صورة المستخدم (Avatar) في الشريط العلوي
-  Widget _buildUserAvatar(BuildContext context) {
-    return Row(
-      children: [
-        Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            Text(
-              "اسم المستخدم", // سنربطها لاحقاً بالـ AuthCubit
-              style: context.styles.bodyLarge.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            Text("مسؤول الشؤون", style: context.styles.bodySmall),
-          ],
-        ),
-        const SizedBox(width: 12),
-        CircleAvatar(
-          radius: 20,
-          backgroundColor: context.styles.primaryColor.withOpacity(0.1),
-          child: Icon(Icons.person, color: context.styles.primaryColor),
-        ),
-      ],
     );
   }
 }
+
+// --- 🛑 المكونات كـ Widgets منفصلة لتحسين الأداء (Stateless) 🛑 ---

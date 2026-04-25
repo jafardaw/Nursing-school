@@ -25,10 +25,16 @@ class AppRouter {
       GoRoute(
         path: AppRoutes.homerout,
         name: AppRoutes.homerout,
-        builder: (context, state) => LazyPageLoader(
-          loadLibrary: home.loadLibrary,
-          builder: () => home.HomeScreen(),
-        ),
+        builder: (context, state) {
+          // جلب الـ role من الـ extra (البيانات الممرة)
+          // نضع قيمة افتراضية 'staff' في حال كان الـ extra فارغاً لأي سبب
+          final String role = state.extra as String? ?? 'admin';
+
+          return LazyPageLoader(
+            loadLibrary: home.loadLibrary,
+            builder: () => home.HomeScreen(role: role),
+          );
+        },
       ),
     ],
     errorBuilder: (context, state) => Scaffold(

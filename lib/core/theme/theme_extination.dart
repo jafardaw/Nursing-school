@@ -17,6 +17,8 @@ class _ThemedTextStyles {
 
   Color get primaryColor => AppColors.primary;
   Color get secondaryColor => AppColors.primaryLight;
+  Color get primaryDark =>
+      _isDark ? AppColors.primaryDark : AppColors.primaryDark;
 
   Color get backgroundColor =>
       _isDark ? const Color(0xFF121212) : AppColors.white;
