@@ -75,7 +75,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     type: BannerType.success,
                   );
 
-                  NavigationService.pushTo(context, AppRoutes.homerout);
+                  NavigationService.pushTo(context, AppRoutes.studentsRoute);
                   // 🟢 نجاح → اذهب للرئيسية
                 } else if (state is AuthError) {
                   showWebBanner(context, state.message, type: BannerType.error);
