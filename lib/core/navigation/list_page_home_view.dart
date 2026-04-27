@@ -1,4 +1,3 @@
-import 'package:finalproject/feature/Home/presentation/views/home_view.dart';
 import 'package:flutter/material.dart';
 
 class AppSection {
@@ -33,7 +32,7 @@ class NavConfig {
             page: const Center(child: Text("صفحة إدارة الطالبات للمدير")),
           ),
         ];
-      case 'staff':
+      case 'examinations_officer':
         return [
           AppSection(
             title: "الرئيسية",

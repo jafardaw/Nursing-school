@@ -18,40 +18,64 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 0;
   bool _isExpanded = true;
-  late List<AppSection> _activeSections;
+  final storage = sl<StorageService>();
+
+  // متغيرات لحفظ الحالة
+  List<AppSection>? _activeSections;
+  String? _userRole;
+  bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
+    _initAppData(); // جلب البيانات مرة واحدة فقط هنا
+  }
+
+  Future<void> _initAppData() async {
+    final role = await storage.getString(AppConstants.roleKey);
+    print('saaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa$role');
+
+    if (mounted) {
+      setState(() {
+        _userRole = role ?? 'guest';
+        _activeSections = NavConfig.getSections(_userRole!);
+        _isLoading = false; // انتهى التحميل ولن يعود للظهور مرة أخرى
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    final storage = sl<StorageService>();
-    final role = storage.getString(AppConstants.roleKey);
+    // إظهار شاشة التحميل فقط في المرة الأولى التي نفتح فيها التطبيق
+    if (_isLoading) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
 
+    // الآن نستخدم _activeSections المباشرة، ولن تختفي عند التنقل
     return Scaffold(
       body: Row(
         children: [
-          // 1. القائمة الجانبية (SideBar)
           _buildNavigationRail(),
 
           const VerticalDivider(thickness: 1, width: 1),
 
-          // 2. المحتوى الرئيسي (TopBar + Content)
           Expanded(
             child: Column(
               children: [
                 TopBar(
-                  title: _activeSections[_selectedIndex].title,
-                  role: role.toString(),
+                  title: _activeSections![_selectedIndex].title,
+                  role: _userRole!,
                 ),
                 Expanded(
                   child: Container(
                     color: context.styles.backgroundColor,
                     child: AnimatedSwitcher(
                       duration: const Duration(milliseconds: 400),
-                      child: _activeSections[_selectedIndex].page,
+                      // مفتاح فريد لضمان حدوث حركة انتقال ناعمة بين الصفحات
+                      child: KeyedSubtree(
+                        key: ValueKey(_selectedIndex),
+                        child: _activeSections![_selectedIndex].page,
+                      ),
                     ),
                   ),
                 ),
@@ -68,9 +92,12 @@ class _HomeScreenState extends State<HomeScreen> {
       extended: _isExpanded,
       backgroundColor: context.styles.primaryDark,
       selectedIndex: _selectedIndex,
-      onDestinationSelected: (index) => setState(() => _selectedIndex = index),
+      onDestinationSelected: (index) {
+        // هنا يتم تغيير الصفحة فقط دون إعادة تشغيل الـ Future
+        setState(() => _selectedIndex = index);
+      },
       unselectedIconTheme: IconThemeData(
-        color: Colors.white.withValues(alpha: 0.5),
+        color: Colors.white.withOpacity(0.5),
         size: 24,
       ),
       selectedIconTheme: const IconThemeData(color: Colors.white, size: 28),
@@ -79,10 +106,10 @@ class _HomeScreenState extends State<HomeScreen> {
         fontWeight: FontWeight.bold,
       ),
       unselectedLabelTextStyle: context.styles.bodyMedium.copyWith(
-        color: Colors.white.withValues(alpha: 0.6),
+        color: Colors.white.withOpacity(0.6),
       ),
       leading: RailHeader(isExpanded: _isExpanded),
-      destinations: _activeSections.map((section) {
+      destinations: _activeSections!.map((section) {
         return NavigationRailDestination(
           icon: Padding(
             padding: const EdgeInsets.symmetric(vertical: 8.0),
@@ -102,5 +129,3 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 }
-
-// --- 🛑 المكونات كـ Widgets منفصلة لتحسين الأداء (Stateless) 🛑 ---
