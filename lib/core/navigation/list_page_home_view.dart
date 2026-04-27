@@ -1,4 +1,5 @@
 import 'package:finalproject/feature/Home/presentation/views/home_view.dart';
+import 'package:finalproject/feature/student%20Affairs/student%20record/presentation/view/students_screen.dart';
 import 'package:flutter/material.dart';
 
 class AppSection {
@@ -18,13 +19,13 @@ class AppSection {
 class NavConfig {
   static List<AppSection> getSections(String role) {
     switch (role) {
-      case 'admin':
+      case 'student_affairs':
         return [
           AppSection(
             title: "لوحة التحكم",
             icon: Icons.dashboard_outlined,
             selectedIcon: Icons.dashboard,
-            page: Container(),
+            page: StudentsScreen(),
           ),
           AppSection(
             title: "إدارة الطالبات",

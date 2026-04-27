@@ -5,7 +5,10 @@ import 'package:finalproject/feature/Home/presentation/views/home_view.dart'
     deferred as home;
 import 'package:finalproject/feature/auth/presentation/views/login_sceen.dart'
     deferred as login;
+import 'package:finalproject/feature/student%20Affairs/student%20record/presentation/manger/cubit/add_student_cubit.dart';
 import 'package:finalproject/feature/student%20Affairs/student%20record/presentation/manger/students_cubit.dart';
+import 'package:finalproject/feature/student%20Affairs/student%20record/presentation/view/add_student_screen.dart'
+    deferred as addstudent;
 import 'package:finalproject/feature/student%20Affairs/student%20record/presentation/view/students_screen.dart'
     deferred as students;
 import 'package:flutter/material.dart';
@@ -14,10 +17,12 @@ import 'package:go_router/go_router.dart';
 
 class AppRouter {
   static final _rootNavigatorKey = GlobalKey<NavigatorState>();
+  static final routeObserver = RouteObserver<ModalRoute<void>>();
 
   static final GoRouter router = GoRouter(
     navigatorKey: _rootNavigatorKey,
     initialLocation: AppRoutes.loginrout,
+    observers: [routeObserver],
     routes: [
       GoRoute(
         path: AppRoutes.loginrout,
@@ -30,20 +35,32 @@ class AppRouter {
       GoRoute(
         path: AppRoutes.homerout,
         name: AppRoutes.homerout,
-        builder: (context, state) => LazyPageLoader(
-          loadLibrary: home.loadLibrary,
-          builder: () => home.HomeScreen(),
+        builder: (context, state) => BlocProvider(
+          create: (_) => sl<StudentsCubit>(),
+          child: LazyPageLoader(
+            loadLibrary: home.loadLibrary,
+            builder: () => home.HomeScreen(),
+          ),
         ),
       ),
 
       GoRoute(
         path: AppRoutes.studentsRoute,
         name: AppRoutes.studentsRoute,
-        builder: (context, state) => BlocProvider<StudentsCubit>(
-          create: (_) => sl<StudentsCubit>(),
+
+        builder: (context, state) => LazyPageLoader(
+          loadLibrary: students.loadLibrary,
+          builder: () => students.StudentsScreen(),
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.addStudentRoute,
+        name: AppRoutes.addStudentRoute,
+        builder: (context, state) => BlocProvider(
+          create: (_) => sl<AddStudentCubit>(),
           child: LazyPageLoader(
-            loadLibrary: students.loadLibrary,
-            builder: () => students.StudentsScreen(),
+            loadLibrary: addstudent.loadLibrary,
+            builder: () => addstudent.AddStudentScreen(),
           ),
         ),
       ),

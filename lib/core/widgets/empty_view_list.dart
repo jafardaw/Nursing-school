@@ -36,7 +36,7 @@ class EmptyListViews extends StatelessWidget {
                 child: Icon(
                   iconData,
                   size: 60,
-                  color: AppColors.primary.withValues(
+                  color: AppColors.lightGrey.withValues(
                     alpha: 0.8,
                   ), // إظهار الأيقونة بلون أساسي هادئ
                 ),
@@ -52,10 +52,10 @@ class EmptyListViews extends StatelessWidget {
               const SizedBox(height: 10),
 
               // 3. رسالة توضيحية بسيطة
-                Text(
-                  'لا يوجد محتوى لعرضه في الوقت الحالي.',
-                  textAlign: TextAlign.center,
-                  style: context.styles.bodySmall,
+              Text(
+                'لا يوجد محتوى لعرضه في الوقت الحالي.',
+                textAlign: TextAlign.center,
+                style: context.styles.bodySmall,
               ),
             ],
           ),

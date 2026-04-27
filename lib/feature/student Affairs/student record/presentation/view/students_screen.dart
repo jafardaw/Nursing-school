@@ -1,10 +1,19 @@
+import 'package:finalproject/core/constants/app_routes.dart';
+import 'package:finalproject/core/services/navigation_service.dart';
 import 'package:finalproject/core/theme/theme_extination.dart';
+import 'package:finalproject/core/widgets/circle_name.dart';
+import 'package:finalproject/core/widgets/empty_view_list.dart';
+import 'package:finalproject/core/widgets/error_widget_view.dart';
+import 'package:finalproject/core/widgets/loading_widget.dart';
+import 'package:finalproject/core/widgets/show_dailog.dart';
+import 'package:finalproject/core/widgets/small_button.dart';
 import 'package:finalproject/feature/student%20Affairs/student%20record/data/model/student_model.dart';
 import 'package:finalproject/feature/student%20Affairs/student%20record/presentation/manger/students_cubit.dart';
 import 'package:finalproject/feature/student%20Affairs/student%20record/presentation/manger/students_state.dart';
+import 'package:finalproject/feature/student%20Affairs/student%20record/presentation/view/widget/page_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
+import 'package:data_table_2/data_table_2.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 
 class StudentsScreen extends StatefulWidget {
@@ -15,26 +24,7 @@ class StudentsScreen extends StatefulWidget {
 }
 
 class _StudentsScreenState extends State<StudentsScreen> {
-  final ScrollController _scrollController = ScrollController();
-
-  @override
-  void initState() {
-    super.initState();
-    context.read<StudentsCubit>().loadStudents();
-    _scrollController.addListener(_onScroll);
-  }
-
-  void _onScroll() {
-    if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 200) {
-      context.read<StudentsCubit>().loadMore();
-    }
-  }
-
-  @override
-  void dispose() {
-    _scrollController.dispose();
-    super.dispose();
-  }
+  final TextEditingController _searchController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -42,154 +32,341 @@ class _StudentsScreenState extends State<StudentsScreen> {
     final isDesktop = ResponsiveBreakpoints.of(context).largerThan(TABLET);
 
     return Scaffold(
-      backgroundColor: styles.backgroundColor,
-      appBar: AppBar(
-        title: Text('الطلاب', style: styles.headline3.copyWith(color: styles.whiteColor)),
-        centerTitle: true,
-      ),
-      body: BlocBuilder<StudentsCubit, StudentsState>(
-        builder: (context, state) {
-          if (state is StudentsLoading && state is! StudentsLoaded) {
-            return const Center(child: CircularProgressIndicator());
-          }
+      backgroundColor: const Color(0xFFF3F6F9),
+      body: SafeArea(
+        child: Padding(
+          padding: EdgeInsets.all(isDesktop ? 25 : 12),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // 🟢 3. شريط البحث والتصفية والأزرار
+              const SizedBox(height: 20),
 
-          if (state is StudentsError) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.error_outline, size: 64, color: styles.errorColor),
-                  const SizedBox(height: 16),
-                  Text(state.message, style: styles.bodyLarge),
-                  const SizedBox(height: 16),
-                  ElevatedButton(
-                    onPressed: () => context.read<StudentsCubit>().refresh(),
-                    child: const Text('إعادة المحاولة'),
-                  ),
-                ],
-              ),
-            );
-          }
-
-          if (state is StudentsLoaded) {
-            if (state.students.isEmpty) {
-              return Center(
-                child: Text('لا يوجد طلاب', style: styles.bodyLarge),
-              );
-            }
-
-            return RefreshIndicator(
-              onRefresh: () => context.read<StudentsCubit>().refresh(),
-              child: ListView.builder(
-                controller: _scrollController,
-                padding: const EdgeInsets.all(16),
-                itemCount: state.students.length + (state.hasMore ? 1 : 0),
-                itemBuilder: (context, index) {
-                  if (index >= state.students.length) {
-                    return const Padding(
-                      padding: EdgeInsets.all(16),
-                      child: Center(child: CircularProgressIndicator()),
-                    );
-                  }
-
-                  final student = state.students[index];
-                  return _StudentCard(student: student);
-                },
-              ),
-            );
-          }
-
-          return const SizedBox();
-        },
-      ),
-    );
-  }
-}
-
-class _StudentCard extends StatelessWidget {
-  final StudentModel student;
-
-  const _StudentCard({required this.student, });
-
-  @override
-  Widget build(BuildContext context) {
-    final styles = context.styles;
-    return Card(
-      color: styles.cardColor,
-      margin: const EdgeInsets.only(bottom: 12),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // الاسم + السنة الدراسية
-            Row(
-              children: [
-                CircleAvatar(
-                  backgroundColor: styles.primaryColor,
-                  child: Text(
-                    student.user?.firstName.isNotEmpty == true
-                        ? student.user!.firstName[0]
-                        : '?',
-                    style: styles.bodyLarge.copyWith(color: styles.whiteColor),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        '${student.user?.firstName ?? ''} ${student.user?.lastName ?? ''}',
-                        style: styles.headline3,
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        student.nationalNumber,
-                        style: styles.bodySmall,
+              // 🟢 4. الجدول الرئيسي
+              Expanded(
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: styles.cardColor,
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.04),
+                        blurRadius: 20,
+                        offset: const Offset(0, 10),
                       ),
                     ],
                   ),
-                ),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: styles.primaryColor.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(20),
+                  child: BlocBuilder<StudentsCubit, StudentsState>(
+                    builder: (context, state) {
+                      if (state is StudentsLoading) {
+                        return buildLoadingSkeleton();
+                      }
+                      if (state is StudentsError) {
+                        return ShowErrorWidgetView(
+                          errorMessage: state.message,
+                          onRetry: () =>
+                              context.read<StudentsCubit>().loadStudents(),
+                        );
+                      }
+                      if (state is StudentsLoaded) {
+                        if (state.students.isEmpty) {
+                          return EmptyListViews(text: 'لا يوجد بيانات');
+                        }
+                        return Column(
+                          children: [
+                            Expanded(
+                              child: Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: _buildDataTable(state),
+                              ),
+                            ),
+                            _buildPaginationFooter(context, state),
+                          ],
+                        );
+                      }
+                      return const SizedBox();
+                    },
                   ),
-                  child: Text(
-                    student.academicYear?.name ?? '',
-                    style: styles.bodySmall.copyWith(color: styles.primaryColor),
-                  ),
                 ),
-              ],
-            ),
-            const Divider(height: 24),
-
-            // معلومات سريعة
-            _buildInfoRow(Icons.school, 'التخصص', student.specialization?.name ?? '-', context),
-            const SizedBox(height: 8),
-            _buildInfoRow(Icons.phone, 'الموبايل', student.mobileNum, context),
-            const SizedBox(height: 8),
-            _buildInfoRow(Icons.location_on, 'المحافظة', student.governorate?.name ?? '-', context),
-            const SizedBox(height: 8),
-            _buildInfoRow(Icons.flag, 'الجنسية', student.nationality?.name ?? '-', context),
-          ],
+              ),
+              SizedBox(height: 40),
+              buildSearchBar(context, isDesktop),
+            ],
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildInfoRow(IconData icon, String label, String value, BuildContext context) {
+  // ====== 3. شريط البحث والتصفية ======
+  Widget buildSearchBar(BuildContext context, bool isDesktop) {
     final styles = context.styles;
+
     return Row(
       children: [
-        Icon(icon, size: 18, color: styles.textHintColor),
-        const SizedBox(width: 8),
-        Text('$label: ', style: styles.bodySmall),
-        Text(value, style: styles.bodyMedium),
+        if (isDesktop) ...[
+          smallButton(
+            styles,
+            () {},
+            Icons.file_upload_outlined,
+            'تصدير  Excel',
+            styles.successColor,
+            styles.whiteColor,
+          ),
+          const SizedBox(width: 12),
+          smallButton(
+            styles,
+            () async {
+              await NavigationService.pushAndWait(
+                context,
+                AppRoutes.addStudentRoute,
+              );
+              // الكود ده مش هيتنفذ غير لما المستخدم يرجع من صفحة التسجيل
+              if (mounted) {
+                context.read<StudentsCubit>().refresh();
+              }
+            },
+            Icons.person_add,
+            'تسجيل طالبة جديدة',
+            styles.primaryColor,
+            styles.whiteColor,
+          ),
+          const SizedBox(width: 8),
+        ],
       ],
     );
+  }
+
+  // ====== 4. الجدول ======
+  Widget _buildDataTable(StudentsLoaded state) {
+    return DataTable2(
+      columnSpacing: 20,
+      horizontalMargin: 12,
+      minWidth: 900,
+      smRatio: 0.5,
+      lmRatio: 1.5,
+      headingRowHeight: 60,
+      headingTextStyle: const TextStyle(
+        fontWeight: FontWeight.bold,
+        color: Color(0xFF5E6278),
+        fontSize: 15,
+      ),
+      headingRowColor: WidgetStateProperty.all(const Color(0xFFF9FAFB)),
+      columns: const [
+        DataColumn2(label: Text('الرقم الجامعي'), size: ColumnSize.M),
+        DataColumn2(label: Text('الاسم'), size: ColumnSize.L),
+        DataColumn2(label: Text('السنة'), size: ColumnSize.S),
+        DataColumn2(label: Text('رقم الهوية'), size: ColumnSize.M),
+        DataColumn2(
+          label: Text('حالة الطالب'),
+          size: ColumnSize.S,
+          numeric: true,
+        ),
+        DataColumn2(label: Text('الحالة'), size: ColumnSize.S),
+        DataColumn2(label: Text('إجراءات'), size: ColumnSize.S),
+      ],
+      rows: state.students.map((student) => _buildDataRow(student)).toList(),
+    );
+  }
+
+  // ====== 5. صف البيانات ======
+  DataRow _buildDataRow(StudentModel student) {
+    final isActive = !student.clearanceStatus;
+
+    return DataRow(
+      cells: [
+        // الرقم الجامعي
+        DataCell(
+          Text(
+            student.nationalNumber,
+            style: const TextStyle(
+              fontWeight: FontWeight.w600,
+              color: Color(0xFF3F4254),
+            ),
+          ),
+        ),
+
+        // الاسم مع Avatar
+        DataCell(
+          Row(
+            children: [
+              circleName(
+                firstNameFirstchar: student.user?.firstName[0] ?? '?',
+                radius: 20,
+                backgroundColor: const Color(0xFF0D47A1).withValues(alpha: 0.1),
+                textStyle: const TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF0D47A1),
+                ),
+              ),
+            ],
+          ),
+        ),
+
+        // السنة
+        DataCell(
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+            decoration: BoxDecoration(
+              color: const Color(0xFF0D47A1).withValues(alpha: 0.06),
+              borderRadius: BorderRadius.circular(6),
+            ),
+            child: Text(
+              student.academicYear?.name ?? '-',
+              style: const TextStyle(
+                color: Color(0xFF0D47A1),
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ),
+
+        // رقم الهوية
+        DataCell(
+          Text(
+            student.fingerprintId,
+            style: TextStyle(color: Colors.grey.shade600),
+          ),
+        ),
+
+        // المعدل
+        DataCell(
+          Text(
+            student.studyType,
+            style: TextStyle(color: Colors.grey.shade600),
+          ),
+        ),
+
+        // الحالة
+        DataCell(buildStatusBadge(isActive)),
+
+        // إجراءات
+        DataCell(
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              IconButton(
+                icon: const Icon(
+                  Icons.visibility_outlined,
+                  size: 18,
+                  color: Color(0xFF009EF7),
+                ),
+                tooltip: 'عرض',
+                onPressed: () => showStudentDetails(
+                  context: context,
+                  isActives: isActive,
+                  titleText: student.user?.firstName ?? '',
+                  labiltext: student.user?.lastName ?? '',
+                  ntext: student.nationalNumber,
+                  fintext: student.fingerprintId,
+                  mobileText: student.mobileNum,
+                  emtext: student.user?.email ?? '',
+                  academicYearText: student.academicYear?.name ?? '',
+                ),
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(),
+              ),
+              const SizedBox(width: 8),
+              IconButton(
+                icon: const Icon(
+                  Icons.description_outlined,
+                  size: 18,
+                  color: Color(0xFF009EF7),
+                ),
+                tooltip: 'طلب',
+                onPressed: () {},
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  // ====== 6. Badge الحالة ======
+  Widget buildStatusBadge(bool isActive) {
+    final Color baseColor = isActive
+        ? const Color(0xFF50CD89)
+        : const Color(0xFFF1416C);
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        color: baseColor.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(6),
+      ),
+      child: Text(
+        isActive ? 'نشطة' : 'موقوفة',
+        style: TextStyle(
+          color: baseColor,
+          fontSize: 12,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+    );
+  }
+
+  // ====== 7. Pagination Footer ======
+  Widget _buildPaginationFooter(BuildContext context, StudentsLoaded state) {
+    final cubit = context.read<StudentsCubit>();
+
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
+      decoration: const BoxDecoration(
+        border: Border(top: BorderSide(color: Color(0xFFEFF2F5))),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            'عرض ${state.students.length} طالب',
+            style: const TextStyle(color: Color(0xFF7E8299)),
+          ),
+          Row(
+            children: [
+              pageButton(
+                icon: Icons.chevron_right,
+                onPressed: () {
+                  // الصفحة السابقة
+                },
+              ),
+              const SizedBox(width: 10),
+              Text(
+                'صفحة ${state.currentPage}',
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(width: 10),
+              pageButton(
+                icon: Icons.chevron_left,
+                onPressed: state.hasMore ? () => cubit.loadMore() : null,
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ====== 8. عرض تفاصيل الطالبة في Dialog ======
+
+  // ====== 9. بطاقة معلومات ======
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<StudentsCubit>().loadStudents();
+    });
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
   }
 }

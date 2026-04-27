@@ -17,6 +17,24 @@ class AppConstants {
   static const String userKey = 'user';
 static const String roleKey = 'role';
 
+//lists
+static const List<String> nationalities = [
+    'سورية', 'لبنانية', 'عراقية',
+    'فلسطينية مقيم في سوريا', 'فلسطينية مقيم في الخارج',
+    'عربية', 'أجنبية',
+  ];
+
+  static const List<String> academicYears = [
+    'الأولى', 'الثانية', 'الثالثة', 'الرابعة', 'الخامسة',
+  ];
+
+  static const List<String> studyTypes = ['Regular', 'Transfer'];
+  static const List<String> housingTypes = ['Internal', 'External'];
+ static const List<String> governorates = [
+    'دمشق', 'ريف دمشق', 'حلب', 'حمص', 'حماة',
+    'اللاذقية', 'طرطوس', 'دير الزور', 'الحسكة',
+    'إدلب', 'الرقة', 'درعا', 'السويداء', 'القنيطرة',
+  ];
 
   AppConstants._();
 }

@@ -1,6 +1,7 @@
 import 'package:finalproject/feature/auth/presentation/manger/auth_cubit.dart';
 import 'package:finalproject/feature/student%20Affairs/student%20record/domain/repositories/students_repo.dart';
 import 'package:finalproject/feature/student%20Affairs/student%20record/domain/repositories/students_repo_impl.dart';
+import 'package:finalproject/feature/student%20Affairs/student%20record/presentation/manger/cubit/add_student_cubit.dart';
 import 'package:finalproject/feature/student%20Affairs/student%20record/presentation/manger/students_cubit.dart';
 import 'package:get_it/get_it.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -38,5 +39,6 @@ Future<void> initServiceLocator() async {
 sl.registerFactory<StudentsCubit>(
   () => StudentsCubit(sl<StudentsRepo>()),  // 🟢 استخدم StudentsRepo
 );
+sl.registerFactory<AddStudentCubit>(() => AddStudentCubit(sl<StudentsRepo>()));
   //student record
 }

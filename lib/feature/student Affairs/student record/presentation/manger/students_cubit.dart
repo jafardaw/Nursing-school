@@ -22,15 +22,20 @@ class StudentsCubit extends Cubit<StudentsState> {
     emit(StudentsLoading());
 
     try {
-      final students = await _repo.getStudents(page: _currentPage, perPage: _perPage);
+      final students = await _repo.getStudents(
+        page: _currentPage,
+        perPage: _perPage,
+      );
       _allStudents.addAll(students);
       _currentPage++;
 
-      emit(StudentsLoaded(
-        students: List.from(_allStudents),
-        hasMore: students.length >= _perPage,
-        currentPage: _currentPage - 1,
-      ));
+      emit(
+        StudentsLoaded(
+          students: List.from(_allStudents),
+          hasMore: students.length >= _perPage,
+          currentPage: _currentPage - 1,
+        ),
+      );
     } on ErrorHandler catch (e) {
       emit(StudentsError(message: e.userFriendlyMessage));
     } catch (e) {

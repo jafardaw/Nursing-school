@@ -1,5 +1,6 @@
 import 'package:finalproject/core/constants/api_endpoints.dart';
 import 'package:finalproject/core/network/api_service.dart';
+import 'package:finalproject/feature/student%20Affairs/student%20record/data/model/create_student_request.dart';
 import 'package:finalproject/feature/student%20Affairs/student%20record/data/model/student_model.dart';
 import 'package:finalproject/feature/student%20Affairs/student%20record/domain/repositories/students_repo.dart';
 
@@ -27,5 +28,10 @@ class StudentsRepoImpl implements StudentsRepo {
       return StudentModel.fromJson(data);
     }
     return null;
+  }
+
+  @override
+  Future<void> createStudent(CreateStudentRequest request) async {
+    await _apiService.post(ApiEndpoints.students, request.toJson());
   }
 }
