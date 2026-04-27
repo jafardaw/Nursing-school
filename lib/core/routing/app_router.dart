@@ -5,19 +5,24 @@ import 'package:finalproject/feature/Home/presentation/views/home_view.dart'
     deferred as home;
 import 'package:finalproject/feature/auth/presentation/views/login_sceen.dart'
     deferred as login;
-import 'package:finalproject/feature/penalties/presentation/manger/cubit_post/add_penalites_cubit.dart';
-import 'package:finalproject/feature/penalties/presentation/views/add_penalites_view.dart'
-    deferred as addpealites;
+import 'package:finalproject/feature/student%20Affairs/student%20record/presentation/manger/cubit/add_student_cubit.dart';
+import 'package:finalproject/feature/student%20Affairs/student%20record/presentation/manger/students_cubit.dart';
+import 'package:finalproject/feature/student%20Affairs/student%20record/presentation/view/add_student_screen.dart'
+    deferred as addstudent;
+import 'package:finalproject/feature/student%20Affairs/student%20record/presentation/view/students_screen.dart'
+    deferred as students;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 class AppRouter {
   static final _rootNavigatorKey = GlobalKey<NavigatorState>();
+  static final routeObserver = RouteObserver<ModalRoute<void>>();
 
   static final GoRouter router = GoRouter(
     navigatorKey: _rootNavigatorKey,
     initialLocation: AppRoutes.loginrout,
+    observers: [routeObserver],
     routes: [
       GoRoute(
         path: AppRoutes.loginrout,
@@ -30,28 +35,34 @@ class AppRouter {
       GoRoute(
         path: AppRoutes.homerout,
         name: AppRoutes.homerout,
-        builder: (context, state) => LazyPageLoader(
-          loadLibrary: home.loadLibrary,
-          builder: () => home.HomeScreen(),
+        builder: (context, state) => BlocProvider(
+          create: (_) => sl<StudentsCubit>(),
+          child: LazyPageLoader(
+            loadLibrary: home.loadLibrary,
+            builder: () => home.HomeScreen(),
+          ),
         ),
       ),
 
       GoRoute(
-        path: AppRoutes.addpenalites,
-        name: AppRoutes.addpenalites,
-        builder: (context, state) {
-          final int? studentId = state.extra as int?;
+        path: AppRoutes.studentsRoute,
+        name: AppRoutes.studentsRoute,
 
-          // يجب أن يكون الـ Provider هنا لضمان وجوده فوق الصفحة
-          return BlocProvider(
-            create: (context) => sl<AddPenaltyCubit>(),
-            child: LazyPageLoader(
-              loadLibrary: addpealites.loadLibrary,
-              builder: () =>
-                  addpealites.AddPenaltyForm(studentId: studentId ?? 0),
-            ),
-          );
-        },
+        builder: (context, state) => LazyPageLoader(
+          loadLibrary: students.loadLibrary,
+          builder: () => students.StudentsScreen(),
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.addStudentRoute,
+        name: AppRoutes.addStudentRoute,
+        builder: (context, state) => BlocProvider(
+          create: (_) => sl<AddStudentCubit>(),
+          child: LazyPageLoader(
+            loadLibrary: addstudent.loadLibrary,
+            builder: () => addstudent.AddStudentScreen(),
+          ),
+        ),
       ),
     ],
     errorBuilder: (context, state) => Scaffold(

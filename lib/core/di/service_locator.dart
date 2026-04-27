@@ -1,8 +1,8 @@
 import 'package:finalproject/feature/auth/presentation/manger/auth_cubit.dart';
-import 'package:finalproject/feature/penalties/presentation/manger/cubit_get/get_all_penalties_cubit.dart';
-import 'package:finalproject/feature/penalties/presentation/manger/cubit_post/add_penalites_cubit.dart';
-import 'package:finalproject/feature/penalties/repo/penalties_repo.dart';
-import 'package:finalproject/feature/penalties/repo/penalties_repoimp.dart';
+import 'package:finalproject/feature/student%20Affairs/student%20record/domain/repositories/students_repo.dart';
+import 'package:finalproject/feature/student%20Affairs/student%20record/domain/repositories/students_repo_impl.dart';
+import 'package:finalproject/feature/student%20Affairs/student%20record/presentation/manger/cubit/add_student_cubit.dart';
+import 'package:finalproject/feature/student%20Affairs/student%20record/presentation/manger/students_cubit.dart';
 import 'package:get_it/get_it.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:finalproject/core/network/api_service.dart';
@@ -24,16 +24,21 @@ Future<void> initServiceLocator() async {
   sl.registerLazySingleton<AuthRepoImpl>(
     () => AuthRepoImpl(apiService: sl(), storageService: sl()),
   );
-  // Cubits (يفضل Factory لضمان حالة نظيفة عند تسجيل الدخول مجدداً)
-  sl.registerFactory(() => AuthCubit(sl<AuthRepoImpl>()));
 
-  // ====== 4. Penalties Feature (الغيابات والعقوبات) ======
-  // Repository (نسخة واحدة لكل التطبيق)
-  sl.registerLazySingleton<AbsenceRepository>(
-    () => AbsenceRepositoryImpl(sl()),
+  // 🟢 Cubits
+  sl.registerLazySingleton<AuthCubit>(() => AuthCubit(sl<AuthRepoImpl>()));
+
+  //student record
+  sl.registerLazySingleton<StudentsRepo>(
+    () => StudentsRepoImpl(apiService: sl()),
   );
 
-  // Cubits (نسخة جديدة عند كل طلب صفحة)
-  sl.registerFactory(() => AbsenceCubit(sl()));
-  sl.registerFactory(() => AddPenaltyCubit(sl()));
+  // Cubits
+  sl.registerFactory<StudentsCubit>(
+    () => StudentsCubit(sl<StudentsRepo>()), // 🟢 استخدم StudentsRepo
+  );
+  sl.registerFactory<AddStudentCubit>(
+    () => AddStudentCubit(sl<StudentsRepo>()),
+  );
+  //student record
 }

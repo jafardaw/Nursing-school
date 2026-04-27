@@ -4,12 +4,12 @@ import 'package:finalproject/core/theme/app_colors.dart';
 
 /// Extension على BuildContext للوصول السريع للأنماط والألوان
 extension ThemeTextStyles on BuildContext {
-  _ThemedTextStyles get styles => _ThemedTextStyles(this);
+  ThemedTextStyles get styles => ThemedTextStyles(this);
 }
 
-class _ThemedTextStyles {
+class ThemedTextStyles {
   final BuildContext context;
-  _ThemedTextStyles(this.context);
+  ThemedTextStyles(this.context);
 
   bool get _isDark => Theme.of(context).brightness == Brightness.dark;
 
