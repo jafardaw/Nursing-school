@@ -15,6 +15,14 @@ class NavigationService {
     context.push(route, extra: extra);
   }
 
+  static Future<T?> pushsTothen<T>(
+    BuildContext context,
+    String route, {
+    Object? extra,
+  }) {
+    return context.push<T>(route, extra: extra); // أضفنا return و النوع T
+  }
+
   static void goBack(BuildContext context) {
     if (context.canPop()) {
       context.pop();

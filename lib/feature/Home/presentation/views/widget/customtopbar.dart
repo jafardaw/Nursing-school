@@ -44,7 +44,7 @@ class TopBar extends StatelessWidget {
             ],
           ),
           const Spacer(),
-          const QuickSearch(),
+          // const QuickSearch(),
           const SizedBox(width: 24),
           const NotificationIcon(),
           const SizedBox(width: 24),

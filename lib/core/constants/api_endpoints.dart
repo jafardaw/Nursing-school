@@ -4,11 +4,12 @@ class ApiEndpoints {
   static const String logout = 'logout';
   static const String register = 'register';
   static const String profile = 'profile';
-  
+  static const String penalties = 'penalties';
+
   // Users
   static const String users = 'users';
   static String userById(int id) => 'users/$id';
-  
+
   // مثال تاني لو احتجت
   // static const String products = 'products';
   // static String productById(int id) => 'products/$id';

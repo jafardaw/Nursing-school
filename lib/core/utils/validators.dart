@@ -115,4 +115,39 @@ class Validators {
 
     return null;
   }
+
+  static String? validatePenaltyType({
+    required bool submitted,
+    required String selectedType,
+  }) {
+    if (!submitted) return null;
+    if (selectedType.isEmpty) {
+      return 'يرجى اختيار نوع الإجراء';
+    }
+    return null;
+  }
+
+  /// التحقق من تاريخ الإجراء
+  /// [submitted] : هل تم الضغط على زر الإرسال؟
+  /// [dateTouched] : هل تفاعل المستخدم مع حقل التاريخ؟
+  /// [selectedDate] : التاريخ المختار
+  /// [minYear] : أقل سنة مسموحة (الافتراضي 2020)
+  static String? validatePenaltyDate({
+    required bool submitted,
+    required bool dateTouched,
+    required DateTime selectedDate,
+    int minYear = 2020,
+  }) {
+    if (!submitted && !dateTouched) return null;
+
+    if (selectedDate.isAfter(DateTime.now())) {
+      return 'لا يمكن اختيار تاريخ مستقبلي';
+    }
+
+    if (selectedDate.year < minYear) {
+      return 'التاريخ يجب أن يكون بعد $minYear';
+    }
+
+    return null;
+  }
 }

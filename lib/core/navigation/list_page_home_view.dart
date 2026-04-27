@@ -1,3 +1,4 @@
+import 'package:finalproject/feature/penalties/presentation/views/penalties_view.dart';
 import 'package:flutter/material.dart';
 
 class AppSection {
@@ -17,7 +18,7 @@ class AppSection {
 class NavConfig {
   static List<AppSection> getSections(String role) {
     switch (role) {
-      case 'admin':
+      case 'student_affairs':
         return [
           AppSection(
             title: "لوحة التحكم",
@@ -30,6 +31,12 @@ class NavConfig {
             icon: Icons.school_outlined,
             selectedIcon: Icons.school,
             page: const Center(child: Text("صفحة إدارة الطالبات للمدير")),
+          ),
+          AppSection(
+            title: "الغياب والإنذارات ",
+            icon: Icons.school_outlined,
+            selectedIcon: Icons.school,
+            page: AbsencePage(),
           ),
         ];
       case 'examinations_officer':
