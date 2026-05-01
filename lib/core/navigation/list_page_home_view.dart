@@ -1,8 +1,5 @@
-<<<<<<< HEAD
 import 'package:finalproject/feature/Home/presentation/views/home_view.dart';
 import 'package:finalproject/feature/Statistic/presentation/views/statistic_view.dart';
-=======
->>>>>>> edf6d3f8042833cac0153415c64c8578591f4172
 import 'package:finalproject/feature/penalties/presentation/views/penalties_view.dart';
 import 'package:finalproject/feature/specializations/presentation/views/specialization_view.dart';
 import 'package:finalproject/feature/student%20Affairs/student%20record/presentation/view/students_screen.dart';
