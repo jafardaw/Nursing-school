@@ -1,4 +1,3 @@
-import 'package:finalproject/feature/Home/presentation/views/home_view.dart';
 import 'package:finalproject/feature/penalties/presentation/views/penalties_view.dart';
 import 'package:finalproject/feature/student%20Affairs/student%20record/presentation/view/students_screen.dart';
 import 'package:flutter/material.dart';

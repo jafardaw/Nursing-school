@@ -12,6 +12,7 @@ class ApiEndpoints {
 
   static const String students = 'students';
   static String studentById(int id) => 'students/$id';
+   static const String exportPdf = 'students/export/pdf';
 
   ApiEndpoints._();
 }

@@ -1,7 +1,5 @@
-import 'package:finalproject/core/theme/app_colors.dart';
 import 'package:finalproject/core/theme/text_styles.dart';
 import 'package:finalproject/core/theme/theme_extination.dart';
-import 'package:finalproject/core/widgets/loading_widget.dart';
 import 'package:flutter/material.dart';
 
 class CustomButton extends StatelessWidget {

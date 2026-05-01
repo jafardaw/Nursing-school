@@ -5,7 +5,7 @@ import 'package:finalproject/feature/Home/presentation/views/home_view.dart'
     deferred as home;
 import 'package:finalproject/feature/auth/presentation/views/login_sceen.dart'
     deferred as login;
-import 'package:finalproject/feature/student%20Affairs/student%20record/presentation/manger/cubit/add_student_cubit.dart';
+import 'package:finalproject/feature/student%20Affairs/student%20record/presentation/manger/addstudent/add_student_cubit.dart';
 import 'package:finalproject/feature/student%20Affairs/student%20record/presentation/manger/students_cubit.dart';
 import 'package:finalproject/feature/student%20Affairs/student%20record/presentation/view/add_student_screen.dart'
     deferred as addstudent;
