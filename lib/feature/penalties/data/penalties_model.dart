@@ -30,13 +30,25 @@ class StudentPenaltiesModel {
 class StudentModel {
   final int id;
   final String fullName;
+  final String nationalnumber;
+  final Academicyear? academicYear; // 👇 علامة استفهام لأنه يمكن ما يجي
 
-  StudentModel({required this.id, required this.fullName});
+  StudentModel({
+    required this.id,
+    required this.fullName,
+
+    required this.nationalnumber,
+    this.academicYear, // اختياري
+  });
 
   factory StudentModel.fromJson(Map<String, dynamic> json) {
     return StudentModel(
       id: json['id'] ?? 0,
+      nationalnumber: json['national_number'] ?? 'غير معروف',
       fullName: json['full_name'] ?? 'غير معروف',
+      academicYear: json['academic_year'] != null
+          ? Academicyear.fromJson(json['academic_year'])
+          : null, // إذا ما في، خليها null
     );
   }
 }
@@ -87,6 +99,20 @@ class EmployeeModel {
     return EmployeeModel(
       id: json['id'] ?? 0,
       fullName: json['full_name'] ?? '',
+    );
+  }
+}
+
+class Academicyear {
+  final int id;
+  final String fullName;
+
+  Academicyear({required this.id, required this.fullName});
+
+  factory Academicyear.fromJson(Map<String, dynamic> json) {
+    return Academicyear(
+      id: json['id'] ?? 0,
+      fullName: json['name'] ?? 'غير معروف',
     );
   }
 }

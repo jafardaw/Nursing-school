@@ -1,4 +1,15 @@
+import 'package:finalproject/feature/Statistic/presentation/manger/get_cibit/get_statistic_cubit.dart';
+import 'package:finalproject/feature/Statistic/repo/statistic_repo.dart';
+import 'package:finalproject/feature/Statistic/repo/statistic_repoimpl.dart';
 import 'package:finalproject/feature/auth/presentation/manger/auth_cubit.dart';
+import 'package:finalproject/feature/penalties/presentation/manger/cubit_delete/delete_penalties_cubit.dart';
+import 'package:finalproject/feature/penalties/presentation/manger/cubit_get/get_all_penalties_cubit.dart';
+import 'package:finalproject/feature/penalties/presentation/manger/cubit_post/add_penalites_cubit.dart';
+import 'package:finalproject/feature/penalties/repo/penalties_repo.dart';
+import 'package:finalproject/feature/penalties/repo/penalties_repoimp.dart';
+import 'package:finalproject/feature/specializations/presentation/manger/get_cubit/get_specialization_cubit.dart';
+import 'package:finalproject/feature/specializations/repo/repo_specialization.dart';
+import 'package:finalproject/feature/specializations/repo/repoimpl_specialization.dart';
 import 'package:finalproject/feature/student%20Affairs/student%20record/domain/repositories/students_repo.dart';
 import 'package:finalproject/feature/student%20Affairs/student%20record/domain/repositories/students_repo_impl.dart';
 import 'package:finalproject/feature/student%20Affairs/student%20record/presentation/manger/cubit/add_student_cubit.dart';
@@ -26,7 +37,6 @@ Future<void> initServiceLocator() async {
   );
 
   // 🟢 Cubits
-  sl.registerLazySingleton<AuthCubit>(() => AuthCubit(sl<AuthRepoImpl>()));
 
   //student record
   sl.registerLazySingleton<StudentsRepo>(
@@ -40,5 +50,39 @@ Future<void> initServiceLocator() async {
   sl.registerFactory<AddStudentCubit>(
     () => AddStudentCubit(sl<StudentsRepo>()),
   );
+
+  // Cubits (يفضل Factory لضمان حالة نظيفة عند تسجيل الدخول مجدداً)
+  sl.registerFactory(() => AuthCubit(sl<AuthRepoImpl>()));
+
+  // ====== 4. Penalties Feature (الغيابات والعقوبات) ======
+  // Repository (نسخة واحدة لكل التطبيق)
+  sl.registerLazySingleton<AbsenceRepository>(
+    () => AbsenceRepositoryImpl(sl()),
+  );
+
+  // Cubits (نسخة جديدة عند كل طلب صفحة)
+  sl.registerFactory(() => AbsenceCubit(sl()));
+  sl.registerFactory(() => AddPenaltyCubit(sl()));
   //student record
+
+  //delete_penalties
+
+  sl.registerFactory(() => DeletePenaltyCubit(sl<AbsenceRepository>()));
+  //////////Statistic
+  sl.registerLazySingleton<StatisticsRepository>(
+    () => StatisticsRepositoryImpl(sl.get<ApiService>()),
+  );
+  sl.registerFactory(() => StatisticsCubit(sl.get<StatisticsRepository>()));
+
+  //////////specialization
+
+  // تسجيل الـ Repository
+  sl.registerLazySingleton<SpecializationRepository>(
+    () => SpecializationRepositoryImpl(sl.get<ApiService>()),
+  );
+
+  // تسجيل الـ Cubit (سأفترض أنك ستنشئ Cubit باسم GetSpecializationsCubit)
+  sl.registerFactory(
+    () => GetSpecializationsCubit(sl.get<SpecializationRepository>()),
+  );
 }

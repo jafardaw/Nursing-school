@@ -75,36 +75,48 @@ class ApiService {
 
   // ====== HTTP Methods ======
 
-// ====== HTTP Methods ======
+  // ====== HTTP Methods ======
 
-Future<Response> post(String path, dynamic data, {Map<String, dynamic>? queryParameters}) async {
-  try {
-    Logger.info('POST $path', tag: 'API');
-    Logger.debug('Data: $data', tag: 'API');
-    
-    final response = await _dio.post(path, data: data, queryParameters: queryParameters);
-    
-    Logger.info('POST $path - Success (${response.statusCode})', tag: 'API');
-    return response;
-  } on DioException catch (e) {
-    Logger.error('POST $path failed', error: e);
-    throw ErrorHandler.handleDioError(e);
-  }
-}
+  Future<Response> post(
+    String path,
+    dynamic data, {
+    Map<String, dynamic>? queryParameters,
+  }) async {
+    try {
+      Logger.info('POST $path', tag: 'API');
+      Logger.debug('Data: $data', tag: 'API');
 
-Future<Response> get(String path, {Map<String, dynamic>? queryParameters}) async {
-  try {
-    Logger.info('GET $path', tag: 'API');
-    
-    final response = await _dio.get(path, queryParameters: queryParameters);
-    
-    Logger.info('GET $path - Success (${response.statusCode})', tag: 'API');
-    return response;
-  } on DioException catch (e) {
-    Logger.error('GET $path failed', error: e);
-    throw ErrorHandler.handleDioError(e);
+      final response = await _dio.post(
+        path,
+        data: data,
+        queryParameters: queryParameters,
+      );
+
+      Logger.info('POST $path - Success (${response.statusCode})', tag: 'API');
+      return response;
+    } on DioException catch (e) {
+      Logger.error('POST $path failed', error: e);
+      throw ErrorHandler.handleDioError(e);
+    }
   }
-}
+
+  Future<Response> get(
+    String path, {
+    Map<String, dynamic>? queryParameters,
+  }) async {
+    try {
+      Logger.info('GET $path', tag: 'API');
+
+      final response = await _dio.get(path, queryParameters: queryParameters);
+
+      Logger.info('GET $path - Success (${response.statusCode})', tag: 'API');
+      return response;
+    } on DioException catch (e) {
+      Logger.error('GET $path failed', error: e);
+      throw ErrorHandler.handleDioError(e);
+    }
+  }
+
   Future<Response> delete(
     String path, {
     Map<String, dynamic>? queryParameters,

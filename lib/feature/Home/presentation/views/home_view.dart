@@ -89,6 +89,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildNavigationRail() {
     return NavigationRail(
+      scrollable: true,
       extended: _isExpanded,
       backgroundColor: context.styles.primaryDark,
       selectedIndex: _selectedIndex,

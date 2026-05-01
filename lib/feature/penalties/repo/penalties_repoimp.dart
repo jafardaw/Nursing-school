@@ -34,6 +34,28 @@ class AbsenceRepositoryImpl implements AbsenceRepository {
   }
 
   @override
+  Future<PenaltyResult> getAbsencesSearch(String name, String year) async {
+    try {
+      final response = await _apiService.get(
+        ApiEndpoints.penalties,
+        queryParameters: {'value': name},
+      );
+
+      final List data = response.data['data'];
+      final int total = response.data['meta']['total'];
+
+      // نستخدم الموديل الجديد مباشرة هنا
+      final List<StudentPenaltiesModel> absences = data
+          .map((json) => StudentPenaltiesModel.fromJson(json))
+          .toList();
+
+      return PenaltyResult(absences, total);
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  @override
   Future<void> addPenalty(AddPenaltyModel penalty) async {
     try {
       // إرسال الـ Body الذي حددناه للسيرفر
@@ -41,6 +63,17 @@ class AbsenceRepositoryImpl implements AbsenceRepository {
     } catch (e) {
       // الـ ApiService سيتكفل برمي الخطأ والـ Cubit سيمسكه
       rethrow;
+    }
+  }
+
+  @override
+  Future<String> deletePenalty(int id) async {
+    try {
+      await _apiService.delete(ApiEndpoints.penaltiesid(id));
+      return "تم حذف السجل بنجاح";
+    } catch (e) {
+      // نرفع الخطأ كما هو ليمسكه الكيوبيت
+      throw Exception("فشل الحذف: ${e.toString()}");
     }
   }
 }

@@ -35,6 +35,20 @@ class AbsenceCubit extends Cubit<AbsenceState> {
     }
   }
 
+  Future<void> fetchAbsencesSearch(String name, String year) async {
+    emit(AbsenceLoading());
+    try {
+      final result = await _repository.getAbsencesSearch(name, year);
+      emit(AbsenceSuccess(result.absences, result.total));
+    } catch (e) {
+      if (e is ErrorHandler) {
+        emit(AbsenceError(e.userFriendlyMessage));
+      } else {
+        emit(AbsenceError("حدث خطأ غير متوقع"));
+      }
+    }
+  }
+
   // 3. دالة الإغلاق تكون مستقلة وخارج أي دالة أخرى
   @override
   Future<void> close() {

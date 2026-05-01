@@ -2,8 +2,12 @@ import 'package:data_table_2/data_table_2.dart';
 import 'package:finalproject/core/constants/app_routes.dart';
 import 'package:finalproject/core/di/service_locator.dart';
 import 'package:finalproject/core/services/navigation_service.dart';
+import 'package:finalproject/core/widgets/custom_confirm_dialog.dart';
 import 'package:finalproject/core/widgets/customfilterbar.dart';
+import 'package:finalproject/core/widgets/show_snak_bar.dart';
 import 'package:finalproject/feature/penalties/data/penalties_model.dart';
+import 'package:finalproject/feature/penalties/presentation/manger/cubit_delete/delete_penalties_cubit.dart';
+import 'package:finalproject/feature/penalties/presentation/manger/cubit_delete/delete_penalties_state.dart';
 import 'package:finalproject/feature/penalties/presentation/manger/cubit_get/get_all_penalties_cubit.dart';
 import 'package:finalproject/feature/penalties/presentation/manger/cubit_get/get_all_penalties_state.dart';
 import 'package:finalproject/feature/penalties/presentation/views/widget/studentpenaltiesdialog%20.dart';
@@ -28,123 +32,172 @@ class _AbsencePageState extends State<AbsencePage> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) =>
-          AbsenceCubit(sl<AbsenceRepository>())..fetchAbsences(),
-      child: Scaffold(
-        backgroundColor: const Color(0xFFF3F6F9),
-        body: Padding(
-          padding: const EdgeInsets.all(25.0),
-          child: Column(
-            children: [
-              // 1. شريط الفلاتر والبحث العام (Reusable Widget)
-              CustomFilterBar(
-                buttonTooltip: 'اضافه اجراء(غياب/انذار)',
-                searchHint: "ابحث عن طالب بالاسم...",
-                searchController: _searchController,
-                onSearchSubmitted: (val) => _handleFilterLogic(context),
-                label1: "السنة الدراسية",
-                value1: selectedYear,
-                items1: const ['الكل', '1', '2', '3', '4'],
-                onChanged1: (val) => setState(() => selectedYear = val),
-                label2: "مستوى الخطر",
-                value2: selectedRisk,
-                items2: const ['الكل', 'منخفض', 'متوسط', 'عالي'],
-                onChanged2: (val) => setState(() => selectedRisk = val),
-                onFilterPressed: () => _handleFilterLogic(context),
-                icon: const Icon(Icons.add, color: Colors.white, size: 20),
-              ),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (context) =>
+              AbsenceCubit(sl<AbsenceRepository>())..fetchAbsences(),
+        ),
+        BlocProvider(
+          create: (context) =>
+              sl<DeletePenaltyCubit>(), // تسجيل الـ Delete Cubit
+        ),
+      ],
 
-              const SizedBox(height: 20),
+      child: Builder(
+        builder: (innerContext) {
+          return BlocListener<DeletePenaltyCubit, DeletePenaltyState>(
+            listener: (context, state) {
+              if (state is DeletePenaltyLoading) {}
+              if (state is DeletePenaltySuccess) {
+                // 1. إظهار رسالة نجاح
+                showCustomSnackBar(
+                  context,
+                  state.message,
+                  type: ToastType.success,
+                );
 
-              // 2. جسم الصفحة الرئيسي (الجدول والـ Pagination)
-              Expanded(
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(16),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.04),
-                        blurRadius: 20,
-                        offset: const Offset(0, 10),
+                // 2. تحديث القائمة فوراً عشان يختفي السجل المحذوف
+                context.read<AbsenceCubit>().fetchAbsences();
+              }
+              if (state is DeletePenaltyError) {
+                showCustomSnackBar(
+                  context,
+                  state.message,
+                  type: ToastType.error,
+                );
+              }
+            },
+            child: Scaffold(
+              backgroundColor: const Color(0xFFF3F6F9),
+              body: Padding(
+                padding: const EdgeInsets.all(25.0),
+                child: Column(
+                  children: [
+                    // 1. شريط الفلاتر والبحث العام (Reusable Widget)
+                    CustomFilterBar(
+                      buttonTooltip: 'اضافه اجراء(غياب/انذار)',
+                      searchHint: "ابحث عن طالب بالاسم...",
+                      searchController: _searchController,
+                      onSearchSubmitted: (val) => _handleFilterLogic(context),
+                      label1: "السنة الدراسية",
+                      value1: selectedYear,
+                      items1: const ['الكل', '1', '2', '3', '4'],
+                      onChanged1: (val) => setState(() => selectedYear = val),
+                      label2: "مستوى الخطر",
+                      value2: selectedRisk,
+                      items2: const ['الكل', 'منخفض', 'متوسط', 'عالي'],
+                      onChanged2: (val) => setState(() => selectedRisk = val),
+                      onFilterPressed: () => _handleFilterLogic(context),
+                      icon: const Icon(
+                        Icons.add,
+                        color: Colors.white,
+                        size: 20,
                       ),
-                    ],
-                  ),
-                  child: BlocBuilder<AbsenceCubit, AbsenceState>(
-                    builder: (context, state) {
-                      if (state is AbsenceLoading) {
-                        return const Center(child: CircularProgressIndicator());
-                      }
-                      if (state is AbsenceError) {
-                        return Center(child: Text(state.message));
-                      }
-                      if (state is AbsenceSuccess) {
-                        return Column(
-                          children: [
-                            // الجدول المخصص
-                            Expanded(
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 8.0,
-                                ),
-                                child: DataTable2(
-                                  columnSpacing: 20,
-                                  horizontalMargin: 12,
-                                  minWidth: 900,
-                                  headingRowHeight: 60,
-                                  headingRowColor: WidgetStateProperty.all(
-                                    const Color(0xFFF9FAFB),
-                                  ),
-                                  columns: const [
-                                    DataColumn2(
-                                      label: Text('الطالب'),
-                                      size: ColumnSize.L,
-                                    ),
-                                    DataColumn2(
-                                      label: Text('نوع المخالفة'),
-                                      size: ColumnSize.M,
-                                    ),
-                                    DataColumn2(
-                                      label: Text('التاريخ'),
-                                      size: ColumnSize.M,
-                                    ),
-                                    DataColumn2(
-                                      label: Text('ملاحظات'),
-                                      size: ColumnSize.L,
-                                    ),
-                                    // DataColumn2(
-                                    //   label: Text('تعديل'),
-                                    //   size: ColumnSize.L,
-                                    // ),
-                                    // DataColumn2(
-                                    //   label: Text('حذف'),
-                                    //   size: ColumnSize.L,
-                                    // ),
-                                  ],
-                                  rows: state.absences
-                                      .map(
-                                        (studentGroup) =>
-                                            _buildRow(studentGroup),
-                                      )
-                                      .toList(),
-                                ),
-                              ),
-                            ),
+                    ),
 
-                            // شريط الترقيم (Pagination Footer)
-                            _buildPaginationFooter(context, state),
+                    const SizedBox(height: 20),
+
+                    // 2. جسم الصفحة الرئيسي (الجدول والـ Pagination)
+                    Expanded(
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(16),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.04),
+                              blurRadius: 20,
+                              offset: const Offset(0, 10),
+                            ),
                           ],
-                        );
-                      }
-                      return const SizedBox();
-                    },
-                  ),
+                        ),
+                        child: BlocBuilder<AbsenceCubit, AbsenceState>(
+                          builder: (context, state) {
+                            if (state is AbsenceLoading) {
+                              return const Center(
+                                child: CircularProgressIndicator(),
+                              );
+                            }
+                            if (state is AbsenceError) {
+                              return Center(child: Text(state.message));
+                            }
+                            if (state is AbsenceSuccess) {
+                              return Column(
+                                children: [
+                                  // الجدول المخصص
+                                  Expanded(
+                                    child: Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 8.0,
+                                      ),
+                                      child: DataTable2(
+                                        columnSpacing: 20,
+                                        horizontalMargin: 12,
+                                        minWidth: 900,
+                                        headingRowHeight: 60,
+                                        headingRowColor:
+                                            WidgetStateProperty.all(
+                                              const Color(0xFFF9FAFB),
+                                            ),
+                                        columns: const [
+                                          DataColumn2(
+                                            label: Text('الطالب'),
+                                            size: ColumnSize.L,
+                                          ),
+                                          DataColumn2(
+                                            label: Text('السنة'),
+                                            size: ColumnSize.L,
+                                          ),
+                                          DataColumn2(
+                                            label: Text('نوع المخالفة'),
+                                            size: ColumnSize.M,
+                                          ),
+                                          DataColumn2(
+                                            label: Text('التاريخ'),
+                                            size: ColumnSize.M,
+                                          ),
+                                          DataColumn2(
+                                            label: Text('ملاحظات'),
+                                            size: ColumnSize.L,
+                                          ),
+                                          // DataColumn2(
+                                          //   label: Text('تعديل'),
+                                          //   size: ColumnSize.L,
+                                          // ),
+                                          // DataColumn2(
+                                          //   label: Text('حذف'),
+                                          //   size: ColumnSize.L,
+                                          // ),
+                                        ],
+                                        rows: state.absences
+                                            .map(
+                                              (studentGroup) => _buildRow(
+                                                innerContext,
+                                                studentGroup,
+                                              ),
+                                            )
+                                            .toList(),
+                                      ),
+                                    ),
+                                  ),
+
+                                  // شريط الترقيم (Pagination Footer)
+                                  _buildPaginationFooter(context, state),
+                                ],
+                              );
+                            }
+                            return const SizedBox();
+                          },
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
-            ],
-          ),
-        ),
+            ),
+          );
+        },
       ),
     );
   }
@@ -153,7 +206,7 @@ class _AbsencePageState extends State<AbsencePage> {
     NavigationService.pushTo(context, AppRoutes.addpenalites, extra: 1);
   }
 
-  DataRow _buildRow(StudentPenaltiesModel item) {
+  DataRow _buildRow(BuildContext innerContext, StudentPenaltiesModel item) {
     return DataRow(
       cells: [
         DataCell(
@@ -172,6 +225,13 @@ class _AbsencePageState extends State<AbsencePage> {
             ],
           ),
         ),
+        DataCell(
+          _buildStatusBadge(
+            item.student.academicYear!.fullName.isNotEmpty
+                ? item.student.academicYear!.fullName
+                : "لا يوجد",
+          ),
+        ),
         // نعرض نوع آخر عقوبة مسجلة له كمثال في الجدول الرئيسي
         DataCell(
           _buildStatusBadge(
@@ -185,18 +245,39 @@ class _AbsencePageState extends State<AbsencePage> {
         DataCell(
           IconButton(
             onPressed: () {
+              // الآن innerContext أصبح متاحاً هنا ولن يعطيك Undefined
+              final deleteCubit = innerContext.read<DeletePenaltyCubit>();
+
               showDialog(
-                context: context,
-                builder: (context) => StudentPenaltiesDialog(
-                  studentData: item,
-                  onEdit: () {},
-                  onDelete: () {},
+                context: innerContext, // يفضل استخدام innerContext أيضاً هنا
+                builder: (dialogContext) => BlocProvider.value(
+                  value: deleteCubit,
+                  child: BlocBuilder<DeletePenaltyCubit, DeletePenaltyState>(
+                    builder: (context, state) {
+                      int? currentLoadingId;
+                      if (state is DeletePenaltyLoading) {
+                        currentLoadingId = state.penaltyId;
+                      }
+
+                      return StudentPenaltiesDialog(
+                        studentData: item,
+                        loadingIds: currentLoadingId != null
+                            ? [currentLoadingId]
+                            : [],
+                        onEdit: (id) {},
+                        onDelete: (penaltyId) {
+                          confirmDelete(context, () {
+                            deleteCubit.deletePenalty(penaltyId);
+                            Navigator.pop(context);
+                          });
+                        },
+                      );
+                    },
+                  ),
                 ),
               );
             },
-            // _showDetailsDialog(context, item),
             icon: const Icon(Icons.visibility_outlined, color: Colors.blue),
-            tooltip: "عرض كافة الغيابات",
           ),
         ),
 

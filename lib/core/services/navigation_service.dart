@@ -28,10 +28,15 @@ class NavigationService {
       context.pop();
     }
   }
+
   // في NavigationService - أضف الدالة دي:
-static Future<void> pushAndWait(BuildContext context, String route, {Object? extra}) async {
-  await context.push(route, extra: extra);
-}
+  static Future<void> pushAndWait(
+    BuildContext context,
+    String route, {
+    Object? extra,
+  }) async {
+    await context.push(route, extra: extra);
+  }
 
   void replaceWith(BuildContext context, String route, {Object? extra}) {
     context.go(route, extra: extra);

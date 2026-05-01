@@ -185,6 +185,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "5.0.3"
+  equatable:
+    dependency: transitive
+    description:
+      name: equatable
+      sha256: "3e0141505477fd8ad55d6eb4e7776d3fe8430be8e497ccb1521370c3f21a3e2b"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.0.8"
   expressions:
     dependency: transitive
     description:
@@ -217,6 +225,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "7.0.1"
+  fl_chart:
+    dependency: "direct main"
+    description:
+      name: fl_chart
+      sha256: b938f77d042cbcd822936a7a359a7235bad8bd72070de1f827efc2cc297ac888
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.2.0"
   flutter:
     dependency: "direct main"
     description: flutter
@@ -637,6 +653,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.2.0"
+  quickalert:
+    dependency: "direct main"
+    description:
+      name: quickalert
+      sha256: b5d62b1e20b08cc0ff5f40b6da519bdc7a5de6082f13d90572cf4e72eea56c5e
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.1.0"
   quiver:
     dependency: transitive
     description:
@@ -818,6 +842,38 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "15.1.0"
+  voo_dashboard:
+    dependency: "direct main"
+    description:
+      name: voo_dashboard
+      sha256: feff08490ac8ba332d845264ddc09cb77a98469ff1c669e3b7ada81b834797fb
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.0.1"
+  voo_responsive:
+    dependency: transitive
+    description:
+      name: voo_responsive
+      sha256: "9498bb6fcf69fdd6d46a04f93da81953d37f209fd89cf62062fd70255a797a41"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.1.4"
+  voo_tokens:
+    dependency: transitive
+    description:
+      name: voo_tokens
+      sha256: "14c313df890a120f511646b7017ba9fec630988d66ae79dc5fe248d19684600f"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.0.8"
+  voo_ui_core:
+    dependency: transitive
+    description:
+      name: voo_ui_core
+      sha256: "5542f93fe6d1e07cb1e04a8ce92afd61693dca4048d3aed3a2d0f5a863203e1a"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.1.3"
   web:
     dependency: transitive
     description:

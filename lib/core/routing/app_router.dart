@@ -5,6 +5,9 @@ import 'package:finalproject/feature/Home/presentation/views/home_view.dart'
     deferred as home;
 import 'package:finalproject/feature/auth/presentation/views/login_sceen.dart'
     deferred as login;
+import 'package:finalproject/feature/penalties/presentation/manger/cubit_post/add_penalites_cubit.dart';
+import 'package:finalproject/feature/penalties/presentation/views/add_penalites_view.dart'
+    deferred as addpealites;
 import 'package:finalproject/feature/student%20Affairs/student%20record/presentation/manger/cubit/add_student_cubit.dart';
 import 'package:finalproject/feature/student%20Affairs/student%20record/presentation/manger/students_cubit.dart';
 import 'package:finalproject/feature/student%20Affairs/student%20record/presentation/view/add_student_screen.dart'
@@ -63,6 +66,24 @@ class AppRouter {
             builder: () => addstudent.AddStudentScreen(),
           ),
         ),
+      ),
+
+      GoRoute(
+        path: AppRoutes.addpenalites,
+        name: AppRoutes.addpenalites,
+        builder: (context, state) {
+          final int? studentId = state.extra as int?;
+
+          // يجب أن يكون الـ Provider هنا لضمان وجوده فوق الصفحة
+          return BlocProvider(
+            create: (context) => sl<AddPenaltyCubit>(),
+            child: LazyPageLoader(
+              loadLibrary: addpealites.loadLibrary,
+              builder: () =>
+                  addpealites.AddPenaltyForm(studentId: studentId ?? 0),
+            ),
+          );
+        },
       ),
     ],
     errorBuilder: (context, state) => Scaffold(

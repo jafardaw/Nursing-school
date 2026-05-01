@@ -1,5 +1,7 @@
 import 'package:finalproject/feature/Home/presentation/views/home_view.dart';
+import 'package:finalproject/feature/Statistic/presentation/views/statistic_view.dart';
 import 'package:finalproject/feature/penalties/presentation/views/penalties_view.dart';
+import 'package:finalproject/feature/specializations/presentation/views/specialization_view.dart';
 import 'package:finalproject/feature/student%20Affairs/student%20record/presentation/view/students_screen.dart';
 import 'package:flutter/material.dart';
 
@@ -39,6 +41,20 @@ class NavConfig {
             icon: Icons.school_outlined,
             selectedIcon: Icons.school,
             page: AbsencePage(),
+          ),
+
+          AppSection(
+            title: "الأحصائيات",
+            icon: Icons.assessment,
+            selectedIcon: Icons.assessment,
+            page: DashboardView(),
+          ),
+
+          AppSection(
+            title: "التخصصات",
+            icon: Icons.speaker_sharp,
+            selectedIcon: Icons.speaker_sharp,
+            page: SpecializationsView(),
           ),
         ];
       case 'examinations_officer':
