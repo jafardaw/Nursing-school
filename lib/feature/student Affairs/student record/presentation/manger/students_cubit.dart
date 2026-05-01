@@ -1,4 +1,6 @@
-import 'package:finalproject/feature/student%20Affairs/student%20record/data/model/student_model.dart';
+import 'dart:async';
+
+import 'package:finalproject/core/utils/app_event.dart';
 import 'package:finalproject/feature/student%20Affairs/student%20record/domain/repositories/students_repo.dart';
 import 'package:finalproject/feature/student%20Affairs/student%20record/presentation/manger/students_state.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -9,31 +11,35 @@ class StudentsCubit extends Cubit<StudentsState> {
 
   int _currentPage = 1;
   final int _perPage = 15;
-  final List<StudentModel> _allStudents = [];
+  StreamSubscription? _eventSubscription;
 
-  StudentsCubit(this._repo) : super(StudentsInitial());
+  StudentsCubit(this._repo) : super(StudentsInitial()) {
+    // 🟢 استمع للحدث
+    _eventSubscription = AppEvents.events.listen((event) {
+      if (event == "student_added") {
+        loadStudents(refresh: true); // حدث تلقائي!
+      }
+    });
+  }
 
   Future<void> loadStudents({bool refresh = false}) async {
     if (refresh) {
       _currentPage = 1;
-      _allStudents.clear();
     }
 
     emit(StudentsLoading());
 
     try {
-      final students = await _repo.getStudents(
+      // 🟢 بنستخدم StudentsResponse بدل List
+      final response = await _repo.getStudents(
         page: _currentPage,
         perPage: _perPage,
       );
-      _allStudents.addAll(students);
-      _currentPage++;
 
       emit(
         StudentsLoaded(
-          students: List.from(_allStudents),
-          hasMore: students.length >= _perPage,
-          currentPage: _currentPage - 1,
+          students: response.students,
+          meta: response.meta!, // 🟢 نمرر الـ meta كامل
         ),
       );
     } on ErrorHandler catch (e) {
@@ -43,16 +49,46 @@ class StudentsCubit extends Cubit<StudentsState> {
     }
   }
 
-  Future<void> loadMore() async {
-    if (state is StudentsLoading) return;
-
-    final currentState = state;
-    if (currentState is StudentsLoaded && !currentState.hasMore) return;
-
+  // 🟢 الذهاب لصفحة محددة
+  Future<void> goToPage(int page) async {
+    _currentPage = page;
     await loadStudents();
+  }
+
+  // 🟢 الصفحة التالية
+  Future<void> nextPage() async {
+    final state = this.state;
+    if (state is StudentsLoaded && state.meta.hasMore) {
+      _currentPage++;
+      await loadStudents();
+    }
+  }
+
+  // 🟢 الصفحة السابقة
+  Future<void> previousPage() async {
+    if (_currentPage > 1) {
+      _currentPage--;
+      await loadStudents();
+    }
   }
 
   Future<void> refresh() async {
     await loadStudents(refresh: true);
+  }
+
+  void searchStudents(String query, String year) {
+    _currentPage = 1;
+    loadStudents();
+  }
+
+  void filterByYear(String year) {
+    _currentPage = 1;
+    loadStudents();
+  }
+
+  @override
+  Future<void> close() {
+    _eventSubscription?.cancel();
+    return super.close();
   }
 }

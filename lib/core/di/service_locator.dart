@@ -12,7 +12,8 @@ import 'package:finalproject/feature/specializations/repo/repo_specialization.da
 import 'package:finalproject/feature/specializations/repo/repoimpl_specialization.dart';
 import 'package:finalproject/feature/student%20Affairs/student%20record/domain/repositories/students_repo.dart';
 import 'package:finalproject/feature/student%20Affairs/student%20record/domain/repositories/students_repo_impl.dart';
-import 'package:finalproject/feature/student%20Affairs/student%20record/presentation/manger/cubit/add_student_cubit.dart';
+import 'package:finalproject/feature/student%20Affairs/student%20record/presentation/manger/addstudent/add_student_cubit.dart';
+import 'package:finalproject/feature/student%20Affairs/student%20record/presentation/manger/cubit/export_pdf_cubit.dart';
 import 'package:finalproject/feature/student%20Affairs/student%20record/presentation/manger/students_cubit.dart';
 import 'package:get_it/get_it.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -75,6 +76,7 @@ Future<void> initServiceLocator() async {
   sl.registerFactory(() => StatisticsCubit(sl.get<StatisticsRepository>()));
 
   //////////specialization
+  sl.registerFactory<ExportPdfCubit>(() => ExportPdfCubit(sl<StudentsRepo>()));
 
   // تسجيل الـ Repository
   sl.registerLazySingleton<SpecializationRepository>(

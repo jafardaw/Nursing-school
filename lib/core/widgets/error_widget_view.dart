@@ -1,5 +1,8 @@
+import 'package:finalproject/core/constants/assets.dart';
 import 'package:finalproject/core/theme/app_colors.dart';
+import 'package:finalproject/core/theme/theme_extination.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class ShowErrorWidgetView extends StatelessWidget {
   final String errorMessage;
@@ -24,14 +27,30 @@ class ShowErrorWidgetView extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             if (showImage) ...[
-              Icon(Icons.error_outline, size: 64, color: AppColors.error),
+              Image.asset(
+                AppAssets.imagesNoConsultation,
+                width: 270,
+                height: 270,
+              ),
+              // SvgPicture.asset(
+              //   AppAssets.,
+              //   width: 100,
+              //   height: 100,
+              //   colorFilter: ColorFilter.mode(
+              //     AppColors.primary,
+              //     BlendMode.srcIn,
+              //   ),
+              // ),
+              // Icon(Icons.error_outline, size: 64, color: AppColors.error),
               const SizedBox(height: 20),
             ],
 
             const SizedBox(height: 10),
             Text(
-              errorMessage,
-              style: Theme.of(context).textTheme.headlineSmall,
+              '$errorMessage  😢',
+              style: context.styles.bodyMedium.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 30),
@@ -53,8 +72,6 @@ class ShowErrorWidgetView extends StatelessWidget {
       ),
     );
   }
-
-  
 
   // دالة مساعدة لعرض الخطأ في صفحة كاملة
   static Widget fullScreenError({

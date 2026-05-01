@@ -1,8 +1,8 @@
 import 'package:finalproject/core/services/navigation_service.dart';
 import 'package:finalproject/core/theme/theme_extination.dart';
 import 'package:finalproject/feature/student%20Affairs/student%20record/data/model/create_student_request.dart';
-import 'package:finalproject/feature/student%20Affairs/student%20record/presentation/manger/cubit/add_student_cubit.dart';
-import 'package:finalproject/feature/student%20Affairs/student%20record/presentation/manger/cubit/add_student_state.dart';
+import 'package:finalproject/feature/student%20Affairs/student%20record/presentation/manger/addstudent/add_student_cubit.dart';
+import 'package:finalproject/feature/student%20Affairs/student%20record/presentation/manger/addstudent/add_student_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:finalproject/core/constants/app_constants.dart';

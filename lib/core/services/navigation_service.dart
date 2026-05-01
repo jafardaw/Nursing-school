@@ -26,7 +26,7 @@ class NavigationService {
   static void goBack(BuildContext context) {
     if (context.canPop()) {
       context.pop();
-    }
+    } 
   }
 
   // في NavigationService - أضف الدالة دي:

@@ -1,16 +1,19 @@
 import 'package:finalproject/core/constants/app_routes.dart';
+import 'package:finalproject/core/di/service_locator.dart';
 import 'package:finalproject/core/services/navigation_service.dart';
 import 'package:finalproject/core/theme/theme_extination.dart';
 import 'package:finalproject/core/widgets/circle_name.dart';
 import 'package:finalproject/core/widgets/empty_view_list.dart';
 import 'package:finalproject/core/widgets/error_widget_view.dart';
 import 'package:finalproject/core/widgets/loading_widget.dart';
+import 'package:finalproject/core/widgets/pagination_footer.dart';
 import 'package:finalproject/core/widgets/show_dailog.dart';
 import 'package:finalproject/core/widgets/small_button.dart';
 import 'package:finalproject/feature/student%20Affairs/student%20record/data/model/student_model.dart';
+import 'package:finalproject/feature/student%20Affairs/student%20record/presentation/manger/cubit/export_pdf_cubit.dart';
+import 'package:finalproject/feature/student%20Affairs/student%20record/presentation/manger/cubit/export_pdf_state.dart';
 import 'package:finalproject/feature/student%20Affairs/student%20record/presentation/manger/students_cubit.dart';
 import 'package:finalproject/feature/student%20Affairs/student%20record/presentation/manger/students_state.dart';
-import 'package:finalproject/feature/student%20Affairs/student%20record/presentation/view/widget/page_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:data_table_2/data_table_2.dart';
@@ -80,7 +83,18 @@ class _StudentsScreenState extends State<StudentsScreen> {
                                 child: _buildDataTable(state),
                               ),
                             ),
-                            _buildPaginationFooter(context, state),
+                            PaginationFooter(
+                              meta: state.meta,
+                              onFirstPage: () =>
+                                  context.read<StudentsCubit>().goToPage(1),
+                              onPreviousPage: () =>
+                                  context.read<StudentsCubit>().previousPage(),
+                              onNextPage: () =>
+                                  context.read<StudentsCubit>().nextPage(),
+                              onLastPage: () => context
+                                  .read<StudentsCubit>()
+                                  .goToPage(state.meta.lastPage),
+                            ),
                           ],
                         );
                       }
@@ -107,24 +121,65 @@ class _StudentsScreenState extends State<StudentsScreen> {
         if (isDesktop) ...[
           smallButton(
             styles,
-            () {},
+            () {
+              // 🟢 إنشاء Cubit مؤقت للتصدير
+              final exportCubit = sl<ExportPdfCubit>();
+
+              // 🟢 عرض Snackbar للتحميل
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Row(
+                    children: [
+                      SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: Colors.white,
+                        ),
+                      ),
+                      SizedBox(width: 12),
+                      Text('جاري تحميل الملف...'),
+                    ],
+                  ),
+                  duration: Duration(seconds: 30),
+                ),
+              );
+
+              exportCubit.exportPdf();
+
+              // 🟢 استمع للنتيجة
+              exportCubit.stream.listen((state) {
+                if (state is ExportPdfSuccess) {
+                  ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(state.message),
+                      backgroundColor: Colors.green,
+                    ),
+                  );
+                } else if (state is ExportPdfError) {
+                  ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(state.message),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
+                }
+              });
+            },
             Icons.file_upload_outlined,
-            'تصدير  Excel',
-            styles.successColor,
+            'تصدير PDF',
+            styles.errorColor,
             styles.whiteColor,
           ),
           const SizedBox(width: 12),
           smallButton(
             styles,
-            () async {
-              await NavigationService.pushAndWait(
-                context,
-                AppRoutes.addStudentRoute,
-              );
+            () {
+              NavigationService.pushTo(context, AppRoutes.addStudentRoute);
               // الكود ده مش هيتنفذ غير لما المستخدم يرجع من صفحة التسجيل
-              if (mounted) {
-                context.read<StudentsCubit>().refresh();
-              }
             },
             Icons.person_add,
             'تسجيل طالبة جديدة',
@@ -198,6 +253,17 @@ class _StudentsScreenState extends State<StudentsScreen> {
                   fontSize: 12,
                   fontWeight: FontWeight.bold,
                   color: Color(0xFF0D47A1),
+                ),
+              ),
+              const SizedBox(width: 40),
+              Text(
+                student.user != null
+                    ? '${student.user!.firstName} ${student.user!.lastName}'
+                    : 'غير معروف',
+                style: const TextStyle(
+                  color: Color(0xFF0D47A1),
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
             ],
@@ -301,7 +367,7 @@ class _StudentsScreenState extends State<StudentsScreen> {
         borderRadius: BorderRadius.circular(6),
       ),
       child: Text(
-        isActive ? 'نشطة' : 'موقوفة',
+        isActive ? 'نشطة' : 'موقفة',
         style: TextStyle(
           color: baseColor,
           fontSize: 12,
@@ -310,51 +376,6 @@ class _StudentsScreenState extends State<StudentsScreen> {
       ),
     );
   }
-
-  // ====== 7. Pagination Footer ======
-  Widget _buildPaginationFooter(BuildContext context, StudentsLoaded state) {
-    final cubit = context.read<StudentsCubit>();
-
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
-      decoration: const BoxDecoration(
-        border: Border(top: BorderSide(color: Color(0xFFEFF2F5))),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            'عرض ${state.students.length} طالب',
-            style: const TextStyle(color: Color(0xFF7E8299)),
-          ),
-          Row(
-            children: [
-              pageButton(
-                icon: Icons.chevron_right,
-                onPressed: () {
-                  // الصفحة السابقة
-                },
-              ),
-              const SizedBox(width: 10),
-              Text(
-                'صفحة ${state.currentPage}',
-                style: const TextStyle(fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(width: 10),
-              pageButton(
-                icon: Icons.chevron_left,
-                onPressed: state.hasMore ? () => cubit.loadMore() : null,
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  // ====== 8. عرض تفاصيل الطالبة في Dialog ======
-
-  // ====== 9. بطاقة معلومات ======
 
   @override
   void initState() {

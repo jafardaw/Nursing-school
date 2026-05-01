@@ -1,7 +1,6 @@
 import 'package:finalproject/core/widgets/error_widget_view.dart';
 import 'package:finalproject/core/widgets/loading_widget.dart';
 import 'package:flutter/material.dart';
-import 'package:skeletonizer/skeletonizer.dart';
 
 /// ويدجت ذكي للتحميل المؤجل مع Skeleton UI
 class LazyPageLoader extends StatelessWidget {
