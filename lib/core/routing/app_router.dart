@@ -1,18 +1,18 @@
 import 'package:finalproject/core/constants/app_routes.dart';
 import 'package:finalproject/core/di/service_locator.dart';
 import 'package:finalproject/core/routing/lazy_page_loader.dart';
+import 'package:finalproject/feature/Department_Student_Affair/penalties/presentation/manger/cubit_post/add_penalites_cubit.dart';
+import 'package:finalproject/feature/Department_Student_Affair/student%20Affairs/student%20record/presentation/manger/addstudent/add_student_cubit.dart';
+import 'package:finalproject/feature/Department_Student_Affair/student%20Affairs/student%20record/presentation/manger/students_cubit.dart';
 import 'package:finalproject/feature/Home/presentation/views/home_view.dart'
     deferred as home;
 import 'package:finalproject/feature/auth/presentation/views/login_sceen.dart'
     deferred as login;
-import 'package:finalproject/feature/penalties/presentation/manger/cubit_post/add_penalites_cubit.dart';
-import 'package:finalproject/feature/penalties/presentation/views/add_penalites_view.dart'
+import 'package:finalproject/feature/Department_Student_Affair/penalties/presentation/views/add_penalites_view.dart'
     deferred as addpealites;
-import 'package:finalproject/feature/student%20Affairs/student%20record/presentation/manger/addstudent/add_student_cubit.dart';
-import 'package:finalproject/feature/student%20Affairs/student%20record/presentation/manger/students_cubit.dart';
-import 'package:finalproject/feature/student%20Affairs/student%20record/presentation/view/add_student_screen.dart'
+import 'package:finalproject/feature/Department_Student_Affair/student%20Affairs/student%20record/presentation/view/add_student_screen.dart'
     deferred as addstudent;
-import 'package:finalproject/feature/student%20Affairs/student%20record/presentation/view/students_screen.dart'
+import 'package:finalproject/feature/Department_Student_Affair/student%20Affairs/student%20record/presentation/view/students_screen.dart'
     deferred as students;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';

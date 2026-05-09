@@ -102,12 +102,20 @@ class ApiService {
 
   Future<Response> get(
     String path, {
+    dynamic data,
     Map<String, dynamic>? queryParameters,
   }) async {
     try {
       Logger.info('GET $path', tag: 'API');
+      if (data != null) {
+        Logger.debug('Data: $data', tag: 'API');
+      }
 
-      final response = await _dio.get(path, queryParameters: queryParameters);
+      final response = await _dio.get(
+        path,
+        data: data,
+        queryParameters: queryParameters,
+      );
 
       Logger.info('GET $path - Success (${response.statusCode})', tag: 'API');
       return response;
