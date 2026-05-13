@@ -1,6 +1,8 @@
-import 'package:finalproject/feature/student%20Affairs/student%20record/presentation/manger/cubit/update_student_cubit.dart';
-import 'package:finalproject/feature/student%20Affairs/student%20record/presentation/manger/cubit/update_student_state.dart';
-import 'package:finalproject/feature/student%20Affairs/student%20record/presentation/view/add_student_screen.dart';
+import 'package:finalproject/feature/Department_Student_Affair/student%20Affairs/student%20record/data/model/create_student_request.dart';
+import 'package:finalproject/feature/Department_Student_Affair/student%20Affairs/student%20record/data/model/student_model.dart';
+import 'package:finalproject/feature/Department_Student_Affair/student%20Affairs/student%20record/presentation/manger/cubit/update_student_cubit.dart';
+import 'package:finalproject/feature/Department_Student_Affair/student%20Affairs/student%20record/presentation/manger/cubit/update_student_state.dart';
+import 'package:finalproject/feature/Department_Student_Affair/student%20Affairs/student%20record/presentation/view/add_student_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:finalproject/core/constants/app_constants.dart';
@@ -10,8 +12,6 @@ import 'package:finalproject/core/utils/validators.dart';
 import 'package:finalproject/core/widgets/build_drop_down_list.dart';
 import 'package:finalproject/core/widgets/custom_button.dart';
 import 'package:finalproject/core/widgets/show_snak_bar.dart';
-import 'package:finalproject/feature/student%20Affairs/student%20record/data/model/create_student_request.dart';
-import 'package:finalproject/feature/student%20Affairs/student%20record/data/model/student_model.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 
 class UpdateStudentScreen extends StatefulWidget {

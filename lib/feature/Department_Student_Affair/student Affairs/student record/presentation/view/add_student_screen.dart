@@ -1,23 +1,18 @@
+
+
+import 'package:finalproject/core/constants/app_constants.dart';
 import 'package:finalproject/core/services/navigation_service.dart';
 import 'package:finalproject/core/theme/theme_extination.dart';
-<<<<<<< HEAD:lib/feature/student Affairs/student record/presentation/view/add_student_screen.dart
+import 'package:finalproject/core/utils/validators.dart';
 import 'package:finalproject/core/widgets/build_drop_down_list.dart';
 import 'package:finalproject/core/widgets/custom_button.dart';
 import 'package:finalproject/core/widgets/custome_text_field.dart';
 import 'package:finalproject/core/widgets/show_snak_bar.dart';
-import 'package:finalproject/feature/student%20Affairs/student%20record/data/model/create_student_request.dart';
-import 'package:finalproject/feature/student%20Affairs/student%20record/presentation/manger/addstudent/add_student_cubit.dart';
-import 'package:finalproject/feature/student%20Affairs/student%20record/presentation/manger/addstudent/add_student_state.dart';
-=======
 import 'package:finalproject/feature/Department_Student_Affair/student%20Affairs/student%20record/data/model/create_student_request.dart';
 import 'package:finalproject/feature/Department_Student_Affair/student%20Affairs/student%20record/presentation/manger/addstudent/add_student_cubit.dart';
 import 'package:finalproject/feature/Department_Student_Affair/student%20Affairs/student%20record/presentation/manger/addstudent/add_student_state.dart';
->>>>>>> 320897f1e47483c2039f9998427d12411a64268b:lib/feature/Department_Student_Affair/student Affairs/student record/presentation/view/add_student_screen.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:finalproject/core/constants/app_constants.dart';
-import 'package:finalproject/core/utils/validators.dart';
-
 import 'package:responsive_framework/responsive_framework.dart';
 
 class AddStudentScreen extends StatefulWidget {
