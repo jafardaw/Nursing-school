@@ -16,7 +16,7 @@ class StudentsCubit extends Cubit<StudentsState> {
   StudentsCubit(this._repo) : super(StudentsInitial()) {
     // 🟢 استمع للحدث
     _eventSubscription = AppEvents.events.listen((event) {
-      if (event == "student_added") {
+      if (event == "student_added"||event == "student_updated") {
         loadStudents(refresh: true); // حدث تلقائي!
       }
     });

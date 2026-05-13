@@ -100,22 +100,30 @@ class ApiService {
     }
   }
 
-  Future<Response> get(
-    String path, {
-    Map<String, dynamic>? queryParameters,
-  }) async {
-    try {
-      Logger.info('GET $path', tag: 'API');
-
-      final response = await _dio.get(path, queryParameters: queryParameters);
-
-      Logger.info('GET $path - Success (${response.statusCode})', tag: 'API');
-      return response;
-    } on DioException catch (e) {
-      Logger.error('GET $path failed', error: e);
-      throw ErrorHandler.handleDioError(e);
+Future<Response> get(
+  String path, {
+  dynamic data,                              
+  Map<String, dynamic>? queryParameters,
+}) async {
+  try {
+    Logger.info('GET $path', tag: 'API');
+    if (data != null) {
+      Logger.debug('Data: $data', tag: 'API');
     }
+
+    final response = await _dio.get(
+      path,
+      data: data,                           
+      queryParameters: queryParameters,
+    );
+
+    Logger.info('GET $path - Success (${response.statusCode})', tag: 'API');
+    return response;
+  } on DioException catch (e) {
+    Logger.error('GET $path failed', error: e);
+    throw ErrorHandler.handleDioError(e);
   }
+}
 
   Future<Response> delete(
     String path, {
@@ -128,18 +136,37 @@ class ApiService {
     }
   }
 
-  Future<Response> update(String path, {dynamic data}) async {
-    try {
-      return await _dio.put(path, data: data);
-    } on DioException catch (e) {
-      throw ErrorHandler.handleDioError(e);
-    }
-  }
+  
 
-  Future<Response> patch(String path, {dynamic data}) async {
+
+  Future<Uint8List> download(
+    String path, {
+    Map<String, dynamic>? queryParameters,
+  }) async {
     try {
-      return await _dio.patch(path, data: data);
+      // final token = await _storage.getString(AppConstants.tokenKey);
+
+      Logger.info('Downloading: $path', tag: 'API');
+
+      final response = await _dio.get(
+        path,
+        queryParameters: queryParameters,
+        options: Options(
+          responseType: ResponseType.bytes,
+          // headers: {
+          //   if (token != null) 'Authorization': 'Bearer $token',
+          // },
+        ),
+      );
+
+      Logger.info(
+        'Download complete: ${response.data.length} bytes',
+        tag: 'API',
+      );
+
+      return Uint8List.fromList(response.data);
     } on DioException catch (e) {
+      Logger.error('Download failed: $path', error: e, tag: 'API');
       throw ErrorHandler.handleDioError(e);
     }
   }

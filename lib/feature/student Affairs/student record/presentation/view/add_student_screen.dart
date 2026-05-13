@@ -1,5 +1,9 @@
 import 'package:finalproject/core/services/navigation_service.dart';
 import 'package:finalproject/core/theme/theme_extination.dart';
+import 'package:finalproject/core/widgets/build_drop_down_list.dart';
+import 'package:finalproject/core/widgets/custom_button.dart';
+import 'package:finalproject/core/widgets/custome_text_field.dart';
+import 'package:finalproject/core/widgets/show_snak_bar.dart';
 import 'package:finalproject/feature/student%20Affairs/student%20record/data/model/create_student_request.dart';
 import 'package:finalproject/feature/student%20Affairs/student%20record/presentation/manger/addstudent/add_student_cubit.dart';
 import 'package:finalproject/feature/student%20Affairs/student%20record/presentation/manger/addstudent/add_student_state.dart';
@@ -36,11 +40,13 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
   final _mobileCtrl = TextEditingController();
 
   // Dropdown values
-  String _selectedGovernorate = AppConstants.governorates[0];
-  String _selectedNationality = AppConstants.nationalities[0];
-  String _selectedYear = AppConstants.academicYears[0];
-  String _selectedStudyType = AppConstants.studyTypes[0];
-  String _selectedHousingType = AppConstants.housingTypes[0];
+  ItemModel _selectedGovernorate = AppConstants.governorates[0];
+
+  ItemModel _selectedNationality = AppConstants.nationalities[0];
+
+  ItemModel _selectedYear = AppConstants.academicYears[0];
+  ItemModel _selectedStudyType = AppConstants.studyTypes[0];
+  ItemModel _selectedHousingType = AppConstants.housingTypes[0];
 
   @override
   void dispose() {
@@ -75,23 +81,17 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
         placeOfBirth: _placeOfBirthCtrl.text,
         registryPlaceNum: _registryCtrl.text,
         address: _addressCtrl.text,
-        governorateId: _getGovernorateId(),
-        nationalId: _getNationalityId(),
+        governorateId: _selectedGovernorate.id,
+        nationalId: _selectedNationality.id,
         mobileNum: _mobileCtrl.text,
-        studyType: _selectedStudyType,
-        housingType: _selectedHousingType,
-        academicYearId: _getYearId(),
+        studyType: _selectedStudyType.name,
+        housingType: _selectedHousingType.name,
+        academicYearId: _selectedYear.id,
       );
 
       context.read<AddStudentCubit>().createStudent(request);
     }
   }
-
-  int _getGovernorateId() =>
-      AppConstants.governorates.indexOf(_selectedGovernorate) + 1;
-  int _getNationalityId() =>
-      AppConstants.nationalities.indexOf(_selectedNationality) + 1;
-  int _getYearId() => AppConstants.academicYears.indexOf(_selectedYear) + 1;
 
   @override
   Widget build(BuildContext context) {
@@ -99,28 +99,26 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
     final isDesktop = ResponsiveBreakpoints.of(context).largerThan(TABLET);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF3F6F9),
+      backgroundColor: styles.backgroundColor,
       appBar: AppBar(
         title: const Text('تسجيل طالبة جديدة'),
-        backgroundColor: const Color(0xFF0D47A1),
-        foregroundColor: Colors.white,
+        backgroundColor: styles.primaryColor,
+        foregroundColor: styles.appBarColor,
       ),
       body: BlocListener<AddStudentCubit, AddStudentState>(
         listener: (context, state) {
           if (state is AddStudentSuccess) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(state.message),
-                backgroundColor: styles.successColor,
-              ),
+            showWebBanner(
+              context,
+              "تم تسجيل الطالب بنجاحq",
+              type: BannerType.success,
             );
             NavigationService.goBack(context);
           } else if (state is AddStudentError) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(state.message),
-                backgroundColor: styles.errorColor,
-              ),
+            showWebBanner(
+              context,
+              "حدث خطأ أثناء تسجيل الطالب: ${state.message}",
+              type: BannerType.error,
             );
           }
         },
@@ -131,11 +129,11 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
               width: isDesktop ? 900 : double.infinity,
               padding: const EdgeInsets.all(32),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: styles.backgroundColor,
                 borderRadius: BorderRadius.circular(16),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.04),
+                    color: styles.shadowColor,
                     blurRadius: 20,
                     offset: const Offset(0, 10),
                   ),
@@ -149,93 +147,99 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
                     // 🟢 عنوان
                     Text(
                       'البيانات الشخصية',
-                      style: const TextStyle(
-                        fontSize: 20,
+                      style: styles.headline2.copyWith(
                         fontWeight: FontWeight.bold,
-                        color: Color(0xFF181C32),
+                        color: const Color(0xFF181C32),
                       ),
                     ),
                     const SizedBox(height: 24),
 
                     // 🟢 صفين جنب بعض
-                    _buildRow(
-                      _buildTextField(
+                    buildRow(
+                      buildTextField(
                         'الاسم الأول',
                         _firstNameCtrl,
                         validator: Validators.required,
                       ),
-                      _buildTextField(
+                      buildTextField(
                         'الاسم الأخير',
                         _lastNameCtrl,
                         validator: Validators.required,
                       ),
+                      context,
                     ),
+
                     const SizedBox(height: 16),
 
-                    _buildRow(
-                      _buildTextField(
+                    buildRow(
+                      buildTextField(
                         'البريد الإلكتروني',
                         _emailCtrl,
                         validator: Validators.email,
                       ),
-                      _buildTextField(
+                      buildTextField(
                         'كلمة المرور',
                         _passwordCtrl,
                         obscure: true,
                         validator: (v) => Validators.password(v),
                       ),
+                      context,
                     ),
                     const SizedBox(height: 16),
 
-                    _buildRow(
-                      _buildTextField(
+                    buildRow(
+                      buildTextField(
                         'الرقم الوطني',
                         _nationalNumberCtrl,
                         validator: Validators.required,
                       ),
-                      _buildTextField(
+                      buildTextField(
                         'رقم البصمة',
                         _fingerprintCtrl,
                         validator: Validators.required,
                       ),
+                      context,
                     ),
                     const SizedBox(height: 16),
 
-                    _buildRow(
-                      _buildTextField(
+                    buildRow(
+                      buildTextField(
                         'اسم الأب',
                         _fatherNameCtrl,
                         validator: Validators.required,
                       ),
-                      _buildTextField(
+                      buildTextField(
                         'اسم الأم',
                         _motherNameCtrl,
                         validator: Validators.required,
                       ),
+                      context,
                     ),
                     const SizedBox(height: 16),
 
-                    _buildRow(
-                      _buildTextField(
+                    buildRow(
+                      buildTextField(
                         'تاريخ الميلاد',
                         _dobCtrl,
                         hint: 'YYYY-MM-DD',
                       ),
-                      _buildTextField('مكان الميلاد', _placeOfBirthCtrl),
+                      buildTextField('مكان الميلاد', _placeOfBirthCtrl),
+                      context,
                     ),
                     const SizedBox(height: 16),
 
-                    _buildRow(
-                      _buildTextField('رقم السجل', _registryCtrl),
-                      _buildTextField(
+                    buildRow(
+                      buildTextField('رقم السجل', _registryCtrl),
+                      buildTextField(
                         'رقم الموبايل',
                         _mobileCtrl,
                         validator: Validators.required,
                       ),
+                      context,
                     ),
                     const SizedBox(height: 16),
 
-                    _buildTextField('العنوان', _addressCtrl),
+                    buildTextField('العنوان', _addressCtrl),
                     const SizedBox(height: 24),
 
                     // 🟢 قوائم منسدلة
@@ -249,79 +253,58 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
                     ),
                     const SizedBox(height: 16),
 
-                    _buildRow(
-                      _buildDropdown(
+                    buildRow(
+                      buildDropdown(
                         'المحافظة',
                         _selectedGovernorate,
                         AppConstants.governorates,
                         (v) => setState(() => _selectedGovernorate = v!),
                       ),
-                      _buildDropdown(
+                      buildDropdown(
                         'الجنسية',
                         _selectedNationality,
                         AppConstants.nationalities,
                         (v) => setState(() => _selectedNationality = v!),
                       ),
+                      context,
                     ),
                     const SizedBox(height: 16),
 
-                    _buildRow(
-                      _buildDropdown(
+                    buildRow(
+                      buildDropdown(
                         'السنة الدراسية',
                         _selectedYear,
                         AppConstants.academicYears,
                         (v) => setState(() => _selectedYear = v!),
                       ),
-                      _buildDropdown(
+                      buildDropdown(
                         'نوع الدراسة',
                         _selectedStudyType,
                         AppConstants.studyTypes,
                         (v) => setState(() => _selectedStudyType = v!),
                       ),
+                      context,
                     ),
                     const SizedBox(height: 16),
 
-                    _buildDropdown(
+                    buildDropdown(
                       'نوع السكن',
                       _selectedHousingType,
                       AppConstants.housingTypes,
                       (v) => setState(() => _selectedHousingType = v!),
                     ),
+
                     const SizedBox(height: 32),
 
                     // 🟢 زر الحفظ
                     BlocBuilder<AddStudentCubit, AddStudentState>(
                       builder: (context, state) {
                         final isLoading = state is AddStudentLoading;
-                        return SizedBox(
-                          width: double.infinity,
-                          height: 50,
-                          child: ElevatedButton(
-                            onPressed: isLoading ? null : _submit,
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFF0D47A1),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                            ),
-                            child: isLoading
-                                ? const SizedBox(
-                                    width: 24,
-                                    height: 24,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2.5,
-                                      color: Colors.white,
-                                    ),
-                                  )
-                                : const Text(
-                                    'حفظ',
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                          ),
+                        return CustomButton(
+                          text: 'حفظ',
+                          onTap: isLoading ? null : _submit,
+                          isLoading: isLoading,
+                          icon: Icons.save,
                         );
                       },
                     ),
@@ -334,106 +317,56 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
       ),
     );
   }
+}
 
-  // ====== صف بحقلين ======
-  Widget _buildRow(Widget child1, Widget child2) {
-    final isDesktop = ResponsiveBreakpoints.of(context).largerThan(TABLET);
+// ====== صف بحقلين ======
+Widget buildRow(Widget child1, Widget child2, BuildContext context) {
+  final isDesktop = ResponsiveBreakpoints.of(context).largerThan(TABLET);
 
-    if (isDesktop) {
-      return Row(
-        children: [
-          Expanded(child: child1),
-          const SizedBox(width: 16),
-          Expanded(child: child2),
-        ],
-      );
-    }
-    return Column(children: [child1, const SizedBox(height: 16), child2]);
-  }
-
-  // ====== حقل نصي ======
-  Widget _buildTextField(
-    String label,
-    TextEditingController controller, {
-    String? hint,
-    bool obscure = false,
-    String? Function(String?)? validator,
-  }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+  if (isDesktop) {
+    return Row(
       children: [
-        Text(
-          label,
-          style: const TextStyle(
-            fontWeight: FontWeight.w600,
-            fontSize: 13,
-            color: Color(0xFF3F4254),
-          ),
-        ),
-        const SizedBox(height: 6),
-        TextFormField(
-          controller: controller,
-          obscureText: obscure,
-          validator: validator,
-          decoration: InputDecoration(
-            hintText: hint ?? label,
-            filled: true,
-            fillColor: const Color(0xFFF5F8FA),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8),
-              borderSide: BorderSide.none,
-            ),
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: 14,
-              vertical: 12,
-            ),
-          ),
-        ),
+        Expanded(child: child1),
+        const SizedBox(width: 16),
+        Expanded(child: child2),
       ],
     );
   }
+  return Column(children: [child1, const SizedBox(height: 16), child2]);
+}
 
-  // ====== قائمة منسدلة ======
-  Widget _buildDropdown(
-    String label,
-    String value,
-    List<String> items,
-    Function(String?) onChanged,
-  ) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: const TextStyle(
-            fontWeight: FontWeight.w600,
-            fontSize: 13,
-            color: Color(0xFF3F4254),
-          ),
+// ====== حقل نصي ======
+Widget buildTextField(
+  String label,
+  TextEditingController controller, {
+  String? hint,
+  bool obscure = false,
+  String? Function(String?)? validator,
+}) {
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Text(
+        label,
+        style: const TextStyle(
+          fontWeight: FontWeight.w600,
+          fontSize: 13,
+          color: Color(0xFF3F4254),
         ),
-        const SizedBox(height: 6),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 14),
-          decoration: BoxDecoration(
-            color: const Color(0xFFF5F8FA),
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: DropdownButton<String>(
-            value: value,
-            isExpanded: true,
-            underline: const SizedBox(),
-            items: items
-                .map(
-                  (e) => DropdownMenuItem(
-                    value: e,
-                    child: Text(e, style: const TextStyle(fontSize: 14)),
-                  ),
-                )
-                .toList(),
-            onChanged: onChanged,
-          ),
+      ),
+      const SizedBox(height: 6),
+      CustomeTextField(
+        controller: controller,
+        obscureText: obscure,
+        validator: validator,
+
+        hintText: hint ?? label,
+
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 14,
+          vertical: 12,
         ),
-      ],
-    );
-  }
+      ),
+    ],
+  );
 }

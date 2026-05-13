@@ -1,5 +1,6 @@
 import 'package:finalproject/core/constants/app_routes.dart';
 import 'package:finalproject/core/di/service_locator.dart';
+import 'package:finalproject/core/services/file_download_service.dart';
 import 'package:finalproject/core/services/navigation_service.dart';
 import 'package:finalproject/core/theme/theme_extination.dart';
 import 'package:finalproject/core/widgets/circle_name.dart';
@@ -122,35 +123,34 @@ class _StudentsScreenState extends State<StudentsScreen> {
           smallButton(
             styles,
             () {
-              // 🟢 إنشاء Cubit مؤقت للتصدير
+              // 🟢 إنشاء Cubit للتصدير
               final exportCubit = sl<ExportPdfCubit>();
-
-              // 🟢 عرض Snackbar للتحميل
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Row(
-                    children: [
-                      SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: Colors.white,
-                        ),
-                      ),
-                      SizedBox(width: 12),
-                      Text('جاري تحميل الملف...'),
-                    ],
-                  ),
-                  duration: Duration(seconds: 30),
-                ),
-              );
-
-              exportCubit.exportPdf();
 
               // 🟢 استمع للنتيجة
               exportCubit.stream.listen((state) {
-                if (state is ExportPdfSuccess) {
+                if (!mounted) return;
+
+                if (state is ExportPdfLoading) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Row(
+                        children: [
+                          SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
+                          ),
+                          SizedBox(width: 12),
+                          Text('جاري تحميل PDF...'),
+                        ],
+                      ),
+                      duration: Duration(seconds: 30),
+                    ),
+                  );
+                } else if (state is ExportPdfSuccess) {
                   ScaffoldMessenger.of(context).hideCurrentSnackBar();
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
@@ -168,11 +168,14 @@ class _StudentsScreenState extends State<StudentsScreen> {
                   );
                 }
               });
+
+              // 🟢 ابدأ التصدير
+              exportCubit.exportPdf();
             },
-            Icons.file_upload_outlined,
+            Icons.picture_as_pdf,
             'تصدير PDF',
-            styles.errorColor,
-            styles.whiteColor,
+            Colors.red,
+            Colors.white,
           ),
           const SizedBox(width: 12),
           smallButton(
@@ -225,7 +228,7 @@ class _StudentsScreenState extends State<StudentsScreen> {
   }
 
   // ====== 5. صف البيانات ======
-  DataRow _buildDataRow(StudentModel student) {
+  DataRow _buildDataRow(StudentModeljd student) {
     final isActive = !student.clearanceStatus;
 
     return DataRow(
@@ -390,4 +393,62 @@ class _StudentsScreenState extends State<StudentsScreen> {
     _searchController.dispose();
     super.dispose();
   }
+
+  // Future<void> _exportPdf() async {
+  //   // إظهار Snackbar تحميل
+  //   if (!mounted) return;
+
+  //   ScaffoldMessenger.of(context).showSnackBar(
+  //     const SnackBar(
+  //       content: Row(
+  //         children: [
+  //           SizedBox(
+  //             width: 20,
+  //             height: 20,
+  //             child: CircularProgressIndicator(
+  //               strokeWidth: 2,
+  //               color: Colors.white,
+  //             ),
+  //           ),
+  //           SizedBox(width: 12),
+  //           Text('جاري تحميل PDF...'),
+  //         ],
+  //       ),
+  //       duration: Duration(seconds: 30),
+  //     ),
+  //   );
+
+  //   try {
+  //     final repo = sl<StudentsRepo>();
+  //     final bytes = await repo.exportStudentsPdf();
+
+  //     if (!mounted) return;
+
+  //     // 🟢 تحميل الملف
+  //     FileDownloadService.downloadPdf(
+  //       bytes: bytes,
+  //       fileName: 'سجلات_الطلاب_${DateTime.now().millisecondsSinceEpoch}.pdf',
+  //     );
+
+  //     ScaffoldMessenger.of(context).hideCurrentSnackBar();
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       const SnackBar(
+  //         content: Text('✅ تم تحميل الملف بنجاح'),
+  //         backgroundColor: Colors.green,
+  //         duration: Duration(seconds: 3),
+  //       ),
+  //     );
+  //   } catch (e) {
+  //     if (!mounted) return;
+
+  //     ScaffoldMessenger.of(context).hideCurrentSnackBar();
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       SnackBar(
+  //         content: Text('❌ فشل تحميل الملف'),
+  //         backgroundColor: Colors.red,
+  //         duration: Duration(seconds: 3),
+  //       ),
+  //     );
+  //   }
+  // }
 }

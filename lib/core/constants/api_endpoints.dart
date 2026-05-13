@@ -12,10 +12,11 @@ class ApiEndpoints {
   static String penaltiesid(int id) => 'student-affairs/penalties/$id';
 
   static const String students = 'student-affairs/students';
-  static String studentById(int id) => 'students/$id';
+    static String updateStudent(int id) => 'student-affairs/students/$id'; // 🟢 جديد
+
   static const String statistics = 'student-affairs/students/statistics';
   static const String specializations = 'student-affairs/specializations';
-  static const String exportPdf = 'students/export/pdf';
+  static const String exportPdf = 'student-affairs/students/export/pdf';
 
   ApiEndpoints._();
 }

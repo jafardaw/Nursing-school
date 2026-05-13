@@ -25,42 +25,21 @@ class StudentsRepoImpl implements StudentsRepo {
   }
 
   @override
-  Future<StudentModel?> getStudentById(int id) async {
-    final response = await _apiService.get(ApiEndpoints.studentById(id));
-    final data = response.data['data'];
-    if (data != null) {
-      return StudentModel.fromJson(data);
-    }
-    return null;
-  }
-
-  @override
   Future<void> createStudent(CreateStudentRequest request) async {
     await _apiService.post(ApiEndpoints.students, request.toJson());
   }
-    @override
+
+  @override
   Future<Uint8List> exportStudentsPdf() async {
- 
-    
-    final response = await _apiService.get(
-      ApiEndpoints.exportPdf,
-    );
-    
-    // لو الـ API بيرجع Base64
-    if (response.data is String) {
-      return _base64ToBytes(response.data);
-    }
-    
-    // لو الـ API بيرجع Bytes مباشرة
-    if (response.data is Map && response.data['data'] != null) {
-      return _base64ToBytes(response.data['data']);
-    }
-    
-    throw Exception('تنسيق غير مدعوم');
+    return await _apiService.download(ApiEndpoints.exportPdf);
   }
 
-  Uint8List _base64ToBytes(String base64String) {
-    // لو م
-    return base64Decode(base64String);
+  @override
+  Future<void> updateStudent(int id, CreateStudentRequest request) async {
+    final body = {
+      '_method': 'PUT', // 🟢 Laravel بيفهمها
+      ...request.toJson(),
+    };
+    await _apiService.post(ApiEndpoints.updateStudent(id), body);
   }
 }

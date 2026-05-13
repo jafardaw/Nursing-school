@@ -8,7 +8,7 @@ class StudentsInitial extends StudentsState {}
 class StudentsLoading extends StudentsState {}
 
 class StudentsLoaded extends StudentsState {
-  final List<StudentModel> students;
+  final List<StudentModeljd> students;
   final PaginationMeta meta; // 🟢 إضافة
 
   StudentsLoaded({

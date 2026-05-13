@@ -8,12 +8,16 @@ import 'package:finalproject/feature/auth/presentation/views/login_sceen.dart'
 import 'package:finalproject/feature/penalties/presentation/manger/cubit_post/add_penalites_cubit.dart';
 import 'package:finalproject/feature/penalties/presentation/views/add_penalites_view.dart'
     deferred as addpealites;
+import 'package:finalproject/feature/student%20Affairs/student%20record/data/model/student_model.dart';
 import 'package:finalproject/feature/student%20Affairs/student%20record/presentation/manger/addstudent/add_student_cubit.dart';
+import 'package:finalproject/feature/student%20Affairs/student%20record/presentation/manger/cubit/update_student_cubit.dart';
 import 'package:finalproject/feature/student%20Affairs/student%20record/presentation/manger/students_cubit.dart';
 import 'package:finalproject/feature/student%20Affairs/student%20record/presentation/view/add_student_screen.dart'
     deferred as addstudent;
 import 'package:finalproject/feature/student%20Affairs/student%20record/presentation/view/students_screen.dart'
     deferred as students;
+import 'package:finalproject/feature/student%20Affairs/student%20record/presentation/view/up_date_student.dart'
+    deferred as updatestudent;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -84,6 +88,20 @@ class AppRouter {
             ),
           );
         },
+      ),
+
+      GoRoute(
+        path: AppRoutes.updateStudentRoute,
+        name: AppRoutes.updateStudentRoute,
+        builder: (context, state) => BlocProvider(
+          create: (_) => sl<UpdateStudentCubit>(),
+          child: LazyPageLoader(
+            loadLibrary: updatestudent.loadLibrary,
+            builder: () => updatestudent.UpdateStudentScreen(
+              student: state.extra as StudentModeljd,
+            ),
+          ),
+        ),
       ),
     ],
     errorBuilder: (context, state) => Scaffold(

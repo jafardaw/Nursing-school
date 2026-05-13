@@ -16,16 +16,16 @@ class ExportPdfCubit extends Cubit<ExportPdfState> {
       final bytes = await _repo.exportStudentsPdf();
 
       // 🟢 تحميل الملف
-      FileDownloadService.downloadFile(
+      FileDownloadService.downloadPdf(
         bytes: bytes,
-        fileName: 'students_${DateTime.now().millisecondsSinceEpoch}.pdf',
+        fileName: 'سجلات_الطلاب_${DateTime.now().millisecondsSinceEpoch}.pdf',
       );
 
       emit(ExportPdfSuccess(message: 'تم تحميل الملف بنجاح'));
     } on ErrorHandler catch (e) {
       emit(ExportPdfError(message: e.userFriendlyMessage));
     } catch (e) {
-      emit(ExportPdfError(message: 'فشل تصدير الملف'));
+      emit(ExportPdfError(message: 'فشل تحميل الملف'));
     }
   }
 }

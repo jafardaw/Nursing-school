@@ -3,7 +3,7 @@ import 'package:finalproject/core/model/pagination_base_model.dart';
 import 'package:finalproject/feature/student%20Affairs/student%20record/data/model/student_model.dart';
 
 class StudentsResponse extends BaseResponse {
-  final List<StudentModel> students;
+  final List<StudentModeljd> students;
   final PaginationMeta? meta;
 
   StudentsResponse({
@@ -18,7 +18,7 @@ class StudentsResponse extends BaseResponse {
       status: json['status'] ?? 'error',
       message: json['message'] ?? '',
       students: json['data'] != null
-          ? (json['data'] as List).map((e) => StudentModel.fromJson(e)).toList()
+          ? (json['data'] as List).map((e) => StudentModeljd.fromJson(e)).toList()
           : [],
       meta: json['meta'] != null ? PaginationMeta.fromJson(json['meta']) : null,
     );
