@@ -1,8 +1,7 @@
-import 'package:finalproject/feature/Home/presentation/views/home_view.dart';
-import 'package:finalproject/feature/Statistic/presentation/views/statistic_view.dart';
-import 'package:finalproject/feature/penalties/presentation/views/penalties_view.dart';
-import 'package:finalproject/feature/specializations/presentation/views/specialization_view.dart';
-import 'package:finalproject/feature/student%20Affairs/student%20record/presentation/view/students_screen.dart';
+import 'package:finalproject/feature/Department_Student_Affair/Statistic/presentation/views/statistic_view.dart';
+import 'package:finalproject/feature/Department_Student_Affair/penalties/presentation/views/penalties_view.dart';
+import 'package:finalproject/feature/Department_Student_Affair/specializations/presentation/views/specialization_view.dart';
+import 'package:finalproject/feature/Department_Student_Affair/student%20Affairs/student%20record/presentation/view/students_screen.dart';
 import 'package:flutter/material.dart';
 
 class AppSection {

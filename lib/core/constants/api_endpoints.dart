@@ -5,6 +5,7 @@ class ApiEndpoints {
   static const String register = 'register';
   static const String profile = 'profile';
   static const String penalties = 'student-affairs/penalties';
+  static const String penaltiesSearch = 'student-affairs/penalties/search';
 
   // Users
   static const String users = 'users';
