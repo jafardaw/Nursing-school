@@ -12,5 +12,5 @@ abstract class StudentsRepo {
   Future<void> createStudent(CreateStudentRequest request);
  Future<Uint8List> exportStudentsPdf();
    Future<void> updateStudent(int id, CreateStudentRequest request); // 🟢 جديد
-
+ Future<void> deleteStudent(int id); // 🟢 جديد
 }

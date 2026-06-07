@@ -117,6 +117,7 @@ class _UpdateStudentScreenState extends State<UpdateStudentScreen> {
         studyType: _selectedStudyType.name,
         housingType: _selectedHousingType.name,
         academicYearId: _selectedYear.id,
+        
       );
 
       context.read<UpdateStudentCubit>().updateStudent(widget.student.id, request);

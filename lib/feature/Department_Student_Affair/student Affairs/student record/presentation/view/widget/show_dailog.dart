@@ -1,18 +1,17 @@
+import 'package:finalproject/core/constants/app_routes.dart';
+import 'package:finalproject/core/services/navigation_service.dart';
 import 'package:finalproject/core/theme/theme_extination.dart';
 import 'package:finalproject/core/widgets/info_card_widget.dart';
 import 'package:finalproject/core/widgets/small_button.dart';
+import 'package:finalproject/feature/Department_Student_Affair/penalties/data/penalties_model.dart';
+import 'package:finalproject/feature/Department_Student_Affair/student%20Affairs/student%20record/data/model/student_model.dart';
 import 'package:flutter/material.dart';
 
 void showStudentDetails({
   required BuildContext context,
   required bool isActives,
-  required String titleText,
-  required String labiltext,
-  required String ntext,
-  required String fintext,
-  required String mobileText,
-  required String emtext,
-  required String academicYearText,
+  required StudentModeljd student,
+  // required Widget despaywidget,
 }) {
   final styles = context.styles;
   final isActive = isActives;
@@ -51,10 +50,10 @@ void showStudentDetails({
                       radius: 40,
                       backgroundColor: Colors.white.withValues(alpha: 0.2),
                       child: Text(
-                        titleText,
-                        // student.user?.firstName.isNotEmpty == true
-                        //     ? student.user!.firstName[0]
-                        //     : '?',
+                        // titleText,
+                        student.user?.firstName.isNotEmpty == true
+                            ? student.user!.firstName[0]
+                            : '?',
                         style: styles.numberLarge,
                       ),
                     ),
@@ -62,14 +61,18 @@ void showStudentDetails({
 
                     // الاسم
                     Text(
-                      labiltext,
-                      // '${student.user?.firstName ?? ''} ${student.user?.lastName ?? ''}',
+                      // labiltext,
+                      '${student.user?.firstName ?? ''} ${student.user?.lastName ?? ''}',
                       style: styles.numberMedium,
                     ),
                     const SizedBox(height: 4),
 
                     // الرقم الجامعي
-                    Text(ntext, style: styles.headline5),
+                    Text(
+                      // fintext,
+                      student.fingerprintId ?? 'N/A',
+                      style: styles.headline5,
+                    ),
                   ],
                 ),
               ),
@@ -85,7 +88,7 @@ void showStudentDetails({
                           child: buildInfoCard(
                             icon: Icons.fingerprint,
                             label: 'رقم الهوية',
-                            value: fintext,
+                            value: student.nationalNumber,
                             color: const Color(0xFF0D47A1),
                           ),
                         ),
@@ -94,7 +97,7 @@ void showStudentDetails({
                           child: buildInfoCard(
                             icon: Icons.phone_android,
                             label: 'الجوال',
-                            value: mobileText,
+                            value: student.mobileNum,
                             color: const Color(0xFF50CD89),
                           ),
                         ),
@@ -108,7 +111,7 @@ void showStudentDetails({
                           child: buildInfoCard(
                             icon: Icons.email_outlined,
                             label: 'البريد',
-                            value: emtext,
+                            value: student.user?.email ?? 'NA',
                             color: const Color(0xFF009EF7),
                           ),
                         ),
@@ -117,7 +120,7 @@ void showStudentDetails({
                           child: buildInfoCard(
                             icon: Icons.school,
                             label: 'السنة الدراسية',
-                            value: academicYearText,
+                            value: student.academicYear?.name ?? 'N/A',
                             color: const Color(0xFFFF9800),
                           ),
                         ),
@@ -191,7 +194,11 @@ void showStudentDetails({
                     smallButton(
                       styles,
                       () {
-                        Navigator.pop(context);
+                        NavigationService.pushTo(
+                          context,
+                          AppRoutes.updateStudentRoute,
+                          extra: student,
+                        );
                       },
                       Icons.edit,
                       'تعديل البيانات',
@@ -213,9 +220,7 @@ void showStudentDetails({
                     // تعديل البيانات
                     smallButton(
                       styles,
-                      () {
-                        Navigator.pop(context);
-                      },
+                      () {},
                       Icons.cancel_outlined,
                       'إغلاق',
                       styles.errorColor,

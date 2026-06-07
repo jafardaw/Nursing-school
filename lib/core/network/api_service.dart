@@ -99,31 +99,53 @@ class ApiService {
       throw ErrorHandler.handleDioError(e);
     }
   }
-
-Future<Response> get(
-  String path, {
-  dynamic data,                              
-  Map<String, dynamic>? queryParameters,
-}) async {
-  try {
-    Logger.info('GET $path', tag: 'API');
-    if (data != null) {
+   Future<Response> put(
+    String path,
+    dynamic data, {
+    Map<String, dynamic>? queryParameters,
+  }) async {
+    try {
+      Logger.info('PUT $path', tag: 'API');
       Logger.debug('Data: $data', tag: 'API');
+
+      final response = await _dio.put(
+        path,
+        data: data,
+        queryParameters: queryParameters,
+      );
+
+      Logger.info('PUT $path - Success (${response.statusCode})', tag: 'API');
+      return response;
+    } on DioException catch (e) {
+      Logger.error('POST $path failed', error: e);
+      throw ErrorHandler.handleDioError(e);
     }
-
-    final response = await _dio.get(
-      path,
-      data: data,                           
-      queryParameters: queryParameters,
-    );
-
-    Logger.info('GET $path - Success (${response.statusCode})', tag: 'API');
-    return response;
-  } on DioException catch (e) {
-    Logger.error('GET $path failed', error: e);
-    throw ErrorHandler.handleDioError(e);
   }
-}
+
+  Future<Response> get(
+    String path, {
+    dynamic data,
+    Map<String, dynamic>? queryParameters,
+  }) async {
+    try {
+      Logger.info('GET $path', tag: 'API');
+      if (data != null) {
+        Logger.debug('Data: $data', tag: 'API');
+      }
+
+      final response = await _dio.get(
+        path,
+        data: data,
+        queryParameters: queryParameters,
+      );
+
+      Logger.info('GET $path - Success (${response.statusCode})', tag: 'API');
+      return response;
+    } on DioException catch (e) {
+      Logger.error('GET $path failed', error: e);
+      throw ErrorHandler.handleDioError(e);
+    }
+  }
 
   Future<Response> delete(
     String path, {
@@ -136,27 +158,17 @@ Future<Response> get(
     }
   }
 
-  
-
-
   Future<Uint8List> download(
     String path, {
     Map<String, dynamic>? queryParameters,
   }) async {
     try {
-      // final token = await _storage.getString(AppConstants.tokenKey);
-
       Logger.info('Downloading: $path', tag: 'API');
 
       final response = await _dio.get(
         path,
         queryParameters: queryParameters,
-        options: Options(
-          responseType: ResponseType.bytes,
-          // headers: {
-          //   if (token != null) 'Authorization': 'Bearer $token',
-          // },
-        ),
+        options: Options(responseType: ResponseType.bytes),
       );
 
       Logger.info(

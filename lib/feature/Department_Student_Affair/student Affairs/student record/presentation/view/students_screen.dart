@@ -1,20 +1,25 @@
 import 'package:finalproject/core/constants/app_routes.dart';
 import 'package:finalproject/core/di/service_locator.dart';
-import 'package:finalproject/core/services/file_download_service.dart';
 import 'package:finalproject/core/services/navigation_service.dart';
+import 'package:finalproject/core/theme/app_colors.dart';
 import 'package:finalproject/core/theme/theme_extination.dart';
 import 'package:finalproject/core/widgets/circle_name.dart';
+import 'package:finalproject/core/widgets/custom_confirm_dialog.dart';
 import 'package:finalproject/core/widgets/empty_view_list.dart';
 import 'package:finalproject/core/widgets/error_widget_view.dart';
 import 'package:finalproject/core/widgets/loading_widget.dart';
 import 'package:finalproject/core/widgets/pagination_footer.dart';
-import 'package:finalproject/core/widgets/show_dailog.dart';
+import 'package:finalproject/feature/Department_Student_Affair/student%20Affairs/student%20record/presentation/manger/cubit/delete_student_cubit.dart';
+import 'package:finalproject/feature/Department_Student_Affair/student%20Affairs/student%20record/presentation/manger/cubit/delete_student_state.dart';
+import 'package:finalproject/feature/Department_Student_Affair/student%20Affairs/student%20record/presentation/view/widget/show_dailog.dart';
+import 'package:finalproject/core/widgets/show_snak_bar.dart';
 import 'package:finalproject/core/widgets/small_button.dart';
 import 'package:finalproject/feature/Department_Student_Affair/student%20Affairs/student%20record/data/model/student_model.dart';
 import 'package:finalproject/feature/Department_Student_Affair/student%20Affairs/student%20record/presentation/manger/cubit/export_pdf_cubit.dart';
 import 'package:finalproject/feature/Department_Student_Affair/student%20Affairs/student%20record/presentation/manger/cubit/export_pdf_state.dart';
 import 'package:finalproject/feature/Department_Student_Affair/student%20Affairs/student%20record/presentation/manger/students_cubit.dart';
 import 'package:finalproject/feature/Department_Student_Affair/student%20Affairs/student%20record/presentation/manger/students_state.dart';
+import 'package:finalproject/feature/Home/presentation/views/widget/quick_search.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:data_table_2/data_table_2.dart';
@@ -131,40 +136,25 @@ class _StudentsScreenState extends State<StudentsScreen> {
                 if (!mounted) return;
 
                 if (state is ExportPdfLoading) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Row(
-                        children: [
-                          SizedBox(
-                            width: 20,
-                            height: 20,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              color: Colors.white,
-                            ),
-                          ),
-                          SizedBox(width: 12),
-                          Text('جاري تحميل PDF...'),
-                        ],
-                      ),
-                      duration: Duration(seconds: 30),
-                    ),
+                  showCustomSnackBar(
+                    context,
+                    "جاري تصدير الملف...",
+                    type: ToastType.info,
+                    duration: const Duration(seconds: 5),
                   );
                 } else if (state is ExportPdfSuccess) {
-                  ScaffoldMessenger.of(context).hideCurrentSnackBar();
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(state.message),
-                      backgroundColor: Colors.green,
-                    ),
+                  showCustomSnackBar(
+                    context,
+                    "تم تصدير الملف بنجاح",
+                    type: ToastType.success,
                   );
                 } else if (state is ExportPdfError) {
                   ScaffoldMessenger.of(context).hideCurrentSnackBar();
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(state.message),
-                      backgroundColor: Colors.red,
-                    ),
+
+                  showCustomSnackBar(
+                    context,
+                    state.message,
+                    type: ToastType.error,
                   );
                 }
               });
@@ -327,13 +317,7 @@ class _StudentsScreenState extends State<StudentsScreen> {
                 onPressed: () => showStudentDetails(
                   context: context,
                   isActives: isActive,
-                  titleText: student.user?.firstName ?? '',
-                  labiltext: student.user?.lastName ?? '',
-                  ntext: student.nationalNumber,
-                  fintext: student.fingerprintId,
-                  mobileText: student.mobileNum,
-                  emtext: student.user?.email ?? '',
-                  academicYearText: student.academicYear?.name ?? '',
+                  student: student,
                 ),
                 padding: EdgeInsets.zero,
                 constraints: const BoxConstraints(),
@@ -349,6 +333,61 @@ class _StudentsScreenState extends State<StudentsScreen> {
                 onPressed: () {},
                 padding: EdgeInsets.zero,
                 constraints: const BoxConstraints(),
+              ),
+              const SizedBox(width: 8),
+              BlocConsumer<DeleteStudentCubit, DeleteStudentState>(
+                listener: (context, state) {
+                  if (state is DeleteStudentSuccess) {
+                    showCustomSnackBar(
+                      context,
+                      'تم حذف الطالب بنجاح',
+                      type: ToastType.success,
+                    );
+                  } else if (state is DeleteStudentError) {
+                    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                    showCustomSnackBar(
+                      context,
+                      state.message,
+                      type: ToastType.error,
+                    );
+                  }
+                },
+                builder: (context, state) {
+                  final isLoading =
+                      state is DeleteStudentLoading &&
+                      state.studentId == student.id;
+                  return isLoading
+                      ? const Padding(
+                          padding: EdgeInsets.all(8.0),
+                          child: SizedBox(
+                            width: 18,
+                            height: 18,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: AppColors.error,
+                            ),
+                          ),
+                        )
+                      : IconButton(
+                          icon: const Icon(
+                            Icons.delete,
+                            size: 18,
+                            color: AppColors.error,
+                          ),
+                          tooltip: 'حذف',
+                          onPressed: () {
+                            // إغلاق أي حوار مفتوح
+                            confirmDelete(context, () {
+                              NavigationService.goBack(context);
+                              context.read<DeleteStudentCubit>().deleteStudent(
+                                student.id,
+                              );
+                            });
+                          },
+                          padding: EdgeInsets.zero,
+                          constraints: const BoxConstraints(),
+                        );
+                },
               ),
             ],
           ),
@@ -393,62 +432,4 @@ class _StudentsScreenState extends State<StudentsScreen> {
     _searchController.dispose();
     super.dispose();
   }
-
-  // Future<void> _exportPdf() async {
-  //   // إظهار Snackbar تحميل
-  //   if (!mounted) return;
-
-  //   ScaffoldMessenger.of(context).showSnackBar(
-  //     const SnackBar(
-  //       content: Row(
-  //         children: [
-  //           SizedBox(
-  //             width: 20,
-  //             height: 20,
-  //             child: CircularProgressIndicator(
-  //               strokeWidth: 2,
-  //               color: Colors.white,
-  //             ),
-  //           ),
-  //           SizedBox(width: 12),
-  //           Text('جاري تحميل PDF...'),
-  //         ],
-  //       ),
-  //       duration: Duration(seconds: 30),
-  //     ),
-  //   );
-
-  //   try {
-  //     final repo = sl<StudentsRepo>();
-  //     final bytes = await repo.exportStudentsPdf();
-
-  //     if (!mounted) return;
-
-  //     // 🟢 تحميل الملف
-  //     FileDownloadService.downloadPdf(
-  //       bytes: bytes,
-  //       fileName: 'سجلات_الطلاب_${DateTime.now().millisecondsSinceEpoch}.pdf',
-  //     );
-
-  //     ScaffoldMessenger.of(context).hideCurrentSnackBar();
-  //     ScaffoldMessenger.of(context).showSnackBar(
-  //       const SnackBar(
-  //         content: Text('✅ تم تحميل الملف بنجاح'),
-  //         backgroundColor: Colors.green,
-  //         duration: Duration(seconds: 3),
-  //       ),
-  //     );
-  //   } catch (e) {
-  //     if (!mounted) return;
-
-  //     ScaffoldMessenger.of(context).hideCurrentSnackBar();
-  //     ScaffoldMessenger.of(context).showSnackBar(
-  //       SnackBar(
-  //         content: Text('❌ فشل تحميل الملف'),
-  //         backgroundColor: Colors.red,
-  //         duration: Duration(seconds: 3),
-  //       ),
-  //     );
-  //   }
-  // }
 }

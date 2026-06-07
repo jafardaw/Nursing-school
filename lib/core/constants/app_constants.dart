@@ -21,19 +21,18 @@ class AppConstants {
 
   static const List<ItemModel> housingTypes = [
     ItemModel(id: 1, name: 'Internal'),
-    ItemModel(id: 2, name: 'External')
+    ItemModel(id: 2, name: 'External'),
   ];
   static const List<ItemModel> studyTypes = [
     ItemModel(id: 1, name: 'Regular'),
-    ItemModel(id: 2, name: 'Transfer')
+    ItemModel(id: 2, name: 'Transfer'),
   ];
   static const List<ItemModel> academicYears = [
-      ItemModel(id: 1, name: 'الأولى'),
-   ItemModel(id: 3, name: 'الثالثة'),
-   ItemModel(id: 2, name: 'الثانية'),
-   ItemModel(id: 5, name: 'الخامسة'),
-   ItemModel(id: 4, name: 'الرابعة'),
-
+    ItemModel(id: 1, name: 'الأولى'),
+    ItemModel(id: 3, name: 'الثالثة'),
+    ItemModel(id: 2, name: 'الثانية'),
+    ItemModel(id: 5, name: 'الخامسة'),
+    ItemModel(id: 4, name: 'الرابعة'),
   ];
 
   static const List<ItemModel> nationalities = [
