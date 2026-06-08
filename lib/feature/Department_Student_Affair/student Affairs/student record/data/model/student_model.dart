@@ -1,6 +1,6 @@
 import 'package:finalproject/core/model/base_model.dart';
 
-class StudentModel {
+class StudentModeljd {
   final BaseResponse? baseResponse;
   final int id;
   final String nationalNumber;
@@ -35,7 +35,7 @@ class StudentModel {
   final Specialization? specialization;
   final dynamic hospital;
 
-  StudentModel({
+  StudentModeljd({
     this.baseResponse,
     required this.id,
     required this.nationalNumber,
@@ -69,8 +69,8 @@ class StudentModel {
     this.hospital,
   });
 
-  factory StudentModel.fromJson(Map<String, dynamic> json) {
-    return StudentModel(
+  factory StudentModeljd.fromJson(Map<String, dynamic> json) {
+    return StudentModeljd(
       id: json['id'] ?? 0,
       nationalNumber: json['national_number'] ?? '',
       fingerprintId: json['fingerprint_id'] ?? '',

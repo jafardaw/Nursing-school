@@ -23,13 +23,6 @@ void showCustomSnackBar(
             decoration: BoxDecoration(
               color: _getColor(type),
               borderRadius: BorderRadius.circular(40),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withAlpha(30),
-                  blurRadius: 8,
-                  spreadRadius: 2,
-                ),
-              ],
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,

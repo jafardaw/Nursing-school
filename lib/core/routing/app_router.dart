@@ -1,9 +1,15 @@
 import 'package:finalproject/core/constants/app_routes.dart';
 import 'package:finalproject/core/di/service_locator.dart';
 import 'package:finalproject/core/routing/lazy_page_loader.dart';
+import 'package:finalproject/feature/Department_Student_Affair/penalties/presentation/manger/cubit_delete/delete_penalties_cubit.dart';
 import 'package:finalproject/feature/Department_Student_Affair/penalties/presentation/manger/cubit_post/add_penalites_cubit.dart';
+import 'package:finalproject/feature/Department_Student_Affair/student%20Affairs/student%20record/data/model/student_model.dart';
 import 'package:finalproject/feature/Department_Student_Affair/student%20Affairs/student%20record/presentation/manger/addstudent/add_student_cubit.dart';
+import 'package:finalproject/feature/Department_Student_Affair/student%20Affairs/student%20record/presentation/manger/cubit/delete_student_cubit.dart';
+import 'package:finalproject/feature/Department_Student_Affair/student%20Affairs/student%20record/presentation/manger/cubit/update_student_cubit.dart';
 import 'package:finalproject/feature/Department_Student_Affair/student%20Affairs/student%20record/presentation/manger/students_cubit.dart';
+import 'package:finalproject/feature/Department_Student_Affair/student%20Affairs/student%20record/presentation/view/up_date_student.dart'
+    deferred as updatestudent;
 import 'package:finalproject/feature/Home/presentation/views/home_view.dart'
     deferred as home;
 import 'package:finalproject/feature/auth/presentation/views/login_sceen.dart'
@@ -14,6 +20,7 @@ import 'package:finalproject/feature/Department_Student_Affair/student%20Affairs
     deferred as addstudent;
 import 'package:finalproject/feature/Department_Student_Affair/student%20Affairs/student%20record/presentation/view/students_screen.dart'
     deferred as students;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -38,8 +45,13 @@ class AppRouter {
       GoRoute(
         path: AppRoutes.homerout,
         name: AppRoutes.homerout,
-        builder: (context, state) => BlocProvider(
-          create: (_) => sl<StudentsCubit>(),
+        builder: (context, state) => MultiBlocProvider(
+          providers: [
+            BlocProvider<StudentsCubit>(create: (_) => sl<StudentsCubit>()),
+            BlocProvider<DeleteStudentCubit>(
+              create: (_) => sl<DeleteStudentCubit>(),
+            ),
+          ],
           child: LazyPageLoader(
             loadLibrary: home.loadLibrary,
             builder: () => home.HomeScreen(),
@@ -84,6 +96,20 @@ class AppRouter {
             ),
           );
         },
+      ),
+
+      GoRoute(
+        path: AppRoutes.updateStudentRoute,
+        name: AppRoutes.updateStudentRoute,
+        builder: (context, state) => BlocProvider(
+          create: (_) => sl<UpdateStudentCubit>(),
+          child: LazyPageLoader(
+            loadLibrary: updatestudent.loadLibrary,
+            builder: () => updatestudent.UpdateStudentScreen(
+              student: state.extra as StudentModeljd,
+            ),
+          ),
+        ),
       ),
     ],
     errorBuilder: (context, state) => Scaffold(

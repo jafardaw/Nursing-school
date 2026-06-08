@@ -21,9 +21,12 @@ import 'package:finalproject/feature/Department_Student_Affair/specializations/r
 import 'package:finalproject/feature/Department_Student_Affair/student%20Affairs/student%20record/domain/repositories/students_repo.dart';
 import 'package:finalproject/feature/Department_Student_Affair/student%20Affairs/student%20record/domain/repositories/students_repo_impl.dart';
 import 'package:finalproject/feature/Department_Student_Affair/student%20Affairs/student%20record/presentation/manger/addstudent/add_student_cubit.dart';
+import 'package:finalproject/feature/Department_Student_Affair/student%20Affairs/student%20record/presentation/manger/cubit/delete_student_cubit.dart';
 import 'package:finalproject/feature/Department_Student_Affair/student%20Affairs/student%20record/presentation/manger/cubit/export_pdf_cubit.dart';
+import 'package:finalproject/feature/Department_Student_Affair/student%20Affairs/student%20record/presentation/manger/cubit/update_student_cubit.dart';
 import 'package:finalproject/feature/Department_Student_Affair/student%20Affairs/student%20record/presentation/manger/students_cubit.dart';
 import 'package:finalproject/feature/auth/presentation/manger/auth_cubit.dart';
+import 'package:finalproject/feature/student%20Affairs/student%20record/domain/repositories/students_repo.dart';
 import 'package:get_it/get_it.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:finalproject/core/network/api_service.dart';
@@ -60,6 +63,9 @@ Future<void> initServiceLocator() async {
   sl.registerFactory<AddStudentCubit>(
     () => AddStudentCubit(sl<StudentsRepo>()),
   );
+  sl.registerFactory<DeleteStudentCubit>(
+    () => DeleteStudentCubit(sl<StudentsRepo>()),
+  );
 
   // Cubits (يفضل Factory لضمان حالة نظيفة عند تسجيل الدخول مجدداً)
   sl.registerFactory(() => AuthCubit(sl<AuthRepoImpl>()));
@@ -86,7 +92,9 @@ Future<void> initServiceLocator() async {
 
   //////////specialization
   sl.registerFactory<ExportPdfCubit>(() => ExportPdfCubit(sl<StudentsRepo>()));
-
+  sl.registerFactory<UpdateStudentCubit>(
+    () => UpdateStudentCubit(sl<StudentsRepo>()),
+  );
   // تسجيل الـ Repository
   sl.registerLazySingleton<SpecializationRepository>(
     () => SpecializationRepositoryImpl(sl.get<ApiService>()),

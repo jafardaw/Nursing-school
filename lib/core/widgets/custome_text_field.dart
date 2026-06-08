@@ -26,7 +26,7 @@ class CustomeTextField extends StatefulWidget {
   final Function()? onTap;
 
   final bool? enabled;
-
+  final EdgeInsetsGeometry? contentPadding;
   const CustomeTextField({
     super.key,
     this.hint,
@@ -50,7 +50,7 @@ class CustomeTextField extends StatefulWidget {
     this.floatingLabelBehavior,
     this.suffix,
     this.onTap,
-    this.enabled,
+    this.enabled, this.contentPadding,
   });
 
   @override
@@ -80,6 +80,7 @@ class CustomTextFieldState extends State<CustomeTextField> {
         validator: widget.validator,
         onChanged: widget.onChanged,
         decoration: InputDecoration(
+          contentPadding: widget.contentPadding ,
           floatingLabelBehavior: widget.floatingLabelBehavior,
           errorStyle: AppTextStyles.size16W600,
           isDense: widget.isDense,

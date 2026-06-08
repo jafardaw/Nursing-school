@@ -99,6 +99,28 @@ class ApiService {
       throw ErrorHandler.handleDioError(e);
     }
   }
+   Future<Response> put(
+    String path,
+    dynamic data, {
+    Map<String, dynamic>? queryParameters,
+  }) async {
+    try {
+      Logger.info('PUT $path', tag: 'API');
+      Logger.debug('Data: $data', tag: 'API');
+
+      final response = await _dio.put(
+        path,
+        data: data,
+        queryParameters: queryParameters,
+      );
+
+      Logger.info('PUT $path - Success (${response.statusCode})', tag: 'API');
+      return response;
+    } on DioException catch (e) {
+      Logger.error('POST $path failed', error: e);
+      throw ErrorHandler.handleDioError(e);
+    }
+  }
 
   Future<Response> get(
     String path, {
@@ -136,18 +158,27 @@ class ApiService {
     }
   }
 
-  Future<Response> update(String path, {dynamic data}) async {
+  Future<Uint8List> download(
+    String path, {
+    Map<String, dynamic>? queryParameters,
+  }) async {
     try {
-      return await _dio.put(path, data: data);
-    } on DioException catch (e) {
-      throw ErrorHandler.handleDioError(e);
-    }
-  }
+      Logger.info('Downloading: $path', tag: 'API');
 
-  Future<Response> patch(String path, {dynamic data}) async {
-    try {
-      return await _dio.patch(path, data: data);
+      final response = await _dio.get(
+        path,
+        queryParameters: queryParameters,
+        options: Options(responseType: ResponseType.bytes),
+      );
+
+      Logger.info(
+        'Download complete: ${response.data.length} bytes',
+        tag: 'API',
+      );
+
+      return Uint8List.fromList(response.data);
     } on DioException catch (e) {
+      Logger.error('Download failed: $path', error: e, tag: 'API');
       throw ErrorHandler.handleDioError(e);
     }
   }

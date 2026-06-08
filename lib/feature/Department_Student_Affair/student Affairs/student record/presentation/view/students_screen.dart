@@ -1,19 +1,25 @@
 import 'package:finalproject/core/constants/app_routes.dart';
 import 'package:finalproject/core/di/service_locator.dart';
 import 'package:finalproject/core/services/navigation_service.dart';
+import 'package:finalproject/core/theme/app_colors.dart';
 import 'package:finalproject/core/theme/theme_extination.dart';
 import 'package:finalproject/core/widgets/circle_name.dart';
+import 'package:finalproject/core/widgets/custom_confirm_dialog.dart';
 import 'package:finalproject/core/widgets/empty_view_list.dart';
 import 'package:finalproject/core/widgets/error_widget_view.dart';
 import 'package:finalproject/core/widgets/loading_widget.dart';
 import 'package:finalproject/core/widgets/pagination_footer.dart';
-import 'package:finalproject/core/widgets/show_dailog.dart';
+import 'package:finalproject/feature/Department_Student_Affair/student%20Affairs/student%20record/presentation/manger/cubit/delete_student_cubit.dart';
+import 'package:finalproject/feature/Department_Student_Affair/student%20Affairs/student%20record/presentation/manger/cubit/delete_student_state.dart';
+import 'package:finalproject/feature/Department_Student_Affair/student%20Affairs/student%20record/presentation/view/widget/show_dailog.dart';
+import 'package:finalproject/core/widgets/show_snak_bar.dart';
 import 'package:finalproject/core/widgets/small_button.dart';
 import 'package:finalproject/feature/Department_Student_Affair/student%20Affairs/student%20record/data/model/student_model.dart';
 import 'package:finalproject/feature/Department_Student_Affair/student%20Affairs/student%20record/presentation/manger/cubit/export_pdf_cubit.dart';
 import 'package:finalproject/feature/Department_Student_Affair/student%20Affairs/student%20record/presentation/manger/cubit/export_pdf_state.dart';
 import 'package:finalproject/feature/Department_Student_Affair/student%20Affairs/student%20record/presentation/manger/students_cubit.dart';
 import 'package:finalproject/feature/Department_Student_Affair/student%20Affairs/student%20record/presentation/manger/students_state.dart';
+import 'package:finalproject/feature/Home/presentation/views/widget/quick_search.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:data_table_2/data_table_2.dart';
@@ -302,7 +308,76 @@ class _StudentsScreenState extends State<StudentsScreen> {
     );
   }
 
+<<<<<<< HEAD
   // buildSearchBar removed, code integrated into header
+=======
+  // ====== 3. شريط البحث والتصفية ======
+  Widget buildSearchBar(BuildContext context, bool isDesktop) {
+    final styles = context.styles;
+
+    return Row(
+      children: [
+        if (isDesktop) ...[
+          smallButton(
+            styles,
+            () {
+              // 🟢 إنشاء Cubit للتصدير
+              final exportCubit = sl<ExportPdfCubit>();
+
+              // 🟢 استمع للنتيجة
+              exportCubit.stream.listen((state) {
+                if (!mounted) return;
+
+                if (state is ExportPdfLoading) {
+                  showCustomSnackBar(
+                    context,
+                    "جاري تصدير الملف...",
+                    type: ToastType.info,
+                    duration: const Duration(seconds: 5),
+                  );
+                } else if (state is ExportPdfSuccess) {
+                  showCustomSnackBar(
+                    context,
+                    "تم تصدير الملف بنجاح",
+                    type: ToastType.success,
+                  );
+                } else if (state is ExportPdfError) {
+                  ScaffoldMessenger.of(context).hideCurrentSnackBar();
+
+                  showCustomSnackBar(
+                    context,
+                    state.message,
+                    type: ToastType.error,
+                  );
+                }
+              });
+
+              // 🟢 ابدأ التصدير
+              exportCubit.exportPdf();
+            },
+            Icons.picture_as_pdf,
+            'تصدير PDF',
+            Colors.red,
+            Colors.white,
+          ),
+          const SizedBox(width: 12),
+          smallButton(
+            styles,
+            () {
+              NavigationService.pushTo(context, AppRoutes.addStudentRoute);
+              // الكود ده مش هيتنفذ غير لما المستخدم يرجع من صفحة التسجيل
+            },
+            Icons.person_add,
+            'تسجيل طالبة جديدة',
+            styles.primaryColor,
+            styles.whiteColor,
+          ),
+          const SizedBox(width: 8),
+        ],
+      ],
+    );
+  }
+>>>>>>> 6412f4fa982395c75bd0f3f5ce3a35521455c3d1
 
   // ====== 4. الجدول ======
   Widget _buildDataTable(List<StudentModel> students) {
@@ -337,7 +412,7 @@ class _StudentsScreenState extends State<StudentsScreen> {
   }
 
   // ====== 5. صف البيانات ======
-  DataRow _buildDataRow(StudentModel student) {
+  DataRow _buildDataRow(StudentModeljd student) {
     final isActive = !student.clearanceStatus;
 
     return DataRow(
@@ -436,13 +511,7 @@ class _StudentsScreenState extends State<StudentsScreen> {
                 onPressed: () => showStudentDetails(
                   context: context,
                   isActives: isActive,
-                  titleText: student.user?.firstName ?? '',
-                  labiltext: student.user?.lastName ?? '',
-                  ntext: student.nationalNumber,
-                  fintext: student.fingerprintId,
-                  mobileText: student.mobileNum,
-                  emtext: student.user?.email ?? '',
-                  academicYearText: student.academicYear?.name ?? '',
+                  student: student,
                 ),
                 padding: EdgeInsets.zero,
                 constraints: const BoxConstraints(),
@@ -458,6 +527,61 @@ class _StudentsScreenState extends State<StudentsScreen> {
                 onPressed: () {},
                 padding: EdgeInsets.zero,
                 constraints: const BoxConstraints(),
+              ),
+              const SizedBox(width: 8),
+              BlocConsumer<DeleteStudentCubit, DeleteStudentState>(
+                listener: (context, state) {
+                  if (state is DeleteStudentSuccess) {
+                    showCustomSnackBar(
+                      context,
+                      'تم حذف الطالب بنجاح',
+                      type: ToastType.success,
+                    );
+                  } else if (state is DeleteStudentError) {
+                    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                    showCustomSnackBar(
+                      context,
+                      state.message,
+                      type: ToastType.error,
+                    );
+                  }
+                },
+                builder: (context, state) {
+                  final isLoading =
+                      state is DeleteStudentLoading &&
+                      state.studentId == student.id;
+                  return isLoading
+                      ? const Padding(
+                          padding: EdgeInsets.all(8.0),
+                          child: SizedBox(
+                            width: 18,
+                            height: 18,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: AppColors.error,
+                            ),
+                          ),
+                        )
+                      : IconButton(
+                          icon: const Icon(
+                            Icons.delete,
+                            size: 18,
+                            color: AppColors.error,
+                          ),
+                          tooltip: 'حذف',
+                          onPressed: () {
+                            // إغلاق أي حوار مفتوح
+                            confirmDelete(context, () {
+                              NavigationService.goBack(context);
+                              context.read<DeleteStudentCubit>().deleteStudent(
+                                student.id,
+                              );
+                            });
+                          },
+                          padding: EdgeInsets.zero,
+                          constraints: const BoxConstraints(),
+                        );
+                },
               ),
             ],
           ),

@@ -2,15 +2,13 @@ import 'package:flutter/foundation.dart';
 import 'package:universal_html/html.dart' as html;
 
 class FileDownloadService {
-  /// 🟢 تحميل ملف للويب
-  static void downloadFile({
+  /// 🟢 تحميل ملف PDF للويب
+  static void downloadPdf({
     required Uint8List bytes,
-    required String fileName,
-    String mimeType = 'application/pdf',
+    String fileName = 'document.pdf',
   }) {
     if (kIsWeb) {
-      // للويب - استخدام anchor tag
-      final blob = html.Blob([bytes], mimeType);
+      final blob = html.Blob([bytes], 'application/pdf');
       final url = html.Url.createObjectUrlFromBlob(blob);
       final anchor = html.document.createElement('a') as html.AnchorElement
         ..href = url

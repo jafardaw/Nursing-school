@@ -17,6 +17,7 @@ class CreateStudentRequest {
   final String studyType;
   final String housingType;
   final int academicYearId;
+  
 
   CreateStudentRequest({
     required this.firstName,
@@ -36,7 +37,7 @@ class CreateStudentRequest {
     required this.mobileNum,
     required this.studyType,
     required this.housingType,
-    required this.academicYearId,
+    required this.academicYearId, 
   });
 
   Map<String, dynamic> toJson() {
@@ -59,6 +60,7 @@ class CreateStudentRequest {
       'study_type': studyType,
       'housing_type': housingType,
       'acadmic_year_id': academicYearId,
+      
     };
   }
 }
