@@ -98,7 +98,7 @@ class _HomeScreenState extends State<HomeScreen> {
         setState(() => _selectedIndex = index);
       },
       unselectedIconTheme: IconThemeData(
-        color: Colors.white.withOpacity(0.5),
+        color: Colors.white.withValues(alpha: 0.5),
         size: 24,
       ),
       selectedIconTheme: const IconThemeData(color: Colors.white, size: 28),
@@ -107,7 +107,7 @@ class _HomeScreenState extends State<HomeScreen> {
         fontWeight: FontWeight.bold,
       ),
       unselectedLabelTextStyle: context.styles.bodyMedium.copyWith(
-        color: Colors.white.withOpacity(0.6),
+        color: Colors.white.withValues(alpha: 0.6),
       ),
       leading: RailHeader(isExpanded: _isExpanded),
       destinations: _activeSections!.map((section) {

@@ -1,3 +1,6 @@
+import 'package:finalproject/feature/Department_Exam/Subject/presentation/views/year_view.dart';
+import 'package:finalproject/feature/Department_Exam/Exam_Session/presentation/views/exam_sessions_view.dart';
+import 'package:finalproject/feature/Department_Exam/Halls/presentation/views/halls_view.dart';
 import 'package:finalproject/feature/Department_Student_Affair/Statistic/presentation/views/statistic_view.dart';
 import 'package:finalproject/feature/Department_Student_Affair/penalties/presentation/views/penalties_view.dart';
 import 'package:finalproject/feature/Department_Student_Affair/specializations/presentation/views/specialization_view.dart';
@@ -49,12 +52,12 @@ class NavConfig {
             page: DashboardView(),
           ),
 
-          AppSection(
-            title: "التخصصات",
-            icon: Icons.speaker_sharp,
-            selectedIcon: Icons.speaker_sharp,
-            page: SpecializationsView(),
-          ),
+          // AppSection(
+          //   title: "التخصصات",
+          //   icon: Icons.speaker_sharp,
+          //   selectedIcon: Icons.speaker_sharp,
+          //   page: SubjectsMainView(),
+          // ),
         ];
       case 'examinations_officer':
         return [
@@ -62,7 +65,19 @@ class NavConfig {
             title: "الرئيسية",
             icon: Icons.home_outlined,
             selectedIcon: Icons.home,
-            page: Container(),
+            page: SubjectsMainView(),
+          ),
+          AppSection(
+            title: "الدورات الامتحانية",
+            icon: Icons.calendar_month_outlined,
+            selectedIcon: Icons.calendar_month,
+            page: const ExamSessionsPage(),
+          ),
+          AppSection(
+            title: "القاعات الامتحانية",
+            icon: Icons.domain_outlined,
+            selectedIcon: Icons.domain_rounded,
+            page: const HallsPage(),
           ),
           AppSection(
             title: "تسجيل غياب",

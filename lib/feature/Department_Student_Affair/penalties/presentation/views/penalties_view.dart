@@ -77,142 +77,142 @@ class _AbsencePageState extends State<AbsencePage> {
             },
             child: Scaffold(
               backgroundColor: const Color(0xFFF3F6F9),
-              body: Padding(
-                padding: const EdgeInsets.all(25.0),
-                child: Column(
-                  children: [
-                    // 1. شريط الفلاتر والبحث العام (Reusable Widget)
-                    CustomFilterBar(
-                      buttonTooltip: 'اضافه اجراء(غياب/انذار)',
-                      searchHint: "ابحث عن طالب بالاسم...",
-                      searchController: _searchController,
-                      onSearchSubmitted: (val) => _handleFilterLogic(context),
-                      label1: "السنة الدراسية",
-                      value1: selectedYear,
-                      items1: const ['الكل', '1', '2', '3', '4'],
-                      onChanged1: (val) => setState(() => selectedYear = val),
-                      label2: "مستوى الخطر",
-                      value2: selectedRisk,
-                      items2: const ['الكل', 'منخفض', 'متوسط', 'عالي'],
-                      onChanged2: (val) => setState(() => selectedRisk = val),
-                      onFilterPressed: () => _handleFilterLogic(context),
-
-                      icon: const Icon(
-                        Icons.add,
-                        color: Colors.white,
-                        size: 20,
-                      ),
-                      onFilterPressedsearch: () {
-                        print('ssssssss');
-                        innerContext.read<AbsenceCubit>().fetchAbsencesSearch(
-                          _searchController.toString(),
-                          selectedYear!,
-                        );
-                      },
-                      icon2: Icon(Icons.search),
-                      onChanged3: (String? p1) {
-                        innerContext.read<AbsenceCubit>().fetchAbsencesSearch(
-                          _searchController.text.trim(),
-                          selectedYear!,
-                        );
-                      },
-                    ),
-
-                    const SizedBox(height: 20),
-
-                    // 2. جسم الصفحة الرئيسي (الجدول والـ Pagination)
-                    Expanded(
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(16),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.04),
-                              blurRadius: 20,
-                              offset: const Offset(0, 10),
-                            ),
-                          ],
-                        ),
-                        child: BlocBuilder<AbsenceCubit, AbsenceState>(
-                          builder: (context, state) {
-                            if (state is AbsenceLoading) {
-                              return const Center(
-                                child: CircularProgressIndicator(),
-                              );
-                            }
-                            if (state is AbsenceError) {
-                              return Center(child: Text(state.message));
-                            }
-                            if (state is AbsenceSuccess) {
-                              return Column(
-                                children: [
-                                  // الجدول المخصص
-                                  Expanded(
-                                    child: Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 8.0,
-                                      ),
-                                      child: DataTable2(
-                                        columnSpacing: 20,
-                                        horizontalMargin: 12,
-                                        minWidth: 900,
-                                        headingRowHeight: 60,
-                                        headingRowColor:
-                                            WidgetStateProperty.all(
-                                              const Color(0xFFF9FAFB),
-                                            ),
-                                        columns: const [
-                                          DataColumn2(
-                                            label: Text('الطالب'),
-                                            size: ColumnSize.L,
-                                          ),
-                                          DataColumn2(
-                                            label: Text('السنة'),
-                                            size: ColumnSize.L,
-                                          ),
-                                          DataColumn2(
-                                            label: Text('نوع المخالفة'),
-                                            size: ColumnSize.M,
-                                          ),
-                                          DataColumn2(
-                                            label: Text('التاريخ'),
-                                            size: ColumnSize.M,
-                                          ),
-                                          DataColumn2(
-                                            label: Text('ملاحظات'),
-                                            size: ColumnSize.L,
-                                          ),
-                                          // DataColumn2(
-                                          //   label: Text('تعديل'),
-                                          //   size: ColumnSize.L,
-                                          // ),
-                                          // DataColumn2(
-                                          //   label: Text('حذف'),
-                                          //   size: ColumnSize.L,
-                                          // ),
-                                        ],
-                                        rows: state.absences
-                                            .map(
-                                              (studentGroup) => _buildRow(
-                                                innerContext,
-                                                studentGroup,
-                                              ),
-                                            )
-                                            .toList(),
-                                      ),
-                                    ),
-                                  ),
-
-                                  // شريط الترقيم (Pagination Footer)
-                                  _buildPaginationFooter(context, state),
-                                ],
-                              );
-                            }
-                            return const SizedBox();
+              body: SafeArea(
+                child: CustomScrollView(
+                  physics: const BouncingScrollPhysics(),
+                  slivers: [
+                    SliverPadding(
+                      padding: const EdgeInsets.all(25.0),
+                      sliver: SliverToBoxAdapter(
+                        child: CustomFilterBar(
+                          buttonTooltip: 'اضافه اجراء(غياب/انذار)',
+                          searchHint: "ابحث عن طالب بالاسم...",
+                          searchController: _searchController,
+                          onSearchSubmitted: (val) => _handleFilterLogic(context),
+                          label1: "السنة الدراسية",
+                          value1: selectedYear,
+                          items1: const ['الكل', '1', '2', '3', '4'],
+                          onChanged1: (val) => setState(() => selectedYear = val),
+                          label2: "مستوى الخطر",
+                          value2: selectedRisk,
+                          items2: const ['الكل', 'منخفض', 'متوسط', 'عالي'],
+                          onChanged2: (val) => setState(() => selectedRisk = val),
+                          onFilterPressed: () => _handleFilterLogic(context),
+                          icon: const Icon(
+                            Icons.add,
+                            color: Colors.white,
+                            size: 20,
+                          ),
+                          onFilterPressedsearch: () {
+                            innerContext.read<AbsenceCubit>().fetchAbsencesSearch(
+                              _searchController.text.trim(),
+                              selectedYear!,
+                            );
+                          },
+                          icon2: const Icon(Icons.search),
+                          onChanged3: (String? p1) {
+                            innerContext.read<AbsenceCubit>().fetchAbsencesSearch(
+                              _searchController.text.trim(),
+                              selectedYear!,
+                            );
                           },
                         ),
                       ),
+                    ),
+                    BlocBuilder<AbsenceCubit, AbsenceState>(
+                      builder: (context, state) {
+                        if (state is AbsenceLoading) {
+                          return const SliverFillRemaining(
+                            child: Center(
+                              child: CircularProgressIndicator(),
+                            ),
+                          );
+                        }
+                        if (state is AbsenceError) {
+                          return SliverFillRemaining(
+                            child: Center(child: Text(state.message)),
+                          );
+                        }
+                        if (state is AbsenceSuccess) {
+                          if (state.absences.isEmpty) {
+                            return const SliverFillRemaining(
+                              child: Center(
+                                child: Text('لا توجد سجلات غيابات أو عقوبات حالياً'),
+                              ),
+                            );
+                          }
+                          return SliverPadding(
+                            padding: const EdgeInsets.symmetric(horizontal: 25.0),
+                            sliver: SliverList(
+                              delegate: SliverChildListDelegate([
+                                Container(
+                                  height: 600,
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(16),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.black.withValues(alpha: 0.04),
+                                        blurRadius: 20,
+                                        offset: const Offset(0, 10),
+                                      ),
+                                    ],
+                                  ),
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 8.0,
+                                    ),
+                                    child: DataTable2(
+                                      columnSpacing: 20,
+                                      horizontalMargin: 12,
+                                      minWidth: 900,
+                                      headingRowHeight: 60,
+                                      headingRowColor:
+                                          WidgetStateProperty.all(
+                                            const Color(0xFFF9FAFB),
+                                          ),
+                                      columns: const [
+                                        DataColumn2(
+                                          label: Text('الطالب'),
+                                          size: ColumnSize.L,
+                                        ),
+                                        DataColumn2(
+                                          label: Text('السنة'),
+                                          size: ColumnSize.L,
+                                        ),
+                                        DataColumn2(
+                                          label: Text('نوع المخالفة'),
+                                          size: ColumnSize.M,
+                                        ),
+                                        DataColumn2(
+                                          label: Text('التاريخ'),
+                                          size: ColumnSize.M,
+                                        ),
+                                        DataColumn2(
+                                          label: Text('ملاحظات'),
+                                          size: ColumnSize.L,
+                                        ),
+                                      ],
+                                      rows: state.absences
+                                          .map(
+                                            (studentGroup) => _buildRow(
+                                              innerContext,
+                                              studentGroup,
+                                            ),
+                                          )
+                                          .toList(),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(height: 20),
+                                _buildPaginationFooter(context, state),
+                                const SizedBox(height: 25.0),
+                              ]),
+                            ),
+                          );
+                        }
+                        return const SliverToBoxAdapter(child: SizedBox());
+                      },
                     ),
                   ],
                 ),

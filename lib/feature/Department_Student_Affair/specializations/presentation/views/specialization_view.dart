@@ -15,6 +15,67 @@ class SpecializationsView extends StatefulWidget {
 }
 
 class _SpecializationsViewState extends State<SpecializationsView> {
+  Widget _buildHeaderSection() {
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          colors: [Color(0xFF5B67F1), Color(0xFF7A54FF), Color(0xFFA5B4FC)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF5B67F1).withValues(alpha: 0.3),
+            blurRadius: 20,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.15),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: const Icon(
+              Icons.medical_services_rounded,
+              color: Colors.white,
+              size: 32,
+            ),
+          ),
+          const SizedBox(width: 20),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  "الاختصاصات الطبية",
+                  style: TextStyle(
+                    fontSize: 28,
+                    fontWeight: FontWeight.w800,
+                    color: Colors.white,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  "إدارة الاختصاصات الطبية المتاحة بالكلية وتفاصيلها",
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.white.withValues(alpha: 0.8),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
@@ -29,7 +90,7 @@ class _SpecializationsViewState extends State<SpecializationsView> {
               top: -120,
               left: -80,
               child: _glowCircle(
-                color: Colors.blue.withOpacity(0.18),
+                color: Colors.blue.withValues(alpha: 0.18),
                 size: 320,
               ),
             ),
@@ -38,7 +99,7 @@ class _SpecializationsViewState extends State<SpecializationsView> {
               bottom: -140,
               right: -100,
               child: _glowCircle(
-                color: Colors.purple.withOpacity(0.18),
+                color: Colors.purple.withValues(alpha: 0.18),
                 size: 380,
               ),
             ),
@@ -46,52 +107,18 @@ class _SpecializationsViewState extends State<SpecializationsView> {
             BlocBuilder<GetSpecializationsCubit, GetSpecializationsState>(
               builder: (context, state) {
                 if (state is GetSpecializationsSuccess) {
-                  return Column(
-                    children: [
-                      /// الهيدر
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 30,
-                          vertical: 24,
-                        ),
-                        child: Row(
-                          children: [
-                            const SizedBox(width: 20),
-
-                            // const Column(
-                            //   crossAxisAlignment: CrossAxisAlignment.start,
-                            //   children: [
-                            //     Text(
-                            //       "Medical Specializations",
-                            //       style: TextStyle(
-                            //         fontSize: 32,
-                            //         fontWeight: FontWeight.w900,
-                            //         color: Color(0xff1A1D3A),
-                            //       ),
-                            //     ),
-                            //     SizedBox(height: 6),
-                            //     Text(
-                            //       "Manage all specializations beautifully",
-                            //       style: TextStyle(
-                            //         fontSize: 15,
-                            //         color: Colors.black54,
-                            //       ),
-                            //     ),
-                            //   ],
-                            // ),
-                            const Spacer(),
-                          ],
+                  return CustomScrollView(
+                    physics: const BouncingScrollPhysics(),
+                    slivers: [
+                      SliverPadding(
+                        padding: const EdgeInsets.all(30),
+                        sliver: SliverToBoxAdapter(
+                          child: _buildHeaderSection(),
                         ),
                       ),
-
-                      /// الشبكة
-                      Expanded(
-                        child: GridView.builder(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 30,
-                            vertical: 10,
-                          ),
-                          itemCount: state.specializations.length,
+                      SliverPadding(
+                        padding: const EdgeInsets.symmetric(horizontal: 30),
+                        sliver: SliverGrid(
                           gridDelegate:
                               const SliverGridDelegateWithFixedCrossAxisCount(
                                 crossAxisCount: 4,
@@ -99,16 +126,23 @@ class _SpecializationsViewState extends State<SpecializationsView> {
                                 mainAxisSpacing: 24,
                                 childAspectRatio: 1.05,
                               ),
-                          itemBuilder: (context, index) {
+                          delegate: SliverChildBuilderDelegate((
+                            context,
+                            index,
+                          ) {
                             return SpecializationCard(
                               model: state.specializations[index],
                               index: index,
                             );
-                          },
+                          }, childCount: state.specializations.length),
                         ),
                       ),
-
-                      _buildPaginationControls(context, state),
+                      SliverPadding(
+                        padding: const EdgeInsets.only(top: 20, bottom: 30),
+                        sliver: SliverToBoxAdapter(
+                          child: _buildPaginationControls(context, state),
+                        ),
+                      ),
                     ],
                   );
                 }
@@ -152,7 +186,7 @@ class _SpecializationsViewState extends State<SpecializationsView> {
               borderRadius: BorderRadius.circular(18),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.blue.withOpacity(0.25),
+                  color: Colors.blue.withValues(alpha: 0.25),
                   blurRadius: 20,
                   offset: const Offset(0, 8),
                 ),
@@ -199,7 +233,7 @@ class _SpecializationsViewState extends State<SpecializationsView> {
           boxShadow: enabled
               ? [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.06),
+                    color: Colors.black.withValues(alpha: 0.06),
                     blurRadius: 12,
                     offset: const Offset(0, 6),
                   ),
@@ -259,16 +293,19 @@ class _SpecializationCardState extends State<SpecializationCard> {
             colors: isHovering
                 ? [const Color(0xff5B67F1), const Color(0xff7A54FF)]
                 : [
-                    Colors.white.withOpacity(0.92),
-                    Colors.white.withOpacity(0.82),
+                    Colors.white.withValues(alpha: 0.92),
+                    Colors.white.withValues(alpha: 0.82),
                   ],
           ),
-          border: Border.all(color: Colors.white.withOpacity(0.6), width: 1.5),
+          border: Border.all(
+            color: Colors.white.withValues(alpha: 0.6),
+            width: 1.5,
+          ),
           boxShadow: [
             BoxShadow(
               color: isHovering
-                  ? Colors.blue.withOpacity(0.25)
-                  : Colors.black.withOpacity(0.06),
+                  ? Colors.blue.withValues(alpha: 0.25)
+                  : Colors.black.withValues(alpha: 0.06),
               blurRadius: isHovering ? 35 : 15,
               offset: const Offset(0, 14),
             ),
@@ -288,7 +325,7 @@ class _SpecializationCardState extends State<SpecializationCard> {
                     padding: const EdgeInsets.all(10),
                     decoration: BoxDecoration(
                       color: isHovering
-                          ? Colors.white.withOpacity(0.18)
+                          ? Colors.white.withValues(alpha: 0.18)
                           : const Color(0xffEEF2FF),
                       borderRadius: BorderRadius.circular(22),
                     ),

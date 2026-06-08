@@ -17,6 +17,15 @@ class ApiEndpoints {
   static const String statistics = 'student-affairs/students/statistics';
   static const String specializations = 'student-affairs/specializations';
   static const String exportPdf = 'students/export/pdf';
+  static const String specializationsobject = 'subjects/search';
+  
+  // Exam Sessions
+  static const String examSessions = 'exam/sessions';
+  static String examSessionId(int id) => 'exam/sessions/$id';
+
+  // Halls
+  static const String halls = 'halls';
+  static String hallId(int id) => 'halls/$id';
 
   ApiEndpoints._();
 }
