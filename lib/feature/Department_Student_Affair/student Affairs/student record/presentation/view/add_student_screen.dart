@@ -134,11 +134,7 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
                 borderRadius: BorderRadius.circular(16),
                 boxShadow: [
                   BoxShadow(
-<<<<<<< HEAD
                     color: Colors.black.withValues(alpha: 0.04),
-=======
-                    color: styles.shadowColor,
->>>>>>> 6412f4fa982395c75bd0f3f5ce3a35521455c3d1
                     blurRadius: 20,
                     offset: const Offset(0, 10),
                   ),

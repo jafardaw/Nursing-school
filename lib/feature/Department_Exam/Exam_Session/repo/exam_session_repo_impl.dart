@@ -46,9 +46,9 @@ class ExamSessionRepositoryImpl implements ExamSessionRepository {
     required String status,
   }) async {
     try {
-      final response = await apiService.update(
+      final response = await apiService.put(
         ApiEndpoints.examSessionId(id),
-        data: {"name": name, "academic_year": academicYear, "status": status},
+        {"name": name, "academic_year": academicYear, "status": status},
       );
       final data = response.data['data'] ?? response.data;
       return ExamSessionModel.fromJson(data);

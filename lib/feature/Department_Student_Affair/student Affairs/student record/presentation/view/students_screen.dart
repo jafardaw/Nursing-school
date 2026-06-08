@@ -308,79 +308,10 @@ class _StudentsScreenState extends State<StudentsScreen> {
     );
   }
 
-<<<<<<< HEAD
-  // buildSearchBar removed, code integrated into header
-=======
-  // ====== 3. شريط البحث والتصفية ======
-  Widget buildSearchBar(BuildContext context, bool isDesktop) {
-    final styles = context.styles;
 
-    return Row(
-      children: [
-        if (isDesktop) ...[
-          smallButton(
-            styles,
-            () {
-              // 🟢 إنشاء Cubit للتصدير
-              final exportCubit = sl<ExportPdfCubit>();
-
-              // 🟢 استمع للنتيجة
-              exportCubit.stream.listen((state) {
-                if (!mounted) return;
-
-                if (state is ExportPdfLoading) {
-                  showCustomSnackBar(
-                    context,
-                    "جاري تصدير الملف...",
-                    type: ToastType.info,
-                    duration: const Duration(seconds: 5),
-                  );
-                } else if (state is ExportPdfSuccess) {
-                  showCustomSnackBar(
-                    context,
-                    "تم تصدير الملف بنجاح",
-                    type: ToastType.success,
-                  );
-                } else if (state is ExportPdfError) {
-                  ScaffoldMessenger.of(context).hideCurrentSnackBar();
-
-                  showCustomSnackBar(
-                    context,
-                    state.message,
-                    type: ToastType.error,
-                  );
-                }
-              });
-
-              // 🟢 ابدأ التصدير
-              exportCubit.exportPdf();
-            },
-            Icons.picture_as_pdf,
-            'تصدير PDF',
-            Colors.red,
-            Colors.white,
-          ),
-          const SizedBox(width: 12),
-          smallButton(
-            styles,
-            () {
-              NavigationService.pushTo(context, AppRoutes.addStudentRoute);
-              // الكود ده مش هيتنفذ غير لما المستخدم يرجع من صفحة التسجيل
-            },
-            Icons.person_add,
-            'تسجيل طالبة جديدة',
-            styles.primaryColor,
-            styles.whiteColor,
-          ),
-          const SizedBox(width: 8),
-        ],
-      ],
-    );
-  }
->>>>>>> 6412f4fa982395c75bd0f3f5ce3a35521455c3d1
 
   // ====== 4. الجدول ======
-  Widget _buildDataTable(List<StudentModel> students) {
+  Widget _buildDataTable(List<StudentModeljd> students) {
     return DataTable2(
       columnSpacing: 20,
       horizontalMargin: 12,

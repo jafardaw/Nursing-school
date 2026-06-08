@@ -46,9 +46,9 @@ class HallRepositoryImpl implements HallRepository {
     required String type,
   }) async {
     try {
-      final response = await apiService.update(
+      final response = await apiService.put(
         ApiEndpoints.hallId(id),
-        data: {"name": name, "capacity": capacity, "type": type},
+        {"name": name, "capacity": capacity, "type": type},
       );
       final data = response.data['data'] ?? response.data;
       return HallModel.fromJson(data);

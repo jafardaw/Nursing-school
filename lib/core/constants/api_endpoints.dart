@@ -18,7 +18,6 @@ class ApiEndpoints {
   static const String statistics = 'students/statistics';
   static const String specializations = 'specializations';
   static const String exportPdf = 'students/export/pdf';
-<<<<<<< HEAD
   static const String specializationsobject = 'subjects/search';
   
   // Exam Sessions
@@ -28,9 +27,7 @@ class ApiEndpoints {
   // Halls
   static const String halls = 'halls';
   static String hallId(int id) => 'halls/$id';
-=======
   static String deleteStudent(int id) => 'students/$id'; // 🟢 جديد
->>>>>>> 6412f4fa982395c75bd0f3f5ce3a35521455c3d1
 
   ApiEndpoints._();
 }
