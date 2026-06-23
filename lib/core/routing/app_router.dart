@@ -26,10 +26,38 @@ import 'package:finalproject/feature/Department_Exam/Exam_Schedule/presentation/
 import 'package:finalproject/feature/Department_Exam/Exam_Schedule/presentation/views/exam_schedule_page.dart'
     deferred as exam_schedule;
 import 'package:finalproject/feature/Department_Exam/Exam_Session/presentation/manger/exam_session_cubit.dart';
+import 'package:finalproject/feature/engineering_office/presentation/view/engineering_dashboard.dart'
+    deferred as engineering;
+import 'package:finalproject/feature/engineering_office/inventory/presentation/manger/inventory_cubit.dart';
+import 'package:finalproject/feature/engineering_office/inventory/presentation/view/inventory_dashboard.dart'
+    deferred as inventory;
+import 'package:finalproject/feature/engineering_office/maintenance_requests/presentation/manger/maintenance_requests_cubit.dart';
+import 'package:finalproject/feature/engineering_office/maintenance_requests/presentation/view/maintenance_requests_view.dart'
+    deferred as maintenance;
+import 'package:finalproject/feature/engineering_office/stock-in/presentation/manger/stock_cubit.dart';
+import 'package:finalproject/feature/engineering_office/stock-in/presentation/view/warehouse_dashboard.dart'
+    deferred as warehouse;
+import 'package:finalproject/feature/warehouse_officer/complaint/presentation/manger/warehouse_complaints_cubit.dart';
+import 'package:finalproject/feature/warehouse_officer/complaint/presentation/view/warehouse_complaints_view.dart'
+    deferred as warehousecomplaints;
+import 'package:finalproject/feature/warehouse_officer/custody/presentation/manger/warehouse_custody_cubit.dart';
+import 'package:finalproject/feature/warehouse_officer/custody/presentation/view/warehouse_custody_view.dart'
+    deferred as warehousecustody;
+import 'package:finalproject/feature/warehouse_officer/maintenance_warehouse_officer/presentation/manger/warehouse_maintenance_cubit.dart';
+import 'package:finalproject/feature/warehouse_officer/maintenance_warehouse_officer/presentation/view/warehouse_maintenance_view.dart'
+    deferred as warehousemaintenance;
+import 'package:finalproject/feature/warehouse_officer/stock_in_warehouse/presentation/manger/warehouse_stock_in_cubit.dart';
+import 'package:finalproject/feature/warehouse_officer/stock_in_warehouse/presentation/view/warehouse_stock_in_view.dart'
+    deferred as warehousestockin;
+import 'package:finalproject/feature/warehouse_officer/statistics/presentation/manger/warehouse_statistics_cubit.dart';
+import 'package:finalproject/feature/warehouse_officer/statistics/presentation/view/warehouse_statistics_view.dart'
+    deferred as warehousestatistics;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+
+import 'package:finalproject/feature/engineering_office/presentation/manger/complaints_cubit.dart';
 
 class AppRouter {
   static final _rootNavigatorKey = GlobalKey<NavigatorState>();
@@ -40,6 +68,94 @@ class AppRouter {
     initialLocation: AppRoutes.loginrout,
     observers: [routeObserver],
     routes: [
+      GoRoute(
+        path: AppRoutes.warehouseRoute,
+        name: AppRoutes.warehouseRoute,
+        builder: (context, state) => BlocProvider(
+          create: (_) => sl<StockCubit>(),
+          child: LazyPageLoader(
+            loadLibrary: warehouse.loadLibrary,
+            builder: () => warehouse.WarehouseDashboard(),
+          ),
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.inventoryRoute,
+        name: AppRoutes.inventoryRoute,
+        builder: (context, state) => BlocProvider(
+          create: (_) => sl<InventoryCubit>(),
+          child: LazyPageLoader(
+            loadLibrary: inventory.loadLibrary,
+            builder: () => inventory.InventoryDashboard(),
+          ),
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.maintenanceRequestsRoute,
+        name: AppRoutes.maintenanceRequestsRoute,
+        builder: (context, state) => BlocProvider(
+          create: (_) => sl<MaintenanceRequestsCubit>(),
+          child: LazyPageLoader(
+            loadLibrary: maintenance.loadLibrary,
+            builder: () => maintenance.MaintenanceRequestsView(),
+          ),
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.warehouseOfficerComplaintsRoute,
+        name: AppRoutes.warehouseOfficerComplaintsRoute,
+        builder: (context, state) => BlocProvider(
+          create: (_) => sl<WarehouseComplaintsCubit>(),
+          child: LazyPageLoader(
+            loadLibrary: warehousecomplaints.loadLibrary,
+            builder: () => warehousecomplaints.WarehouseComplaintsView(),
+          ),
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.warehouseOfficerStockInRoute,
+        name: AppRoutes.warehouseOfficerStockInRoute,
+        builder: (context, state) => BlocProvider(
+          create: (_) => sl<WarehouseStockInCubit>(),
+          child: LazyPageLoader(
+            loadLibrary: warehousestockin.loadLibrary,
+            builder: () => warehousestockin.WarehouseStockInView(),
+          ),
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.warehouseOfficerCustodiesRoute,
+        name: AppRoutes.warehouseOfficerCustodiesRoute,
+        builder: (context, state) => BlocProvider(
+          create: (_) => sl<WarehouseCustodyCubit>(),
+          child: LazyPageLoader(
+            loadLibrary: warehousecustody.loadLibrary,
+            builder: () => warehousecustody.WarehouseCustodyView(),
+          ),
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.warehouseOfficerStatisticsRoute,
+        name: AppRoutes.warehouseOfficerStatisticsRoute,
+        builder: (context, state) => BlocProvider(
+          create: (_) => sl<WarehouseStatisticsCubit>(),
+          child: LazyPageLoader(
+            loadLibrary: warehousestatistics.loadLibrary,
+            builder: () => warehousestatistics.WarehouseStatisticsView(),
+          ),
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.warehouseOfficerMaintenanceRoute,
+        name: AppRoutes.warehouseOfficerMaintenanceRoute,
+        builder: (context, state) => BlocProvider(
+          create: (_) => sl<WarehouseMaintenanceCubit>(),
+          child: LazyPageLoader(
+            loadLibrary: warehousemaintenance.loadLibrary,
+            builder: () => warehousemaintenance.WarehouseMaintenanceView(),
+          ),
+        ),
+      ),
       GoRoute(
         path: AppRoutes.loginrout,
         name: AppRoutes.loginrout,
@@ -148,6 +264,20 @@ class AppRouter {
           child: LazyPageLoader(
             loadLibrary: exam_schedule.loadLibrary,
             builder: () => exam_schedule.ExamSchedulePage(),
+          ),
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.engineeringRoute,
+        name: AppRoutes.engineeringRoute,
+        builder: (context, state) => MultiBlocProvider(
+          providers: [
+            BlocProvider<ComplaintsCubit>(create: (_) => sl<ComplaintsCubit>()),
+            BlocProvider<StockCubit>(create: (_) => sl<StockCubit>()),
+          ],
+          child: LazyPageLoader(
+            loadLibrary: engineering.loadLibrary,
+            builder: () => engineering.EngineeringDashboard(),
           ),
         ),
       ),

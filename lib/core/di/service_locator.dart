@@ -31,11 +31,38 @@ import 'package:finalproject/feature/Department_Exam/Exam_Schedule/data/reposito
 import 'package:finalproject/feature/Department_Exam/Exam_Schedule/presentation/manger/exam_schedule_cubit.dart';
 import 'package:finalproject/feature/Department_Student_Affair/student%20Affairs/student%20record/presentation/manger/students_cubit.dart';
 import 'package:finalproject/feature/auth/presentation/manger/auth_cubit.dart';
+import 'package:finalproject/feature/engineering_office/domain/repositories/complaints_repo.dart';
+import 'package:finalproject/feature/engineering_office/domain/repositories/complaints_repo_impl.dart';
+import 'package:finalproject/feature/engineering_office/inventory/domain/repositories/inventory_repo.dart';
+import 'package:finalproject/feature/engineering_office/inventory/domain/repositories/inventory_repo_impl.dart';
+import 'package:finalproject/feature/engineering_office/inventory/presentation/manger/inventory_cubit.dart';
+import 'package:finalproject/feature/engineering_office/maintenance_requests/domain/repositories/maintenance_requests_repo.dart';
+import 'package:finalproject/feature/engineering_office/maintenance_requests/domain/repositories/maintenance_requests_repo_impl.dart';
+import 'package:finalproject/feature/engineering_office/maintenance_requests/presentation/manger/maintenance_requests_cubit.dart';
+import 'package:finalproject/feature/engineering_office/presentation/manger/complaints_cubit.dart';
+import 'package:finalproject/feature/engineering_office/stock-in/domain/repositories/stock_repo.dart';
+import 'package:finalproject/feature/engineering_office/stock-in/domain/repositories/stock_repo_impl.dart';
+import 'package:finalproject/feature/engineering_office/stock-in/presentation/manger/stock_cubit.dart';
 import 'package:finalproject/feature/student%20Affairs/student%20record/domain/repositories/students_repo.dart';
 import 'package:finalproject/feature/Manager/data/repositories/manager_repo.dart';
 import 'package:finalproject/feature/Manager/data/repositories/manager_repo_impl.dart';
 import 'package:finalproject/feature/Manager/presentation/manger/manager_dashboard_cubit.dart';
 import 'package:finalproject/feature/Manager/presentation/manger/employees_cubit.dart';
+import 'package:finalproject/feature/warehouse_officer/complaint/domain/repositories/warehouse_complaints_repo.dart';
+import 'package:finalproject/feature/warehouse_officer/complaint/domain/repositories/warehouse_complaints_repo_impl.dart';
+import 'package:finalproject/feature/warehouse_officer/complaint/presentation/manger/warehouse_complaints_cubit.dart';
+import 'package:finalproject/feature/warehouse_officer/custody/domain/repositories/warehouse_custody_repo.dart';
+import 'package:finalproject/feature/warehouse_officer/custody/domain/repositories/warehouse_custody_repo_impl.dart';
+import 'package:finalproject/feature/warehouse_officer/custody/presentation/manger/warehouse_custody_cubit.dart';
+import 'package:finalproject/feature/warehouse_officer/maintenance_warehouse_officer/domain/repositories/warehouse_maintenance_repo.dart';
+import 'package:finalproject/feature/warehouse_officer/maintenance_warehouse_officer/domain/repositories/warehouse_maintenance_repo_impl.dart';
+import 'package:finalproject/feature/warehouse_officer/maintenance_warehouse_officer/presentation/manger/warehouse_maintenance_cubit.dart';
+import 'package:finalproject/feature/warehouse_officer/stock_in_warehouse/domain/repositories/warehouse_stock_in_repo.dart';
+import 'package:finalproject/feature/warehouse_officer/stock_in_warehouse/domain/repositories/warehouse_stock_in_repo_impl.dart';
+import 'package:finalproject/feature/warehouse_officer/stock_in_warehouse/presentation/manger/warehouse_stock_in_cubit.dart';
+import 'package:finalproject/feature/warehouse_officer/statistics/domain/repositories/warehouse_statistics_repo.dart';
+import 'package:finalproject/feature/warehouse_officer/statistics/domain/repositories/warehouse_statistics_repo_impl.dart';
+import 'package:finalproject/feature/warehouse_officer/statistics/presentation/manger/warehouse_statistics_cubit.dart';
 import 'package:get_it/get_it.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:finalproject/core/network/api_service.dart';
@@ -113,6 +140,49 @@ Future<void> initServiceLocator() async {
   sl.registerFactory(
     () => GetSpecializationsCubit(sl.get<SpecializationRepository>()),
   );
+  // Engineering Office
+  sl.registerLazySingleton<ComplaintsRepo>(
+    () => ComplaintsRepoImpl(apiService: sl()),
+  );
+  sl.registerFactory<ComplaintsCubit>(() => ComplaintsCubit(sl()));
+  sl.registerLazySingleton<StockRepo>(() => StockRepoImpl(apiService: sl()));
+  sl.registerFactory<StockCubit>(() => StockCubit(sl()));
+  sl.registerLazySingleton<InventoryRepo>(
+    () => InventoryRepoImpl(apiService: sl()),
+  );
+  sl.registerFactory<InventoryCubit>(() => InventoryCubit(sl()));
+  sl.registerLazySingleton<MaintenanceRequestsRepo>(
+    () => MaintenanceRequestsRepoImpl(apiService: sl()),
+  );
+  sl.registerFactory<MaintenanceRequestsCubit>(
+    () => MaintenanceRequestsCubit(sl()),
+  );
+  sl.registerLazySingleton<WarehouseComplaintsRepo>(
+    () => WarehouseComplaintsRepoImpl(apiService: sl()),
+  );
+  sl.registerFactory<WarehouseComplaintsCubit>(
+    () => WarehouseComplaintsCubit(sl()),
+  );
+  sl.registerLazySingleton<WarehouseStockInRepo>(
+    () => WarehouseStockInRepoImpl(apiService: sl()),
+  );
+  sl.registerFactory<WarehouseStockInCubit>(() => WarehouseStockInCubit(sl()));
+  sl.registerLazySingleton<WarehouseCustodyRepo>(
+    () => WarehouseCustodyRepoImpl(apiService: sl()),
+  );
+  sl.registerFactory<WarehouseCustodyCubit>(() => WarehouseCustodyCubit(sl()));
+  sl.registerLazySingleton<WarehouseStatisticsRepo>(
+    () => WarehouseStatisticsRepoImpl(apiService: sl()),
+  );
+  sl.registerFactory<WarehouseStatisticsCubit>(
+    () => WarehouseStatisticsCubit(sl()),
+  );
+  sl.registerLazySingleton<WarehouseMaintenanceRepo>(
+    () => WarehouseMaintenanceRepoImpl(apiService: sl()),
+  );
+  sl.registerFactory<WarehouseMaintenanceCubit>(
+    () => WarehouseMaintenanceCubit(sl()),
+  );
 
   ///////////subject
   sl.registerLazySingleton<SubjectRepository>(
@@ -146,7 +216,9 @@ Future<void> initServiceLocator() async {
   sl.registerFactory(() => ExamScheduleCubit(sl()));
 
   /////////// manager dashboard
-  sl.registerLazySingleton<ManagerRepository>(() => ManagerRepositoryImpl(sl()));
+  sl.registerLazySingleton<ManagerRepository>(
+    () => ManagerRepositoryImpl(sl()),
+  );
   sl.registerFactory(() => ManagerDashboardCubit(sl()));
   sl.registerFactory(() => EmployeesCubit(sl()));
 }
