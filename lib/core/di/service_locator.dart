@@ -1,3 +1,12 @@
+import 'package:finalproject/feature/Department_Exam/Exam_Session/repo/exam_session_repo.dart';
+import 'package:finalproject/feature/Department_Exam/Exam_Session/repo/exam_session_repo_impl.dart';
+import 'package:finalproject/feature/Department_Exam/Exam_Session/presentation/manger/exam_session_cubit.dart';
+import 'package:finalproject/feature/Department_Exam/Halls/repo/hall_repo.dart';
+import 'package:finalproject/feature/Department_Exam/Halls/repo/hall_repo_impl.dart';
+import 'package:finalproject/feature/Department_Exam/Halls/presentation/manger/hall_cubit.dart';
+import 'package:finalproject/feature/Department_Exam/Subject/presentation/manger/get_cubit/get_all_subject_cubit.dart';
+import 'package:finalproject/feature/Department_Exam/Subject/repo/subject_repo.dart';
+import 'package:finalproject/feature/Department_Exam/Subject/repo/subject_repo_impl.dart';
 import 'package:finalproject/feature/Department_Student_Affair/Statistic/presentation/manger/get_cibit/get_statistic_cubit.dart';
 import 'package:finalproject/feature/Department_Student_Affair/Statistic/repo/statistic_repo.dart';
 import 'package:finalproject/feature/Department_Student_Affair/Statistic/repo/statistic_repoimpl.dart';
@@ -164,4 +173,22 @@ Future<void> initServiceLocator() async {
   sl.registerFactory<WarehouseMaintenanceCubit>(
     () => WarehouseMaintenanceCubit(sl()),
   );
+
+  ///////////subject
+  sl.registerLazySingleton<SubjectRepository>(
+    () => SubjectRepositoryImpl(sl()),
+  );
+  sl.registerFactory(() => SubjectCubit(sl()));
+
+  ///////////exam session
+  sl.registerLazySingleton<ExamSessionRepository>(
+    () => ExamSessionRepositoryImpl(sl()),
+  );
+  sl.registerFactory(() => ExamSessionCubit(sl()));
+
+  ///////////halls
+  sl.registerLazySingleton<HallRepository>(
+    () => HallRepositoryImpl(sl()),
+  );
+  sl.registerFactory(() => HallCubit(sl()));
 }

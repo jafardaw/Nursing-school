@@ -34,6 +34,164 @@ class StudentsScreen extends StatefulWidget {
 
 class _StudentsScreenState extends State<StudentsScreen> {
   final TextEditingController _searchController = TextEditingController();
+  String _searchQuery = "";
+
+  void _exportPdf(BuildContext context) {
+    final exportCubit = sl<ExportPdfCubit>();
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Row(
+          children: [
+            SizedBox(
+              width: 20,
+              height: 20,
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                color: Colors.white,
+              ),
+            ),
+            SizedBox(width: 12),
+            Text('جاري تحميل الملف...'),
+          ],
+        ),
+        duration: Duration(seconds: 30),
+      ),
+    );
+
+    exportCubit.exportPdf();
+
+    exportCubit.stream.listen((state) {
+      if (!mounted) return;
+      if (state is ExportPdfSuccess) {
+        ScaffoldMessenger.of(context).hideCurrentSnackBar();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(state.message), backgroundColor: Colors.green),
+        );
+      } else if (state is ExportPdfError) {
+        ScaffoldMessenger.of(context).hideCurrentSnackBar();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(state.message), backgroundColor: Colors.red),
+        );
+      }
+    });
+  }
+
+  Widget _buildHeaderSection(ThemedTextStyles styles, bool isDesktop) {
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          colors: [Color(0xFF0D47A1), Color(0xFF1976D2), Color(0xFF42A5F5)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF0D47A1).withValues(alpha: 0.3),
+            blurRadius: 20,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.15),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: const Icon(
+              Icons.people_alt_rounded,
+              color: Colors.white,
+              size: 32,
+            ),
+          ),
+          const SizedBox(width: 20),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  "سجل الطالبات",
+                  style: styles.headline2.copyWith(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  "عرض وإدارة سجل الطالبات الملتحقات بالكلية وتصدير البيانات",
+                  style: styles.bodyMedium.copyWith(
+                    color: Colors.white.withValues(alpha: 0.8),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Row(
+            children: [
+              Container(
+                width: 220,
+                height: 44,
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: Colors.white.withValues(alpha: 0.2),
+                  ),
+                ),
+                child: TextField(
+                  controller: _searchController,
+                  onChanged: (val) {
+                    setState(() {
+                      _searchQuery = val;
+                    });
+                  },
+                  style: const TextStyle(color: Colors.white, fontSize: 14),
+                  decoration: InputDecoration(
+                    hintText: "بحث عن طالبة...",
+                    hintStyle: TextStyle(
+                      color: Colors.white.withValues(alpha: 0.6),
+                      fontSize: 13,
+                    ),
+                    prefixIcon: Icon(
+                      Icons.search,
+                      color: Colors.white.withValues(alpha: 0.7),
+                      size: 20,
+                    ),
+                    border: InputBorder.none,
+                    contentPadding: const EdgeInsets.symmetric(vertical: 12),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              smallButton(
+                styles,
+                () => _exportPdf(context),
+                Icons.file_upload_outlined,
+                'تصدير PDF',
+                styles.errorColor,
+                styles.whiteColor,
+              ),
+              const SizedBox(width: 12),
+              smallButton(
+                styles,
+                () {
+                  NavigationService.pushTo(context, AppRoutes.addStudentRoute);
+                },
+                Icons.person_add,
+                'تسجيل طالبة',
+                styles.primaryColor,
+                styles.whiteColor,
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -43,150 +201,117 @@ class _StudentsScreenState extends State<StudentsScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFFF3F6F9),
       body: SafeArea(
-        child: Padding(
-          padding: EdgeInsets.all(isDesktop ? 25 : 12),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // 🟢 3. شريط البحث والتصفية والأزرار
-              const SizedBox(height: 20),
-
-              // 🟢 4. الجدول الرئيسي
-              Expanded(
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: styles.cardColor,
-                    borderRadius: BorderRadius.circular(16),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.04),
-                        blurRadius: 20,
-                        offset: const Offset(0, 10),
-                      ),
-                    ],
-                  ),
-                  child: BlocBuilder<StudentsCubit, StudentsState>(
-                    builder: (context, state) {
-                      if (state is StudentsLoading) {
-                        return buildLoadingSkeleton();
-                      }
-                      if (state is StudentsError) {
-                        return ShowErrorWidgetView(
-                          errorMessage: state.message,
-                          onRetry: () =>
-                              context.read<StudentsCubit>().loadStudents(),
-                        );
-                      }
-                      if (state is StudentsLoaded) {
-                        if (state.students.isEmpty) {
-                          return EmptyListViews(text: 'لا يوجد بيانات');
-                        }
-                        return Column(
-                          children: [
-                            Expanded(
-                              child: Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: _buildDataTable(state),
-                              ),
-                            ),
-                            PaginationFooter(
-                              meta: state.meta,
-                              onFirstPage: () =>
-                                  context.read<StudentsCubit>().goToPage(1),
-                              onPreviousPage: () =>
-                                  context.read<StudentsCubit>().previousPage(),
-                              onNextPage: () =>
-                                  context.read<StudentsCubit>().nextPage(),
-                              onLastPage: () => context
-                                  .read<StudentsCubit>()
-                                  .goToPage(state.meta.lastPage),
-                            ),
-                          ],
-                        );
-                      }
-                      return const SizedBox();
-                    },
-                  ),
-                ),
+        child: CustomScrollView(
+          physics: const BouncingScrollPhysics(),
+          slivers: [
+            SliverPadding(
+              padding: EdgeInsets.only(
+                top: isDesktop ? 25 : 12,
+                left: isDesktop ? 25 : 12,
+                right: isDesktop ? 25 : 12,
               ),
-              SizedBox(height: 40),
-              buildSearchBar(context, isDesktop),
-            ],
-          ),
+              sliver: SliverToBoxAdapter(
+                child: _buildHeaderSection(styles, isDesktop),
+              ),
+            ),
+            BlocBuilder<StudentsCubit, StudentsState>(
+              builder: (context, state) {
+                if (state is StudentsLoading) {
+                  return SliverFillRemaining(
+                    child: Padding(
+                      padding: EdgeInsets.all(isDesktop ? 25 : 12),
+                      child: buildLoadingSkeleton(),
+                    ),
+                  );
+                }
+                if (state is StudentsError) {
+                  return SliverFillRemaining(
+                    child: ShowErrorWidgetView(
+                      errorMessage: state.message,
+                      onRetry: () =>
+                          context.read<StudentsCubit>().loadStudents(),
+                    ),
+                  );
+                }
+                if (state is StudentsLoaded) {
+                  final filtered = state.students.where((student) {
+                    final fullName = student.user != null
+                        ? '${student.user!.firstName} ${student.user!.lastName}'
+                              .toLowerCase()
+                        : '';
+                    return fullName.contains(_searchQuery.toLowerCase()) ||
+                        student.nationalNumber.contains(_searchQuery) ||
+                        student.fingerprintId.contains(_searchQuery);
+                  }).toList();
+
+                  if (filtered.isEmpty && state.students.isNotEmpty) {
+                    return const SliverFillRemaining(
+                      child: EmptyListViews(text: 'لا توجد نتائج مطابقة للبحث'),
+                    );
+                  }
+                  if (filtered.isEmpty) {
+                    return SliverFillRemaining(
+                      child: EmptyListViews(text: 'لا يوجد بيانات'),
+                    );
+                  }
+
+                  return SliverPadding(
+                    padding: EdgeInsets.only(
+                      left: isDesktop ? 25 : 12,
+                      right: isDesktop ? 25 : 12,
+                      top: 20,
+                      bottom: 25,
+                    ),
+                    sliver: SliverList(
+                      delegate: SliverChildListDelegate([
+                        Container(
+                          height: 600,
+                          decoration: BoxDecoration(
+                            color: styles.cardColor,
+                            borderRadius: BorderRadius.circular(16),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withValues(alpha: 0.04),
+                                blurRadius: 20,
+                                offset: const Offset(0, 10),
+                              ),
+                            ],
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: _buildDataTable(filtered),
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+                        PaginationFooter(
+                          meta: state.meta,
+                          onFirstPage: () =>
+                              context.read<StudentsCubit>().goToPage(1),
+                          onPreviousPage: () =>
+                              context.read<StudentsCubit>().previousPage(),
+                          onNextPage: () =>
+                              context.read<StudentsCubit>().nextPage(),
+                          onLastPage: () => context
+                              .read<StudentsCubit>()
+                              .goToPage(state.meta.lastPage),
+                        ),
+                      ]),
+                    ),
+                  );
+                }
+                return const SliverToBoxAdapter(child: SizedBox());
+              },
+            ),
+          ],
         ),
       ),
     );
   }
 
-  // ====== 3. شريط البحث والتصفية ======
-  Widget buildSearchBar(BuildContext context, bool isDesktop) {
-    final styles = context.styles;
 
-    return Row(
-      children: [
-        if (isDesktop) ...[
-          smallButton(
-            styles,
-            () {
-              // 🟢 إنشاء Cubit للتصدير
-              final exportCubit = sl<ExportPdfCubit>();
-
-              // 🟢 استمع للنتيجة
-              exportCubit.stream.listen((state) {
-                if (!mounted) return;
-
-                if (state is ExportPdfLoading) {
-                  showCustomSnackBar(
-                    context,
-                    "جاري تصدير الملف...",
-                    type: ToastType.info,
-                    duration: const Duration(seconds: 5),
-                  );
-                } else if (state is ExportPdfSuccess) {
-                  showCustomSnackBar(
-                    context,
-                    "تم تصدير الملف بنجاح",
-                    type: ToastType.success,
-                  );
-                } else if (state is ExportPdfError) {
-                  ScaffoldMessenger.of(context).hideCurrentSnackBar();
-
-                  showCustomSnackBar(
-                    context,
-                    state.message,
-                    type: ToastType.error,
-                  );
-                }
-              });
-
-              // 🟢 ابدأ التصدير
-              exportCubit.exportPdf();
-            },
-            Icons.picture_as_pdf,
-            'تصدير PDF',
-            Colors.red,
-            Colors.white,
-          ),
-          const SizedBox(width: 12),
-          smallButton(
-            styles,
-            () {
-              NavigationService.pushTo(context, AppRoutes.addStudentRoute);
-              // الكود ده مش هيتنفذ غير لما المستخدم يرجع من صفحة التسجيل
-            },
-            Icons.person_add,
-            'تسجيل طالبة جديدة',
-            styles.primaryColor,
-            styles.whiteColor,
-          ),
-          const SizedBox(width: 8),
-        ],
-      ],
-    );
-  }
 
   // ====== 4. الجدول ======
-  Widget _buildDataTable(StudentsLoaded state) {
+  Widget _buildDataTable(List<StudentModeljd> students) {
     return DataTable2(
       columnSpacing: 20,
       horizontalMargin: 12,
@@ -213,7 +338,7 @@ class _StudentsScreenState extends State<StudentsScreen> {
         DataColumn2(label: Text('الحالة'), size: ColumnSize.S),
         DataColumn2(label: Text('إجراءات'), size: ColumnSize.S),
       ],
-      rows: state.students.map((student) => _buildDataRow(student)).toList(),
+      rows: students.map((student) => _buildDataRow(student)).toList(),
     );
   }
 

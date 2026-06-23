@@ -18,7 +18,7 @@ class ApiEndpoints {
   static const String statistics = 'students/statistics';
   static const String specializations = 'specializations';
   static const String exportPdf = 'students/export/pdf';
-  static String deleteStudent(int id) => 'students/$id';
+  static String deleteStudent(int id) => 'students/$id'; // 🟢 جديد
 
   static const String complaintsHeadSupervisor =
       'complaints/stage/head_supervisor';
@@ -39,7 +39,16 @@ class ApiEndpoints {
   static String returnCustody(int id) => 'custodies/$id/return';
   static String studentCustodies(int studentId) =>
       'students/$studentId/custodies';
-  // 🟢 جديد
+
+  static const String specializationsobject = 'subjects/search';
+  
+  // Exam Sessions
+  static const String examSessions = 'exam/sessions';
+  static String examSessionId(int id) => 'exam/sessions/$id';
+
+  // Halls
+  static const String halls = 'halls';
+  static String hallId(int id) => 'halls/$id';
 
   ApiEndpoints._();
 }
