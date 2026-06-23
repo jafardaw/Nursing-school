@@ -3,7 +3,6 @@ import 'package:finalproject/core/services/navigation_service.dart';
 import 'package:finalproject/core/theme/theme_extination.dart';
 import 'package:finalproject/core/widgets/info_card_widget.dart';
 import 'package:finalproject/core/widgets/small_button.dart';
-import 'package:finalproject/feature/Department_Student_Affair/penalties/data/penalties_model.dart';
 import 'package:finalproject/feature/Department_Student_Affair/student%20Affairs/student%20record/data/model/student_model.dart';
 import 'package:flutter/material.dart';
 

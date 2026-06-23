@@ -18,15 +18,24 @@ import 'package:finalproject/feature/Department_Student_Affair/penalties/repo/pe
 import 'package:finalproject/feature/Department_Student_Affair/specializations/presentation/manger/get_cubit/get_specialization_cubit.dart';
 import 'package:finalproject/feature/Department_Student_Affair/specializations/repo/repo_specialization.dart';
 import 'package:finalproject/feature/Department_Student_Affair/specializations/repo/repoimpl_specialization.dart';
-import 'package:finalproject/feature/Department_Student_Affair/student%20Affairs/student%20record/domain/repositories/students_repo.dart';
 import 'package:finalproject/feature/Department_Student_Affair/student%20Affairs/student%20record/domain/repositories/students_repo_impl.dart';
 import 'package:finalproject/feature/Department_Student_Affair/student%20Affairs/student%20record/presentation/manger/addstudent/add_student_cubit.dart';
 import 'package:finalproject/feature/Department_Student_Affair/student%20Affairs/student%20record/presentation/manger/cubit/delete_student_cubit.dart';
 import 'package:finalproject/feature/Department_Student_Affair/student%20Affairs/student%20record/presentation/manger/cubit/export_pdf_cubit.dart';
 import 'package:finalproject/feature/Department_Student_Affair/student%20Affairs/student%20record/presentation/manger/cubit/update_student_cubit.dart';
+import 'package:finalproject/feature/Department_Exam/Marks/domain/repositories/marks_repo.dart';
+import 'package:finalproject/feature/Department_Exam/Marks/data/repositories/marks_repo_impl.dart';
+import 'package:finalproject/feature/Department_Exam/Marks/presentation/manger/marks_cubit.dart';
+import 'package:finalproject/feature/Department_Exam/Exam_Schedule/data/repositories/exam_schedule_repo.dart';
+import 'package:finalproject/feature/Department_Exam/Exam_Schedule/data/repositories/exam_schedule_repo_impl.dart';
+import 'package:finalproject/feature/Department_Exam/Exam_Schedule/presentation/manger/exam_schedule_cubit.dart';
 import 'package:finalproject/feature/Department_Student_Affair/student%20Affairs/student%20record/presentation/manger/students_cubit.dart';
 import 'package:finalproject/feature/auth/presentation/manger/auth_cubit.dart';
 import 'package:finalproject/feature/student%20Affairs/student%20record/domain/repositories/students_repo.dart';
+import 'package:finalproject/feature/Manager/data/repositories/manager_repo.dart';
+import 'package:finalproject/feature/Manager/data/repositories/manager_repo_impl.dart';
+import 'package:finalproject/feature/Manager/presentation/manger/manager_dashboard_cubit.dart';
+import 'package:finalproject/feature/Manager/presentation/manger/employees_cubit.dart';
 import 'package:get_it/get_it.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:finalproject/core/network/api_service.dart';
@@ -118,8 +127,26 @@ Future<void> initServiceLocator() async {
   sl.registerFactory(() => ExamSessionCubit(sl()));
 
   ///////////halls
-  sl.registerLazySingleton<HallRepository>(
-    () => HallRepositoryImpl(sl()),
-  );
+  sl.registerLazySingleton<HallRepository>(() => HallRepositoryImpl(sl()));
   sl.registerFactory(() => HallCubit(sl()));
+
+  ///////////marks
+  sl.registerLazySingleton<MarksRepository>(
+    () => MarksRepositoryImpl(apiService: sl()),
+  );
+  sl.registerFactory(
+    // ignore: avoid_redundant_argument_values
+    () => MarksCubit(marksRepository: sl(), sessionRepository: sl()),
+  );
+
+  ///////////exam schedule
+  sl.registerLazySingleton<ExamScheduleRepository>(
+    () => ExamScheduleRepositoryImpl(sl()),
+  );
+  sl.registerFactory(() => ExamScheduleCubit(sl()));
+
+  /////////// manager dashboard
+  sl.registerLazySingleton<ManagerRepository>(() => ManagerRepositoryImpl(sl()));
+  sl.registerFactory(() => ManagerDashboardCubit(sl()));
+  sl.registerFactory(() => EmployeesCubit(sl()));
 }

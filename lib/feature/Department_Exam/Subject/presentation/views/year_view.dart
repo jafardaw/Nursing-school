@@ -1,4 +1,6 @@
 import 'package:finalproject/core/constants/assets.dart';
+import 'package:finalproject/core/constants/app_routes.dart';
+import 'package:finalproject/core/services/navigation_service.dart';
 import 'package:finalproject/core/di/service_locator.dart';
 import 'package:finalproject/core/theme/theme_extination.dart';
 import 'package:finalproject/feature/Department_Exam/Subject/data/subject_model.dart';
@@ -372,23 +374,35 @@ class _SubjectsMainViewState extends State<SubjectsMainView> {
           final cardColor = _cardColors[index % _cardColors.length];
           final cardIcon = _subjectIcons[index % _subjectIcons.length];
 
-          return Container(
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(20),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.02),
-                  blurRadius: 10,
-                  offset: const Offset(0, 4),
-                ),
-              ],
-              border: Border.all(color: const Color(0xFFF1F5F9)),
-            ),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(20),
-              child: Stack(
-                children: [
+          return InkWell(
+            borderRadius: BorderRadius.circular(20),
+            onTap: () {
+              NavigationService.pushTo(
+                context,
+                AppRoutes.marksEntryRoute,
+                extra: {
+                  'subject_id': subject.id,
+                  'subject_name': subject.name,
+                },
+              );
+            },
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.02),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+                border: Border.all(color: const Color(0xFFF1F5F9)),
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(20),
+                child: Stack(
+                  children: [
                   // شريط جانبي جمالي ملون
                   Positioned(
                     top: 0,
@@ -488,8 +502,9 @@ class _SubjectsMainViewState extends State<SubjectsMainView> {
                 ],
               ),
             ),
-          );
-        }, childCount: filtered.length),
+          ),
+        );
+      }, childCount: filtered.length),
       ),
     );
   }

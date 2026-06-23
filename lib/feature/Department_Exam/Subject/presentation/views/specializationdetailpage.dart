@@ -1,5 +1,6 @@
 import 'package:finalproject/core/di/service_locator.dart';
-import 'package:finalproject/core/theme/app_colors.dart';
+import 'package:finalproject/core/constants/app_routes.dart';
+import 'package:finalproject/core/services/navigation_service.dart';
 import 'package:finalproject/core/theme/theme_extination.dart';
 import 'package:finalproject/feature/Department_Exam/Subject/presentation/manger/get_cubit/get_all_subject_cubit.dart';
 import 'package:finalproject/feature/Department_Exam/Subject/presentation/manger/get_cubit/get_all_subject_state.dart';
@@ -238,7 +239,7 @@ class SpecializationDetailPage extends StatelessWidget {
             sliver: SliverList(
               delegate: SliverChildBuilderDelegate((context, index) {
                 final subject = state.subjects[index];
-                return _buildSubjectCard(subject, index, styles);
+                return _buildSubjectCard(context, subject, index, styles);
               }, childCount: state.subjects.length),
             ),
           );
@@ -254,6 +255,7 @@ class SpecializationDetailPage extends StatelessWidget {
 
   // تصميم بطاقة المادة بشكل احترافي
   Widget _buildSubjectCard(
+    BuildContext context,
     dynamic subject,
     int index,
     ThemedTextStyles styles,
@@ -261,8 +263,20 @@ class SpecializationDetailPage extends StatelessWidget {
     final cardColor = _cardColors[index % _cardColors.length];
     final cardIcon = _subjectIcons[index % _subjectIcons.length];
 
-    return Container(
-      margin: const EdgeInsets.only(bottom: 14),
+    return InkWell(
+      onTap: () {
+        NavigationService.pushTo(
+          context,
+          AppRoutes.marksEntryRoute,
+          extra: {
+            'subject_id': subject.id,
+            'subject_name': subject.name,
+          },
+        );
+      },
+      borderRadius: BorderRadius.circular(20),
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 14),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
@@ -371,6 +385,7 @@ class SpecializationDetailPage extends StatelessWidget {
           ),
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 }

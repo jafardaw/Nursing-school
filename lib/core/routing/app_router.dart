@@ -1,7 +1,6 @@
 import 'package:finalproject/core/constants/app_routes.dart';
 import 'package:finalproject/core/di/service_locator.dart';
 import 'package:finalproject/core/routing/lazy_page_loader.dart';
-import 'package:finalproject/feature/Department_Student_Affair/penalties/presentation/manger/cubit_delete/delete_penalties_cubit.dart';
 import 'package:finalproject/feature/Department_Student_Affair/penalties/presentation/manger/cubit_post/add_penalites_cubit.dart';
 import 'package:finalproject/feature/Department_Student_Affair/student%20Affairs/student%20record/data/model/student_model.dart';
 import 'package:finalproject/feature/Department_Student_Affair/student%20Affairs/student%20record/presentation/manger/addstudent/add_student_cubit.dart';
@@ -20,6 +19,13 @@ import 'package:finalproject/feature/Department_Student_Affair/student%20Affairs
     deferred as addstudent;
 import 'package:finalproject/feature/Department_Student_Affair/student%20Affairs/student%20record/presentation/view/students_screen.dart'
     deferred as students;
+import 'package:finalproject/feature/Department_Exam/Marks/presentation/manger/marks_cubit.dart';
+import 'package:finalproject/feature/Department_Exam/Marks/presentation/views/marks_entry_page.dart'
+    deferred as marks_entry;
+import 'package:finalproject/feature/Department_Exam/Exam_Schedule/presentation/manger/exam_schedule_cubit.dart';
+import 'package:finalproject/feature/Department_Exam/Exam_Schedule/presentation/views/exam_schedule_page.dart'
+    deferred as exam_schedule;
+import 'package:finalproject/feature/Department_Exam/Exam_Session/presentation/manger/exam_session_cubit.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -108,6 +114,40 @@ class AppRouter {
             builder: () => updatestudent.UpdateStudentScreen(
               student: state.extra as StudentModeljd,
             ),
+          ),
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.marksEntryRoute,
+        name: AppRoutes.marksEntryRoute,
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>;
+          final int subjectId = extra['subject_id'] as int;
+          final String subjectName = extra['subject_name'] as String;
+
+          return BlocProvider(
+            create: (context) => sl<MarksCubit>(),
+            child: LazyPageLoader(
+              loadLibrary: marks_entry.loadLibrary,
+              builder: () => marks_entry.MarksEntryPage(
+                subjectId: subjectId,
+                subjectName: subjectName,
+              ),
+            ),
+          );
+        },
+      ),
+      GoRoute(
+        path: AppRoutes.examSchedule,
+        name: AppRoutes.examSchedule,
+        builder: (context, state) => MultiBlocProvider(
+          providers: [
+            BlocProvider(create: (context) => sl<ExamScheduleCubit>()),
+            BlocProvider(create: (context) => sl<ExamSessionCubit>()..fetchSessions()),
+          ],
+          child: LazyPageLoader(
+            loadLibrary: exam_schedule.loadLibrary,
+            builder: () => exam_schedule.ExamSchedulePage(),
           ),
         ),
       ),

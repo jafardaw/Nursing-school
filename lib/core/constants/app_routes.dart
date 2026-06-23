@@ -7,6 +7,8 @@ class AppRoutes {
   static const String addStudentRoute = '/students/add';
   static const String addpenalites = '/add-penalty_screen';
   static const String updateStudentRoute = '/students/update';
+  static const String marksEntryRoute = '/marks-entry';
+  static const String examSchedule = '/exam-schedule';
 
   AppRoutes._();
 }

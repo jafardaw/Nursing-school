@@ -19,7 +19,6 @@ import 'package:finalproject/feature/Department_Student_Affair/student%20Affairs
 import 'package:finalproject/feature/Department_Student_Affair/student%20Affairs/student%20record/presentation/manger/cubit/export_pdf_state.dart';
 import 'package:finalproject/feature/Department_Student_Affair/student%20Affairs/student%20record/presentation/manger/students_cubit.dart';
 import 'package:finalproject/feature/Department_Student_Affair/student%20Affairs/student%20record/presentation/manger/students_state.dart';
-import 'package:finalproject/feature/Home/presentation/views/widget/quick_search.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:data_table_2/data_table_2.dart';
@@ -307,8 +306,6 @@ class _StudentsScreenState extends State<StudentsScreen> {
       ),
     );
   }
-
-
 
   // ====== 4. الجدول ======
   Widget _buildDataTable(List<StudentModeljd> students) {
