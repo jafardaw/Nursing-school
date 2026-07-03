@@ -3,12 +3,18 @@ import 'package:finalproject/feature/Department_Exam/Subject/presentation/views/
 import 'package:finalproject/feature/Department_Exam/Exam_Session/presentation/views/exam_sessions_view.dart';
 import 'package:finalproject/feature/Department_Exam/Halls/presentation/views/halls_view.dart';
 import 'package:finalproject/feature/Department_Student_Affair/Statistic/presentation/views/statistic_view.dart';
+import 'package:finalproject/feature/Department_HeadSupervisor/matching/presentation/views/matching_campaigns_view.dart';
+import 'package:finalproject/feature/Department_HeadSupervisor/Hospitals/presentation/views/hospitals_view.dart';
+import 'package:finalproject/feature/Department_HeadSupervisor/Hospitals/presentation/manger/hospital_cubit.dart';
+import 'package:finalproject/feature/Department_HeadSupervisor/Dormitory/presentation/views/dormitory_view.dart';
+import 'package:finalproject/feature/Department_HeadSupervisor/Dormitory/presentation/manger/dorm_building_cubit/dorm_building_cubit.dart';
+import 'package:finalproject/feature/Department_HeadSupervisor/Dormitory/presentation/manger/dorm_room_cubit/dorm_room_cubit.dart';
+import 'package:finalproject/feature/Department_HeadSupervisor/matching/presentation/manger/matching_campaign_cubit.dart';
 import 'package:finalproject/feature/Department_Student_Affair/penalties/presentation/views/penalties_view.dart';
 import 'package:finalproject/feature/Department_Student_Affair/student%20Affairs/student%20record/presentation/view/students_screen.dart';
 import 'package:finalproject/feature/Department_Exam/Exam_Schedule/presentation/views/exam_schedule_page.dart';
 import 'package:finalproject/feature/Department_Exam/Exam_Schedule/presentation/manger/exam_schedule_cubit.dart';
 import 'package:finalproject/feature/Department_Exam/Exam_Session/presentation/manger/exam_session_cubit.dart';
-import 'package:finalproject/core/di/service_locator.dart';
 import 'package:finalproject/feature/Manager/presentation/manger/manager_dashboard_cubit.dart';
 import 'package:finalproject/feature/Manager/presentation/manger/employees_cubit.dart';
 import 'package:finalproject/feature/Manager/presentation/views/manager_dashboard_view.dart';
@@ -107,7 +113,9 @@ class NavConfig {
             page: MultiBlocProvider(
               providers: [
                 BlocProvider(create: (_) => sl<ExamScheduleCubit>()),
-                BlocProvider(create: (_) => sl<ExamSessionCubit>()..fetchSessions()),
+                BlocProvider(
+                  create: (_) => sl<ExamSessionCubit>()..fetchSessions(),
+                ),
               ],
               child: const ExamSchedulePage(),
             ),
@@ -196,6 +204,36 @@ class NavConfig {
             ),
           ),
         ];
+      case 'head_supervisor':
+      case 'headsupervisor':
+        return [
+          AppSection(
+            title: "المستشفيات",
+            icon: Icons.local_hospital_outlined,
+            selectedIcon: Icons.local_hospital,
+            page: const HospitalsPage(),
+          ),
+          AppSection(
+            title: "السكن الجامعي",
+            icon: Icons.business_outlined,
+            selectedIcon: Icons.business,
+            page: MultiBlocProvider(
+              providers: [
+                BlocProvider<DormBuildingCubit>(
+                  create: (_) => sl<DormBuildingCubit>(),
+                ),
+                BlocProvider<DormRoomCubit>(create: (_) => sl<DormRoomCubit>()),
+              ],
+              child: const DormitoryView(),
+            ),
+          ),
+          AppSection(
+            title: "المفاضلات",
+            icon: Icons.swap_horiz_outlined,
+            selectedIcon: Icons.swap_horiz,
+            page: const MatchingCampaignsView(),
+          ),
+        ];
       case 'warehouse_officer':
         return [
           AppSection(
@@ -244,8 +282,6 @@ class NavConfig {
             ),
           ),
         ];
-      // يمكنك إضافة الـ 5 أدوار المتبقية هنا بكل سهولة
-      // case 'student': ...
       default:
         return [
           AppSection(

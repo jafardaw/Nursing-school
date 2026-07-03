@@ -38,6 +38,15 @@ class ApiService {
             }
           }
 
+          if (kDebugMode) {
+            Logger.debug('Request path: ${options.path}', tag: 'API');
+            Logger.debug('Request headers: ${options.headers}', tag: 'API');
+            Logger.debug(
+              'Request queryParams: ${options.queryParameters}',
+              tag: 'API',
+            );
+          }
+
           return handler.next(options);
         },
 
@@ -99,7 +108,8 @@ class ApiService {
       throw ErrorHandler.handleDioError(e);
     }
   }
-   Future<Response> put(
+
+  Future<Response> put(
     String path,
     dynamic data, {
     Map<String, dynamic>? queryParameters,
