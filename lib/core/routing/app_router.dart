@@ -58,6 +58,13 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:finalproject/feature/engineering_office/presentation/manger/complaints_cubit.dart';
+import 'package:finalproject/feature/Department_HeadSupervisor/Hospitals/presentation/manger/hospital_cubit.dart';
+import 'package:finalproject/feature/Department_HeadSupervisor/Hospitals/presentation/views/hospitals_view.dart'
+    deferred as hospitals;
+import 'package:finalproject/feature/Department_HeadSupervisor/Dormitory/presentation/manger/dorm_building_cubit/dorm_building_cubit.dart';
+import 'package:finalproject/feature/Department_HeadSupervisor/Dormitory/presentation/manger/dorm_room_cubit/dorm_room_cubit.dart';
+import 'package:finalproject/feature/Department_HeadSupervisor/Dormitory/presentation/views/dormitory_view.dart'
+    deferred as dormitory;
 
 class AppRouter {
   static final _rootNavigatorKey = GlobalKey<NavigatorState>();
@@ -259,7 +266,9 @@ class AppRouter {
         builder: (context, state) => MultiBlocProvider(
           providers: [
             BlocProvider(create: (context) => sl<ExamScheduleCubit>()),
-            BlocProvider(create: (context) => sl<ExamSessionCubit>()..fetchSessions()),
+            BlocProvider(
+              create: (context) => sl<ExamSessionCubit>()..fetchSessions(),
+            ),
           ],
           child: LazyPageLoader(
             loadLibrary: exam_schedule.loadLibrary,
@@ -278,6 +287,31 @@ class AppRouter {
           child: LazyPageLoader(
             loadLibrary: engineering.loadLibrary,
             builder: () => engineering.EngineeringDashboard(),
+          ),
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.hospitalsRoute,
+        name: AppRoutes.hospitalsRoute,
+        builder: (context, state) => BlocProvider<HospitalCubit>(
+          create: (_) => sl<HospitalCubit>(),
+          child: LazyPageLoader(
+            loadLibrary: hospitals.loadLibrary,
+            builder: () => hospitals.HospitalsPage(),
+          ),
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.dormitoryRoute,
+        name: AppRoutes.dormitoryRoute,
+        builder: (context, state) => MultiBlocProvider(
+          providers: [
+            BlocProvider<DormBuildingCubit>(create: (_) => sl<DormBuildingCubit>()),
+            BlocProvider<DormRoomCubit>(create: (_) => sl<DormRoomCubit>()),
+          ],
+          child: LazyPageLoader(
+            loadLibrary: dormitory.loadLibrary,
+            builder: () => dormitory.DormitoryView(),
           ),
         ),
       ),

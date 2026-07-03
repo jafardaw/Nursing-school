@@ -62,5 +62,20 @@ class ApiEndpoints {
   static const String employees = 'employees';
   static String employeeById(int id) => 'employees/$id';
 
+  // Hospitals (Head Supervisor)
+  static const String hospitals = 'hospitals';
+  static String hospitalById(int id) => 'hospitals/$id';
+
+  // Dorm Buildings & Rooms
+  static const String dormBuildings = 'dorm-buildings';
+  static String dormBuildingById(int id) => 'dorm-buildings/$id';
+  static const String dormRooms = 'dorm-rooms';
+  static String dormRoomById(int id) => 'dorm-rooms/$id';
+  static const String dormRoomsSearch = 'dorm-rooms/search';
+
+  // Matching Campaigns
+  static const String matchingCampaigns = 'matching-campaigns';
+  static String matchingCampaignSeats(int id) => 'matching-campaigns/$id/seats';
+
   ApiEndpoints._();
 }

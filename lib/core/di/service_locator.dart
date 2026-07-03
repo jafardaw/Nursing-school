@@ -10,6 +10,9 @@ import 'package:finalproject/feature/Department_Exam/Subject/repo/subject_repo_i
 import 'package:finalproject/feature/Department_Student_Affair/Statistic/presentation/manger/get_cibit/get_statistic_cubit.dart';
 import 'package:finalproject/feature/Department_Student_Affair/Statistic/repo/statistic_repo.dart';
 import 'package:finalproject/feature/Department_Student_Affair/Statistic/repo/statistic_repoimpl.dart';
+import 'package:finalproject/feature/Department_HeadSupervisor/matching/domain/repositories/matching_campaign_repository.dart';
+import 'package:finalproject/feature/Department_HeadSupervisor/matching/domain/repositories/matching_campaign_repository_impl.dart';
+import 'package:finalproject/feature/Department_HeadSupervisor/matching/presentation/manger/matching_campaign_cubit.dart';
 import 'package:finalproject/feature/Department_Student_Affair/penalties/presentation/manger/cubit_delete/delete_penalties_cubit.dart';
 import 'package:finalproject/feature/Department_Student_Affair/penalties/presentation/manger/cubit_get/get_all_penalties_cubit.dart';
 import 'package:finalproject/feature/Department_Student_Affair/penalties/presentation/manger/cubit_post/add_penalites_cubit.dart';
@@ -63,6 +66,13 @@ import 'package:finalproject/feature/warehouse_officer/stock_in_warehouse/presen
 import 'package:finalproject/feature/warehouse_officer/statistics/domain/repositories/warehouse_statistics_repo.dart';
 import 'package:finalproject/feature/warehouse_officer/statistics/domain/repositories/warehouse_statistics_repo_impl.dart';
 import 'package:finalproject/feature/warehouse_officer/statistics/presentation/manger/warehouse_statistics_cubit.dart';
+import 'package:finalproject/feature/Department_HeadSupervisor/Hospitals/presentation/manger/hospital_cubit.dart';
+import 'package:finalproject/feature/Department_HeadSupervisor/Hospitals/repo/hospital_repo.dart';
+import 'package:finalproject/feature/Department_HeadSupervisor/Hospitals/repo/hospital_repo_impl.dart';
+import 'package:finalproject/feature/Department_HeadSupervisor/Dormitory/repo/dormitory_repo.dart';
+import 'package:finalproject/feature/Department_HeadSupervisor/Dormitory/repo/dormitory_repo_impl.dart';
+import 'package:finalproject/feature/Department_HeadSupervisor/Dormitory/presentation/manger/dorm_building_cubit/dorm_building_cubit.dart';
+import 'package:finalproject/feature/Department_HeadSupervisor/Dormitory/presentation/manger/dorm_room_cubit/dorm_room_cubit.dart';
 import 'package:get_it/get_it.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:finalproject/core/network/api_service.dart';
@@ -214,6 +224,36 @@ Future<void> initServiceLocator() async {
     () => ExamScheduleRepositoryImpl(sl()),
   );
   sl.registerFactory(() => ExamScheduleCubit(sl()));
+
+  /////////// head supervisor hospitals
+  sl.registerLazySingleton<HospitalRepository>(
+    () => HospitalRepositoryImpl(sl()),
+  );
+  sl.registerFactory<HospitalCubit>(
+    () => HospitalCubit(sl<HospitalRepository>()),
+  );
+
+  /////////// matching campaigns
+  sl.registerLazySingleton<MatchingCampaignRepository>(
+    () => MatchingCampaignRepositoryImpl(sl()),
+  );
+  sl.registerFactory<MatchingCampaignCubit>(
+    () => MatchingCampaignCubit(
+      sl<MatchingCampaignRepository>(),
+      sl<HospitalRepository>(),
+    ),
+  );
+
+  /////////// dormitory (buildings & rooms)
+  sl.registerLazySingleton<DormitoryRepository>(
+    () => DormitoryRepositoryImpl(sl()),
+  );
+  sl.registerFactory<DormBuildingCubit>(
+    () => DormBuildingCubit(sl<DormitoryRepository>()),
+  );
+  sl.registerFactory<DormRoomCubit>(
+    () => DormRoomCubit(sl<DormitoryRepository>()),
+  );
 
   /////////// manager dashboard
   sl.registerLazySingleton<ManagerRepository>(
