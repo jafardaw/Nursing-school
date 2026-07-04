@@ -13,6 +13,7 @@ class ApiEndpoints {
   static String penaltiesid(int id) => 'stpenalties/$id';
 
   static const String students = 'students';
+  static const String studentsSearch = 'students/search';
   static String updateStudent(int id) => 'students/$id'; // 🟢 جديد
 
   static const String statistics = 'students/statistics';
@@ -65,6 +66,9 @@ class ApiEndpoints {
   // Hospitals (Head Supervisor)
   static const String hospitals = 'hospitals';
   static String hospitalById(int id) => 'hospitals/$id';
+  static const String hospitalTrainingGroups = 'hospital-training-groups';
+  static const String hospitalTrainingGroupsSearch =
+      'hospital-training-groups/search';
 
   // Dorm Buildings & Rooms
   static const String dormBuildings = 'dorm-buildings';
@@ -72,6 +76,8 @@ class ApiEndpoints {
   static const String dormRooms = 'dorm-rooms';
   static String dormRoomById(int id) => 'dorm-rooms/$id';
   static const String dormRoomsSearch = 'dorm-rooms/search';
+  static const String roomAssignments = 'room-assignments';
+  static const String roomAssignmentsSearch = 'room-assignments/search';
 
   // Matching Campaigns
   static const String matchingCampaigns = 'matching-campaigns';

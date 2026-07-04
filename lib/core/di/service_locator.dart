@@ -13,6 +13,15 @@ import 'package:finalproject/feature/Department_Student_Affair/Statistic/repo/st
 import 'package:finalproject/feature/Department_HeadSupervisor/matching/domain/repositories/matching_campaign_repository.dart';
 import 'package:finalproject/feature/Department_HeadSupervisor/matching/domain/repositories/matching_campaign_repository_impl.dart';
 import 'package:finalproject/feature/Department_HeadSupervisor/matching/presentation/manger/matching_campaign_cubit.dart';
+import 'package:finalproject/feature/Department_HeadSupervisor/HospitalTrainingGroups/domain/repositories/hospital_training_groups_repo.dart';
+import 'package:finalproject/feature/Department_HeadSupervisor/HospitalTrainingGroups/domain/repositories/hospital_training_groups_repo_impl.dart';
+import 'package:finalproject/feature/Department_HeadSupervisor/HospitalTrainingGroups/presentation/manger/hospital_training_groups_cubit.dart';
+import 'package:finalproject/feature/Department_HeadSupervisor/RoomAssignments/domain/repositories/room_assignment_repo.dart';
+import 'package:finalproject/feature/Department_HeadSupervisor/RoomAssignments/domain/repositories/room_assignment_repo_impl.dart';
+import 'package:finalproject/feature/Department_HeadSupervisor/RoomAssignments/domain/repositories/room_assignment_students_repo.dart';
+import 'package:finalproject/feature/Department_HeadSupervisor/RoomAssignments/domain/repositories/room_assignment_students_repo_impl.dart';
+import 'package:finalproject/feature/Department_HeadSupervisor/RoomAssignments/presentation/manger/room_assignment_cubit.dart';
+import 'package:finalproject/feature/Department_HeadSupervisor/RoomAssignments/presentation/manger/room_assignment_students_cubit.dart';
 import 'package:finalproject/feature/Department_Student_Affair/penalties/presentation/manger/cubit_delete/delete_penalties_cubit.dart';
 import 'package:finalproject/feature/Department_Student_Affair/penalties/presentation/manger/cubit_get/get_all_penalties_cubit.dart';
 import 'package:finalproject/feature/Department_Student_Affair/penalties/presentation/manger/cubit_post/add_penalites_cubit.dart';
@@ -254,6 +263,26 @@ Future<void> initServiceLocator() async {
   sl.registerFactory<DormRoomCubit>(
     () => DormRoomCubit(sl<DormitoryRepository>()),
   );
+  sl.registerLazySingleton<RoomAssignmentRepository>(
+    () => RoomAssignmentRepositoryImpl(sl()),
+  );
+  sl.registerFactory<RoomAssignmentCubit>(
+    () => RoomAssignmentCubit(sl<RoomAssignmentRepository>()),
+  );
+  sl.registerLazySingleton<RoomAssignmentStudentsRepository>(
+    () => RoomAssignmentStudentsRepositoryImpl(sl()),
+  );
+  sl.registerFactory<RoomAssignmentStudentsCubit>(
+    () => RoomAssignmentStudentsCubit(sl<RoomAssignmentStudentsRepository>()),
+  );
+
+  /////////// hospital training groups
+  sl.registerLazySingleton<HospitalTrainingGroupsRepo>(
+    () => HospitalTrainingGroupsRepoImpl(sl(), sl<HospitalRepository>()),
+  );
+  sl.registerFactory<HospitalTrainingGroupsCubit>(
+    () => HospitalTrainingGroupsCubit(sl<HospitalTrainingGroupsRepo>()),
+  );
 
   /////////// manager dashboard
   sl.registerLazySingleton<ManagerRepository>(
@@ -262,4 +291,5 @@ Future<void> initServiceLocator() async {
   sl.registerFactory(() => ManagerDashboardCubit(sl()));
   sl.registerFactory(() => EmployeesCubit(sl()));
 }
+
 ///////////////////225

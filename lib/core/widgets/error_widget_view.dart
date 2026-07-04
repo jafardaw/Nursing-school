@@ -23,51 +23,53 @@ class ShowErrorWidgetView extends StatelessWidget {
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(20.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            if (showImage) ...[
-              Image.asset(
-                AppAssets.imagesNoConsultation,
-                width: 270,
-                height: 270,
-              ),
-              // SvgPicture.asset(
-              //   AppAssets.,
-              //   width: 100,
-              //   height: 100,
-              //   colorFilter: ColorFilter.mode(
-              //     AppColors.primary,
-              //     BlendMode.srcIn,
-              //   ),
-              // ),
-              // Icon(Icons.error_outline, size: 64, color: AppColors.error),
-              const SizedBox(height: 20),
-            ],
-
-            const SizedBox(height: 10),
-            Text(
-              '$errorMessage  😢',
-              style: context.styles.bodyMedium.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 30),
-            if (showRetryButton && onRetry != null)
-              ElevatedButton(
-                onPressed: onRetry,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primary,
-                  foregroundColor: AppColors.white,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 30,
-                    vertical: 15,
-                  ),
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              if (showImage) ...[
+                Image.asset(
+                  AppAssets.imagesNoConsultation,
+                  width: 270,
+                  height: 270,
                 ),
-                child: const Text('إعادة المحاولة'),
+                // SvgPicture.asset(
+                //   AppAssets.,
+                //   width: 100,
+                //   height: 100,
+                //   colorFilter: ColorFilter.mode(
+                //     AppColors.primary,
+                //     BlendMode.srcIn,
+                //   ),
+                // ),
+                // Icon(Icons.error_outline, size: 64, color: AppColors.error),
+                const SizedBox(height: 20),
+              ],
+          
+              const SizedBox(height: 10),
+              Text(
+                '$errorMessage  😢',
+                style: context.styles.bodyMedium.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
+                textAlign: TextAlign.center,
               ),
-          ],
+              const SizedBox(height: 30),
+              if (showRetryButton && onRetry != null)
+                ElevatedButton(
+                  onPressed: onRetry,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primary,
+                    foregroundColor: AppColors.white,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 30,
+                      vertical: 15,
+                    ),
+                  ),
+                  child: const Text('إعادة المحاولة'),
+                ),
+            ],
+          ),
         ),
       ),
     );

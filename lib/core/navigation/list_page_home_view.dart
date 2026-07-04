@@ -5,11 +5,13 @@ import 'package:finalproject/feature/Department_Exam/Halls/presentation/views/ha
 import 'package:finalproject/feature/Department_Student_Affair/Statistic/presentation/views/statistic_view.dart';
 import 'package:finalproject/feature/Department_HeadSupervisor/matching/presentation/views/matching_campaigns_view.dart';
 import 'package:finalproject/feature/Department_HeadSupervisor/Hospitals/presentation/views/hospitals_view.dart';
-import 'package:finalproject/feature/Department_HeadSupervisor/Hospitals/presentation/manger/hospital_cubit.dart';
+import 'package:finalproject/feature/Department_HeadSupervisor/HospitalTrainingGroups/presentation/manger/hospital_training_groups_cubit.dart';
+import 'package:finalproject/feature/Department_HeadSupervisor/HospitalTrainingGroups/presentation/views/hospital_training_groups_view.dart';
 import 'package:finalproject/feature/Department_HeadSupervisor/Dormitory/presentation/views/dormitory_view.dart';
 import 'package:finalproject/feature/Department_HeadSupervisor/Dormitory/presentation/manger/dorm_building_cubit/dorm_building_cubit.dart';
 import 'package:finalproject/feature/Department_HeadSupervisor/Dormitory/presentation/manger/dorm_room_cubit/dorm_room_cubit.dart';
-import 'package:finalproject/feature/Department_HeadSupervisor/matching/presentation/manger/matching_campaign_cubit.dart';
+import 'package:finalproject/feature/Department_Student_Affair/student%20Affairs/student%20record/presentation/manger/cubit/delete_student_cubit.dart';
+import 'package:finalproject/feature/Department_Student_Affair/student%20Affairs/student%20record/presentation/manger/students_cubit.dart';
 import 'package:finalproject/feature/Department_Student_Affair/penalties/presentation/views/penalties_view.dart';
 import 'package:finalproject/feature/Department_Student_Affair/student%20Affairs/student%20record/presentation/view/students_screen.dart';
 import 'package:finalproject/feature/Department_Exam/Exam_Schedule/presentation/views/exam_schedule_page.dart';
@@ -232,6 +234,38 @@ class NavConfig {
             icon: Icons.swap_horiz_outlined,
             selectedIcon: Icons.swap_horiz,
             page: const MatchingCampaignsView(),
+          ),
+          AppSection(
+            title: "إدارة الطالبات",
+            icon: Icons.school_outlined,
+            selectedIcon: Icons.school,
+            page: MultiBlocProvider(
+              providers: [
+                BlocProvider<StudentsCubit>(create: (_) => sl<StudentsCubit>()),
+                BlocProvider<DeleteStudentCubit>(
+                  create: (_) => sl<DeleteStudentCubit>(),
+                ),
+              ],
+              child: const StudentsScreen(),
+            ),
+          ),
+          AppSection(
+            title: "إدارة الموظفين",
+            icon: Icons.badge_outlined,
+            selectedIcon: Icons.badge,
+            page: BlocProvider(
+              create: (_) => sl<EmployeesCubit>()..loadEmployees(),
+              child: const ManagerEmployeesView(),
+            ),
+          ),
+          AppSection(
+            title: "مجموعات التدريب",
+            icon: Icons.groups_2_outlined,
+            selectedIcon: Icons.groups_2,
+            page: BlocProvider(
+              create: (_) => sl<HospitalTrainingGroupsCubit>(),
+              child: const HospitalTrainingGroupsView(),
+            ),
           ),
         ];
       case 'warehouse_officer':

@@ -7,6 +7,9 @@ import 'package:finalproject/core/widgets/custom_confirm_dialog.dart';
 import 'package:finalproject/core/widgets/empty_view_list.dart';
 import 'package:finalproject/core/widgets/error_widget_view.dart';
 import 'package:finalproject/core/widgets/show_snak_bar.dart';
+import 'package:finalproject/feature/Department_HeadSupervisor/RoomAssignments/presentation/manger/room_assignment_cubit.dart';
+import 'package:finalproject/feature/Department_HeadSupervisor/RoomAssignments/presentation/manger/room_assignment_students_cubit.dart';
+import 'package:finalproject/feature/Department_HeadSupervisor/RoomAssignments/presentation/views/widgets/room_assignments_dialog.dart';
 
 import '../../data/dorm_building_model.dart';
 import '../../data/dorm_room_model.dart';
@@ -24,9 +27,11 @@ class DormitoryView extends StatefulWidget {
   State<DormitoryView> createState() => _DormitoryViewState();
 }
 
-class _DormitoryViewState extends State<DormitoryView> with SingleTickerProviderStateMixin {
+class _DormitoryViewState extends State<DormitoryView>
+    with SingleTickerProviderStateMixin {
   late final TabController _tabController;
-  final TextEditingController _buildingSearchController = TextEditingController();
+  final TextEditingController _buildingSearchController =
+      TextEditingController();
   final TextEditingController _roomSearchController = TextEditingController();
 
   String _buildingSearchQuery = '';
@@ -49,16 +54,19 @@ class _DormitoryViewState extends State<DormitoryView> with SingleTickerProvider
       setState(() {}); // refresh FAB or top layout if needed on tab switch
     });
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<DormBuildingCubit>().fetchBuildings().then((_) {
-        final buildings = context.read<DormBuildingCubit>().buildings;
-        if (buildings.isNotEmpty) {
-          setState(() {
-            _selectedBuildingFilterId = buildings.first.id;
-          });
-          context.read<DormRoomCubit>().fetchRoomsByBuilding(buildings.first.id);
-        }
-      });
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final buildingCubit = context.read<DormBuildingCubit>();
+      final roomCubit = context.read<DormRoomCubit>();
+      await buildingCubit.fetchBuildings();
+      if (!mounted) return;
+
+      final buildings = buildingCubit.buildings;
+      if (buildings.isNotEmpty) {
+        setState(() {
+          _selectedBuildingFilterId = buildings.first.id;
+        });
+        roomCubit.fetchRoomsByBuilding(buildings.first.id);
+      }
     });
   }
 
@@ -145,9 +153,16 @@ class _DormitoryViewState extends State<DormitoryView> with SingleTickerProvider
                 isLoading: state is DormBuildingActionLoading,
                 onSave: (name, totalFloors) {
                   if (building == null) {
-                    context.read<DormBuildingCubit>().createBuilding(name: name, totalFloors: totalFloors);
+                    context.read<DormBuildingCubit>().createBuilding(
+                      name: name,
+                      totalFloors: totalFloors,
+                    );
                   } else {
-                    context.read<DormBuildingCubit>().updateBuilding(id: building.id, name: name, totalFloors: totalFloors);
+                    context.read<DormBuildingCubit>().updateBuilding(
+                      id: building.id,
+                      name: name,
+                      totalFloors: totalFloors,
+                    );
                   }
                 },
               );
@@ -171,7 +186,11 @@ class _DormitoryViewState extends State<DormitoryView> with SingleTickerProvider
   void _openAddEditRoomDialog({DormRoomModel? room}) {
     final buildings = context.read<DormBuildingCubit>().buildings;
     if (buildings.isEmpty) {
-      showWebBanner(context, "يجب إضافة مبنى سكني أولاً قبل إضافة الغرف", type: BannerType.error);
+      showWebBanner(
+        context,
+        "يجب إضافة مبنى سكني أولاً قبل إضافة الغرف",
+        type: BannerType.error,
+      );
       return;
     }
 
@@ -195,20 +214,20 @@ class _DormitoryViewState extends State<DormitoryView> with SingleTickerProvider
                 onSave: (buildingId, roomNumber, floorNumber, capacity) {
                   if (room == null) {
                     context.read<DormRoomCubit>().createRoom(
-                          dormBuildingId: buildingId,
-                          roomNumber: roomNumber,
-                          floorNumber: floorNumber,
-                          capacity: capacity,
-                        );
+                      dormBuildingId: buildingId,
+                      roomNumber: roomNumber,
+                      floorNumber: floorNumber,
+                      capacity: capacity,
+                    );
                   } else {
                     context.read<DormRoomCubit>().updateRoom(
-                          id: room.id,
-                          dormBuildingId: buildingId,
-                          roomNumber: roomNumber,
-                          floorNumber: floorNumber,
-                          capacity: capacity,
-                          status: room.status,
-                        );
+                      id: room.id,
+                      dormBuildingId: buildingId,
+                      roomNumber: roomNumber,
+                      floorNumber: floorNumber,
+                      capacity: capacity,
+                      status: room.status,
+                    );
                   }
                 },
               );
@@ -225,6 +244,24 @@ class _DormitoryViewState extends State<DormitoryView> with SingleTickerProvider
       context.read<DormRoomCubit>().deleteRoom(room.id);
       Navigator.of(context, rootNavigator: true).pop();
     });
+  }
+
+  void _openRoomAssignmentsDialog(DormRoomModel room) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => MultiBlocProvider(
+        providers: [
+          BlocProvider<RoomAssignmentCubit>(
+            create: (_) => sl<RoomAssignmentCubit>(),
+          ),
+          BlocProvider<RoomAssignmentStudentsCubit>(
+            create: (_) => sl<RoomAssignmentStudentsCubit>(),
+          ),
+        ],
+        child: RoomAssignmentsDialog(room: room),
+      ),
+    );
   }
 
   // Helper to switch to room tab with building filter
@@ -246,7 +283,9 @@ class _DormitoryViewState extends State<DormitoryView> with SingleTickerProvider
         BlocListener<DormBuildingCubit, DormBuildingState>(
           listener: (context, state) {
             if (state is DormBuildingActionLoading) {
-              if (_isActionInProgress) _showLoadingDialog("جاري حفظ التغييرات للمبنى...");
+              if (_isActionInProgress) {
+                _showLoadingDialog("جاري حفظ التغييرات للمبنى...");
+              }
             } else if (state is DormBuildingActionSuccess) {
               if (_isActionInProgress) {
                 _dismissLoadingDialog();
@@ -256,11 +295,14 @@ class _DormitoryViewState extends State<DormitoryView> with SingleTickerProvider
               // If deleted building was selected in rooms, reset selection
               final list = context.read<DormBuildingCubit>().buildings;
               if (list.isNotEmpty) {
-                if (_selectedBuildingFilterId == null || !list.any((b) => b.id == _selectedBuildingFilterId)) {
+                if (_selectedBuildingFilterId == null ||
+                    !list.any((b) => b.id == _selectedBuildingFilterId)) {
                   setState(() {
                     _selectedBuildingFilterId = list.first.id;
                   });
-                  context.read<DormRoomCubit>().fetchRoomsByBuilding(list.first.id);
+                  context.read<DormRoomCubit>().fetchRoomsByBuilding(
+                    list.first.id,
+                  );
                 }
               } else {
                 setState(() {
@@ -279,7 +321,9 @@ class _DormitoryViewState extends State<DormitoryView> with SingleTickerProvider
         BlocListener<DormRoomCubit, DormRoomState>(
           listener: (context, state) {
             if (state is DormRoomActionLoading) {
-              if (_isActionInProgress) _showLoadingDialog("جاري حفظ التغييرات للغرفة...");
+              if (_isActionInProgress) {
+                _showLoadingDialog("جاري حفظ التغييرات للغرفة...");
+              }
             } else if (state is DormRoomActionSuccess) {
               if (_isActionInProgress) {
                 _dismissLoadingDialog();
@@ -301,7 +345,10 @@ class _DormitoryViewState extends State<DormitoryView> with SingleTickerProvider
         appBar: AppBar(
           title: Text(
             "إدارة السكن الجامعي",
-            style: styles.headline2.copyWith(color: Colors.white, fontWeight: FontWeight.bold),
+            style: styles.headline2.copyWith(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+            ),
           ),
           flexibleSpace: Container(
             decoration: const BoxDecoration(
@@ -316,13 +363,22 @@ class _DormitoryViewState extends State<DormitoryView> with SingleTickerProvider
             controller: _tabController,
             indicatorColor: Colors.white,
             indicatorWeight: 3,
-            labelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-            unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.normal, fontSize: 14),
+            labelStyle: const TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
+            ),
+            unselectedLabelStyle: const TextStyle(
+              fontWeight: FontWeight.normal,
+              fontSize: 14,
+            ),
             labelColor: Colors.white,
             unselectedLabelColor: Colors.white.withValues(alpha: 0.7),
             tabs: const [
               Tab(icon: Icon(Icons.business_rounded), text: "الأبنية السكنية"),
-              Tab(icon: Icon(Icons.meeting_room_rounded), text: "الغرف السكنية"),
+              Tab(
+                icon: Icon(Icons.meeting_room_rounded),
+                text: "الغرف السكنية",
+              ),
             ],
           ),
         ),
@@ -346,7 +402,9 @@ class _DormitoryViewState extends State<DormitoryView> with SingleTickerProvider
       builder: (context, state) {
         final list = context.read<DormBuildingCubit>().buildings;
         final filtered = list.where((b) {
-          return b.name.toLowerCase().contains(_buildingSearchQuery.toLowerCase());
+          return b.name.toLowerCase().contains(
+            _buildingSearchQuery.toLowerCase(),
+          );
         }).toList();
 
         if (state is DormBuildingLoading && list.isEmpty) {
@@ -396,13 +454,10 @@ class _DormitoryViewState extends State<DormitoryView> with SingleTickerProvider
                     mainAxisSpacing: 16,
                     childAspectRatio: isDesktop ? 1.4 : 2.5,
                   ),
-                  delegate: SliverChildBuilderDelegate(
-                    (context, index) {
-                      final item = filtered[index];
-                      return _buildBuildingCard(item, styles, index);
-                    },
-                    childCount: filtered.length,
-                  ),
+                  delegate: SliverChildBuilderDelegate((context, index) {
+                    final item = filtered[index];
+                    return _buildBuildingCard(item, styles, index);
+                  }, childCount: filtered.length),
                 ),
               ),
             const SliverToBoxAdapter(child: SizedBox(height: 40)),
@@ -457,12 +512,17 @@ class _DormitoryViewState extends State<DormitoryView> with SingleTickerProvider
             icon: const Icon(Icons.add_rounded, color: Colors.white),
             label: const Text(
               "مبنى جديد",
-              style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
             ),
             style: ElevatedButton.styleFrom(
               backgroundColor: _primaryColor,
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
               elevation: 0,
             ),
           ),
@@ -494,7 +554,11 @@ class _DormitoryViewState extends State<DormitoryView> with SingleTickerProvider
     );
   }
 
-  Widget _buildBuildingCard(DormBuildingModel building, ThemedTextStyles styles, int index) {
+  Widget _buildBuildingCard(
+    DormBuildingModel building,
+    ThemedTextStyles styles,
+    int index,
+  ) {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -521,7 +585,11 @@ class _DormitoryViewState extends State<DormitoryView> with SingleTickerProvider
                     color: const Color(0xFFEEF2FF),
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: const Icon(Icons.business_rounded, color: _primaryColor, size: 22),
+                  child: const Icon(
+                    Icons.business_rounded,
+                    color: _primaryColor,
+                    size: 22,
+                  ),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
@@ -541,7 +609,8 @@ class _DormitoryViewState extends State<DormitoryView> with SingleTickerProvider
                     _buildMiniActionButton(
                       icon: Icons.edit_outlined,
                       color: _accentColor,
-                      onTap: () => _openAddEditBuildingDialog(building: building),
+                      onTap: () =>
+                          _openAddEditBuildingDialog(building: building),
                     ),
                     const SizedBox(width: 4),
                     _buildMiniActionButton(
@@ -566,11 +635,18 @@ class _DormitoryViewState extends State<DormitoryView> with SingleTickerProvider
                 children: [
                   Row(
                     children: [
-                      const Icon(Icons.layers_outlined, size: 18, color: Color(0xFF64748B)),
+                      const Icon(
+                        Icons.layers_outlined,
+                        size: 18,
+                        color: Color(0xFF64748B),
+                      ),
                       const SizedBox(width: 6),
                       const Text(
                         "عدد الطوابق:",
-                        style: TextStyle(fontSize: 13, color: Color(0xFF64748B)),
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: Color(0xFF64748B),
+                        ),
                       ),
                       const SizedBox(width: 4),
                       Text(
@@ -585,10 +661,17 @@ class _DormitoryViewState extends State<DormitoryView> with SingleTickerProvider
                   ),
                   TextButton.icon(
                     onPressed: () => _viewRoomsForBuilding(building),
-                    icon: const Icon(Icons.arrow_back_rounded, size: 16, color: _primaryColor),
+                    icon: const Icon(
+                      Icons.arrow_back_rounded,
+                      size: 16,
+                      color: _primaryColor,
+                    ),
                     label: const Text(
                       "عرض الغرف",
-                      style: TextStyle(fontWeight: FontWeight.bold, color: _primaryColor),
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: _primaryColor,
+                      ),
                     ),
                     style: TextButton.styleFrom(
                       padding: const EdgeInsets.symmetric(horizontal: 10),
@@ -620,7 +703,9 @@ class _DormitoryViewState extends State<DormitoryView> with SingleTickerProvider
       builder: (context, state) {
         final list = context.read<DormRoomCubit>().rooms;
         final filtered = list.where((r) {
-          return r.roomNumber.toLowerCase().contains(_roomSearchQuery.toLowerCase());
+          return r.roomNumber.toLowerCase().contains(
+            _roomSearchQuery.toLowerCase(),
+          );
         }).toList();
 
         return CustomScrollView(
@@ -651,7 +736,9 @@ class _DormitoryViewState extends State<DormitoryView> with SingleTickerProvider
                   showImage: false,
                   onRetry: () {
                     if (_selectedBuildingFilterId != null) {
-                      context.read<DormRoomCubit>().fetchRoomsByBuilding(_selectedBuildingFilterId!);
+                      context.read<DormRoomCubit>().fetchRoomsByBuilding(
+                        _selectedBuildingFilterId!,
+                      );
                     }
                   },
                 ),
@@ -674,13 +761,10 @@ class _DormitoryViewState extends State<DormitoryView> with SingleTickerProvider
                     mainAxisSpacing: 16,
                     childAspectRatio: isDesktop ? 1.25 : 1.1,
                   ),
-                  delegate: SliverChildBuilderDelegate(
-                    (context, index) {
-                      final room = filtered[index];
-                      return _buildRoomCard(room, styles, index);
-                    },
-                    childCount: filtered.length,
-                  ),
+                  delegate: SliverChildBuilderDelegate((context, index) {
+                    final room = filtered[index];
+                    return _buildRoomCard(room, styles, index);
+                  }, childCount: filtered.length),
                 ),
               ),
             const SliverToBoxAdapter(child: SizedBox(height: 40)),
@@ -690,7 +774,10 @@ class _DormitoryViewState extends State<DormitoryView> with SingleTickerProvider
     );
   }
 
-  Widget _buildRoomsHeaderPanel(List<DormBuildingModel> buildings, bool isDesktop) {
+  Widget _buildRoomsHeaderPanel(
+    List<DormBuildingModel> buildings,
+    bool isDesktop,
+  ) {
     return Container(
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
@@ -737,7 +824,9 @@ class _DormitoryViewState extends State<DormitoryView> with SingleTickerProvider
                           setState(() {
                             _selectedBuildingFilterId = val;
                           });
-                          context.read<DormRoomCubit>().fetchRoomsByBuilding(val);
+                          context.read<DormRoomCubit>().fetchRoomsByBuilding(
+                            val,
+                          );
                         }
                       },
                     ),
@@ -760,7 +849,10 @@ class _DormitoryViewState extends State<DormitoryView> with SingleTickerProvider
                     textDirection: TextDirection.rtl,
                     decoration: const InputDecoration(
                       hintText: "بحث برقم الغرفة...",
-                      hintStyle: TextStyle(color: Color(0xFF94A3B8), fontSize: 13),
+                      hintStyle: TextStyle(
+                        color: Color(0xFF94A3B8),
+                        fontSize: 13,
+                      ),
                       prefixIcon: Icon(Icons.search, color: Color(0xFF94A3B8)),
                       border: InputBorder.none,
                       contentPadding: EdgeInsets.symmetric(vertical: 12),
@@ -774,12 +866,20 @@ class _DormitoryViewState extends State<DormitoryView> with SingleTickerProvider
                 icon: const Icon(Icons.add_rounded, color: Colors.white),
                 label: const Text(
                   "غرفة جديدة",
-                  style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
                 ),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: _secondaryColor,
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 14,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                   elevation: 0,
                 ),
               ),
@@ -813,7 +913,11 @@ class _DormitoryViewState extends State<DormitoryView> with SingleTickerProvider
     );
   }
 
-  Widget _buildRoomCard(DormRoomModel room, ThemedTextStyles styles, int index) {
+  Widget _buildRoomCard(
+    DormRoomModel room,
+    ThemedTextStyles styles,
+    int index,
+  ) {
     final isAvailable = room.status.toLowerCase() == 'available';
 
     return Container(
@@ -844,7 +948,11 @@ class _DormitoryViewState extends State<DormitoryView> with SingleTickerProvider
                     color: const Color(0xFFF5F3FF),
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  child: const Icon(Icons.meeting_room_rounded, color: _secondaryColor, size: 20),
+                  child: const Icon(
+                    Icons.meeting_room_rounded,
+                    color: _secondaryColor,
+                    size: 20,
+                  ),
                 ),
                 Row(
                   children: [
@@ -877,39 +985,82 @@ class _DormitoryViewState extends State<DormitoryView> with SingleTickerProvider
             // Floor Number & Capacity
             Row(
               children: [
-                const Icon(Icons.layers_outlined, size: 14, color: Color(0xFF64748B)),
+                const Icon(
+                  Icons.layers_outlined,
+                  size: 14,
+                  color: Color(0xFF64748B),
+                ),
                 const SizedBox(width: 4),
                 Text(
                   "طابق: ${room.floorNumber}",
-                  style: const TextStyle(fontSize: 12, color: Color(0xFF64748B)),
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: Color(0xFF64748B),
+                  ),
                 ),
                 const Spacer(),
-                const Icon(Icons.people_outlined, size: 14, color: Color(0xFF64748B)),
+                const Icon(
+                  Icons.people_outlined,
+                  size: 14,
+                  color: Color(0xFF64748B),
+                ),
                 const SizedBox(width: 4),
                 Text(
                   "السعة: ${room.capacity}",
-                  style: const TextStyle(fontSize: 12, color: Color(0xFF64748B)),
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: Color(0xFF64748B),
+                  ),
                 ),
               ],
             ),
             const Spacer(),
             // Status Tag
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(vertical: 4),
-              decoration: BoxDecoration(
-                color: isAvailable ? const Color(0xFFD1FAE5) : const Color(0xFFFEE2E2),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Text(
-                isAvailable ? "متاحة" : "ممتلئة",
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.bold,
-                  color: isAvailable ? const Color(0xFF065F46) : const Color(0xFF991B1B),
+            Row(
+              children: [
+                Expanded(
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(vertical: 4),
+                    decoration: BoxDecoration(
+                      color: isAvailable
+                          ? const Color(0xFFD1FAE5)
+                          : const Color(0xFFFEE2E2),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Text(
+                      isAvailable ? "متاحة" : "ممتلئة",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                        color: isAvailable
+                            ? const Color(0xFF065F46)
+                            : const Color(0xFF991B1B),
+                      ),
+                    ),
+                  ),
                 ),
-              ),
+                const SizedBox(width: 8),
+                Tooltip(
+                  message: 'عرض وإضافة طالبات الغرفة',
+                  child: Material(
+                    color: _primaryColor.withValues(alpha: 0.08),
+                    borderRadius: BorderRadius.circular(8),
+                    child: InkWell(
+                      onTap: () => _openRoomAssignmentsDialog(room),
+                      borderRadius: BorderRadius.circular(8),
+                      child: const Padding(
+                        padding: EdgeInsets.all(7),
+                        child: Icon(
+                          Icons.groups_2_outlined,
+                          size: 17,
+                          color: _primaryColor,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
           ],
         ),
