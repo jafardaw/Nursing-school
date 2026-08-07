@@ -1,8 +1,13 @@
 import 'package:finalproject/core/di/service_locator.dart';
+import 'package:finalproject/core/services/firebase_notification_service.dart';
 
 import 'package:finalproject/core/theme/app_theme.dart';
+import 'package:finalproject/core/widgets/show_snak_bar.dart';
 import 'package:finalproject/feature/auth/presentation/manger/auth_cubit.dart';
 import 'package:finalproject/feature/auth/repo/auth_repo_impl.dart';
+import 'package:finalproject/firebase_options.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:responsive_framework/responsive_framework.dart';
@@ -11,8 +16,29 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  await Firebase.initializeApp(
+    options: FirebaseOptions(
+      apiKey: "AIzaSyAevp89ZWEV-FijVDc5eFnAIWddNyHkhhE",
+      appId: "1:446249583331:web:5fe419be6a3fcd86247bd6",
+      messagingSenderId: '446249583331',
+      projectId: "nursing-school-system",
+      storageBucket: "nursing-school-system.firebasestorage.app",
+    ),
+  );
+FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+    RemoteNotification? notification = message.notification;
+
+    if (notification != null) {
+      showGlobalWebBanner(
+        '${notification.title}: ${notification.body}',
+        type: BannerType.info,
+      );
+    }
+  });
   await initServiceLocator();
-  runApp(MyApp());
+
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -23,6 +49,7 @@ class MyApp extends StatelessWidget {
     return BlocProvider<AuthCubit>(
       create: (context) => AuthCubit(sl<AuthRepoImpl>()),
       child: MaterialApp.router(
+        scaffoldMessengerKey: scaffoldMessengerKey,
         locale: const Locale('ar'), // تحديد اللغة العربية كافتراضية
         supportedLocales: const [
           Locale('ar'), // دعم العربية

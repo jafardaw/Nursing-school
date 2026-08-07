@@ -10,7 +10,7 @@ class CustomFilterBar extends StatelessWidget {
   final String? value1;
   final List<String> items1;
   final Function(String?) onChanged1;
-  final Widget icon;
+
   final Widget icon2;
   final Function(String?) onChanged3;
 
@@ -20,7 +20,7 @@ class CustomFilterBar extends StatelessWidget {
   final List<String> items2;
   final Function(String?) onChanged2;
 
-  final VoidCallback onFilterPressed;
+  // final VoidCallback onFilterPressed;
   final VoidCallback onFilterPressedsearch;
 
   final String? buttonTooltip;
@@ -38,12 +38,11 @@ class CustomFilterBar extends StatelessWidget {
     required this.value2,
     required this.items2,
     required this.onChanged2,
-    required this.onChanged3,
+    required this.onChanged3, 
 
-    required this.onFilterPressed,
+    // required this.onFilterPressed,
     required this.onFilterPressedsearch,
 
-    required this.icon,
     required this.icon2,
 
     this.buttonTooltip,
@@ -120,24 +119,6 @@ class CustomFilterBar extends StatelessWidget {
           const SizedBox(width: 12),
 
           // 🚀 زر التنفيذ
-          Tooltip(
-            message: buttonTooltip,
-            child: ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF009EF7),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 20,
-                  vertical: 18,
-                ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                elevation: 0,
-              ),
-              onPressed: onFilterPressed,
-              child: icon,
-            ),
-          ),
         ],
       ),
     );

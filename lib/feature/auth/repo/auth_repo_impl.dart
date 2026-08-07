@@ -25,9 +25,12 @@ class AuthRepoImpl implements AuthRepo {
     Logger.info('Attempting login for: $email', tag: 'Auth');
 
     try {
+      final token = await _storage.getString('fcm_token');
+      Logger.info('Retrieved FCM token: $token', tag: 'Auth');
       final response = await _apiService.post(ApiEndpoints.login, {
         'email': email,
         'password': password,
+        'fcm_token': token ?? '232323232',
       });
 
       Logger.info('Response data: ${response.data}', tag: 'Auth');
@@ -40,6 +43,7 @@ class AuthRepoImpl implements AuthRepo {
         if (userModel.token != null) {
           await _storage.saveString(AppConstants.tokenKey, userModel.token!);
           await _storage.saveRole(userModel.role);
+          await _storage.saveInt('employee_id', userModel.id);
         }
 
         await _storage.saveObject(
@@ -86,9 +90,7 @@ class AuthRepoImpl implements AuthRepo {
     final role = await _storage.getString(AppConstants.roleKey);
 
     if (userData != null) {
-      return UserModel.fromFullJson(
-        userData,
-      ).copyWith(token: token, role: role);
+      return UserModel.fromJson(userData).copyWith(token: token, role: role);
     }
     return null;
   }

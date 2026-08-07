@@ -2,5 +2,5 @@ import 'package:finalproject/feature/engineering_office/data/model/complaint_mod
 
 abstract class ComplaintsRepo {
   Future<ComplaintsResponse> getComplaints({int page = 1, int perPage = 15});
-  Future<ComplaintModel> forwardComplaint(int id, String approverRole);
+  Future<ComplaintModel> forwardComplaint(int id, );
 }

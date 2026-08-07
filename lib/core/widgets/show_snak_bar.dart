@@ -1,4 +1,33 @@
 import 'package:flutter/material.dart';
+final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey =
+    GlobalKey<ScaffoldMessengerState>();
+
+// دالة عالمية لعرض الـ Banner من أي مكان دون BuildContext
+void showGlobalWebBanner(
+  String message, {
+  required BannerType type,
+}) {
+  final banner = MaterialBanner(
+    content: Text(message, style: const TextStyle(color: Colors.white)),
+    backgroundColor: _getBannerColor(type),
+    leading: Icon(_getIconBunner(type), color: Colors.white),
+    actions: [
+      TextButton(
+        onPressed: () =>
+            scaffoldMessengerKey.currentState?.hideCurrentMaterialBanner(),
+        child: const Text('إغلاق', style: TextStyle(color: Colors.white70)),
+      ),
+    ],
+  );
+
+  scaffoldMessengerKey.currentState
+    ?..hideCurrentMaterialBanner()
+    ..showMaterialBanner(banner);
+
+  Future.delayed(const Duration(seconds: 4), () {
+    scaffoldMessengerKey.currentState?.hideCurrentMaterialBanner();
+  });
+}
 
 void showCustomSnackBar(
   BuildContext context,

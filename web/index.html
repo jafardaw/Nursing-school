@@ -1,36 +1,44 @@
 <!DOCTYPE html>
 <html>
 <head>
+  <base href="$FLUTTER_BASE_HREF">
+
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>مشروعي - Flutter Web</title>
-  <style>
-    body {
-      margin: 0;
-      background: #0D47A1;
-    }
-    #loading {
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      color: white;
-      font-size: 24px;
-      font-family: sans-serif;
-    }
-  </style>
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>مشروعي الاحترافي</title>
 </head>
+
 <body>
-  <div id="loading">⏳ جاري التحميل...</div>
-  
-  <script src="flutter_bootstrap.js"></script>
-  
   <script>
-    // ✅ كود مبسط ومضمون
-    window.addEventListener('flutter-first-frame', function() {
-      var el = document.getElementById('loading');
-      if (el) el.remove();  // حذف آمن
-    });
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', async function () {
+        try {
+          const registration =
+              await navigator.serviceWorker.register(
+                '/firebase-messaging-sw.js',
+                {
+                  scope: '/',
+                }
+              );
+
+          console.log(
+            'Firebase messaging service worker registered:',
+            registration.scope
+          );
+        } catch (error) {
+          console.error(
+            'Firebase service worker registration failed:',
+            error
+          );
+        }
+      });
+    }
   </script>
+
+  <script src="flutter_bootstrap.js" async></script>
 </body>
 </html>

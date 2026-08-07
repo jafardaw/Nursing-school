@@ -9,8 +9,8 @@ class ForwardComplaintLoading extends ForwardComplaintState {
 
 class ForwardComplaintSuccess extends ForwardComplaintState {
   final String message;
-  final String newStage;
-  ForwardComplaintSuccess({required this.message, required this.newStage});
+  // final String newStage;
+  ForwardComplaintSuccess({required this.message, });
 }
 
 class ForwardComplaintError extends ForwardComplaintState {

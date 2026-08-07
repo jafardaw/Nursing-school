@@ -19,6 +19,7 @@ import 'package:finalproject/feature/Department_Student_Affair/student%20Affairs
 import 'package:finalproject/feature/Department_Student_Affair/student%20Affairs/student%20record/presentation/manger/cubit/export_pdf_state.dart';
 import 'package:finalproject/feature/Department_Student_Affair/student%20Affairs/student%20record/presentation/manger/students_cubit.dart';
 import 'package:finalproject/feature/Department_Student_Affair/student%20Affairs/student%20record/presentation/manger/students_state.dart';
+import 'package:finalproject/feature/Department_Student_Affair/student%20Affairs/student%20record/presentation/view/documents/show_student_documents_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:data_table_2/data_table_2.dart';
@@ -345,10 +346,10 @@ class _StudentsScreenState extends State<StudentsScreen> {
 
     return DataRow(
       cells: [
-        // الرقم الجامعي
         DataCell(
+          // الرقم الجامعي
           Text(
-            student.nationalNumber,
+            student.userId.toString(),
             style: const TextStyle(
               fontWeight: FontWeight.w600,
               color: Color(0xFF3F4254),
@@ -407,7 +408,7 @@ class _StudentsScreenState extends State<StudentsScreen> {
         // رقم الهوية
         DataCell(
           Text(
-            student.fingerprintId,
+            student.nationalNumber,
             style: TextStyle(color: Colors.grey.shade600),
           ),
         ),
@@ -451,8 +452,11 @@ class _StudentsScreenState extends State<StudentsScreen> {
                   size: 18,
                   color: Color(0xFF009EF7),
                 ),
-                tooltip: 'طلب',
-                onPressed: () {},
+                tooltip: 'ملف',
+                onPressed: () => showStudentDocumentsDialog(
+                  context: context,
+                  student: student,
+                ),
                 padding: EdgeInsets.zero,
                 constraints: const BoxConstraints(),
               ),

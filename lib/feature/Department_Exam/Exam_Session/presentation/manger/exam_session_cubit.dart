@@ -1,4 +1,4 @@
-import 'package:finalproject/feature/Department_Exam/Exam_Session/data/exam_session_model.dart';
+import '../../data/exam_session_model.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../repo/exam_session_repo.dart';
 import 'exam_session_state.dart';
@@ -68,6 +68,24 @@ class ExamSessionCubit extends Cubit<ExamSessionState> {
       await repository.deleteSession(id);
       sessions.removeWhere((session) => session.id == id);
       emit(ExamSessionActionSuccess("تم حذف الدورة الامتحانية بنجاح"));
+    } catch (e) {
+      emit(ExamSessionError(e.toString().replaceAll("Exception:", "").trim()));
+    }
+  }
+
+  Future<void> evaluateBulkPromotions({
+    required int studyYear,
+    required String academicYear,
+    required int maxCarriedSubjects,
+  }) async {
+    emit(ExamSessionActionLoading());
+    try {
+      await repository.evaluateBulkPromotions(
+        studyYear: studyYear,
+        academicYear: academicYear,
+        maxCarriedSubjects: maxCarriedSubjects,
+      );
+      emit(ExamSessionActionSuccess("تم ترفيع طلاب الدورة بنجاح"));
     } catch (e) {
       emit(ExamSessionError(e.toString().replaceAll("Exception:", "").trim()));
     }

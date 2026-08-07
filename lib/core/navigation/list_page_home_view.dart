@@ -39,6 +39,8 @@ import 'package:finalproject/feature/warehouse_officer/stock_in_warehouse/presen
 import 'package:finalproject/feature/warehouse_officer/stock_in_warehouse/presentation/view/warehouse_stock_in_view.dart';
 import 'package:finalproject/feature/warehouse_officer/statistics/presentation/manger/warehouse_statistics_cubit.dart';
 import 'package:finalproject/feature/warehouse_officer/statistics/presentation/view/warehouse_statistics_view.dart';
+import 'package:finalproject/feature/announcements/presentation/manger/announcements_cubit.dart';
+import 'package:finalproject/feature/announcements/presentation/view/announcements_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -57,6 +59,18 @@ class AppSection {
 }
 
 class NavConfig {
+  static AppSection _announcementsSection() {
+    return AppSection(
+      title: "الإعلانات",
+      icon: Icons.campaign_outlined,
+      selectedIcon: Icons.campaign,
+      page: BlocProvider(
+        create: (_) => sl<AnnouncementsCubit>(),
+        child: const AnnouncementsView(),
+      ),
+    );
+  }
+
   static List<AppSection> getSections(String role) {
     switch (role) {
       case 'student_affairs':
@@ -86,6 +100,7 @@ class NavConfig {
             selectedIcon: Icons.assessment,
             page: DashboardView(),
           ),
+          _announcementsSection(),
 
           // AppSection(
           //   title: "التخصصات",
@@ -134,6 +149,7 @@ class NavConfig {
             selectedIcon: Icons.edit_calendar,
             page: const Center(child: Text("صفحة تسجيل الغياب للموظف")),
           ),
+     
         ];
       case 'manager':
         return [
@@ -161,6 +177,7 @@ class NavConfig {
             selectedIcon: Icons.school,
             page: const Center(child: Text("صفحة إدارة الطالبات للمدير")),
           ),
+          _announcementsSection(),
         ];
       case 'engineering_office':
         return [
@@ -205,6 +222,7 @@ class NavConfig {
               child: const MaintenanceRequestsView(),
             ),
           ),
+          _announcementsSection(),
         ];
       case 'head_supervisor':
       case 'headsupervisor':
@@ -267,6 +285,7 @@ class NavConfig {
               child: const HospitalTrainingGroupsView(),
             ),
           ),
+          _announcementsSection(),
         ];
       case 'warehouse_officer':
         return [
@@ -315,6 +334,7 @@ class NavConfig {
               child: const WarehouseMaintenanceView(),
             ),
           ),
+          _announcementsSection(),
         ];
       default:
         return [

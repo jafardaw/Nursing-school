@@ -9,6 +9,7 @@ import 'package:finalproject/feature/Department_Exam/Exam_Session/data/exam_sess
 import 'package:finalproject/feature/Department_Exam/Exam_Session/presentation/manger/exam_session_cubit.dart';
 import 'package:finalproject/feature/Department_Exam/Exam_Session/presentation/manger/exam_session_state.dart';
 import 'package:finalproject/feature/Department_Exam/Exam_Session/presentation/views/widget/add_edit_session_dialog.dart';
+import 'package:finalproject/feature/Department_Exam/Exam_Session/presentation/views/widget/evaluate_promotions_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:data_table_2/data_table_2.dart';
@@ -136,6 +137,39 @@ class _ExamSessionsPageState extends State<ExamSessionsPage> {
                       status: finalStatus,
                     );
                   }
+                },
+              );
+            },
+          ),
+        );
+      },
+    );
+  }
+
+  void _openEvaluatePromotionsDialog(ExamSessionModel session) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (dialogContext) {
+        return BlocProvider.value(
+          value: _cubit,
+          child: BlocConsumer<ExamSessionCubit, ExamSessionState>(
+            listener: (context, state) {
+              if (state is ExamSessionActionSuccess) {
+                Navigator.of(dialogContext).pop();
+              }
+            },
+            builder: (context, state) {
+              final isLoading = state is ExamSessionActionLoading;
+              return EvaluatePromotionsDialog(
+                academicYear: session.academicYear,
+                isLoading: isLoading,
+                onSubmit: (studyYear, maxCarriedSubjects) {
+                  _cubit.evaluateBulkPromotions(
+                    studyYear: studyYear,
+                    academicYear: session.academicYear,
+                    maxCarriedSubjects: maxCarriedSubjects,
+                  );
                 },
               );
             },
@@ -381,7 +415,7 @@ class _ExamSessionsPageState extends State<ExamSessionsPage> {
         DataColumn2(label: Text('السنة الدراسية'), size: ColumnSize.M),
         DataColumn2(label: Text('الحالة'), size: ColumnSize.S),
         DataColumn2(label: Text('تاريخ الإنشاء'), size: ColumnSize.M),
-        DataColumn2(label: Text('إجراءات'), size: ColumnSize.S),
+        DataColumn2(label: Text('إجراءات'), size: ColumnSize.M),
       ],
       rows: sessions.map((session) => _buildDataRow(session, styles)).toList(),
     );
@@ -389,6 +423,7 @@ class _ExamSessionsPageState extends State<ExamSessionsPage> {
 
   DataRow _buildDataRow(ExamSessionModel session, ThemedTextStyles styles) {
     final bool isActive = session.status == 'active';
+    final bool isInactive = !isActive;
     final DateTime? createdDate = session.createdAt != null
         ? DateTime.tryParse(session.createdAt!)
         : null;
@@ -465,6 +500,22 @@ class _ExamSessionsPageState extends State<ExamSessionsPage> {
           Row(
             mainAxisSize: MainAxisSize.min,
             children: [
+              // زر ترفيع الطلاب (متاح فقط للدورات غير النشطة)
+              IconButton(
+                icon: Icon(
+                  Icons.trending_up_rounded,
+                  size: 20,
+                  color: isInactive
+                      ? const Color(0xFF4F46E5) // أرجواني تخصصي
+                      : const Color(0xFFCBD5E1), // رمادي إذا كانت نشطة
+                ),
+                tooltip: isInactive
+                    ? 'ترفيع الطلاب'
+                    : 'الترفيع متاح فقط للدورات غير النشطة',
+                onPressed: isInactive
+                    ? () => _openEvaluatePromotionsDialog(session)
+                    : null,
+              ),
               IconButton(
                 icon: const Icon(
                   Icons.edit_outlined,

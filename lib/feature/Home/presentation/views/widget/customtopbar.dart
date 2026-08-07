@@ -1,12 +1,22 @@
 import 'package:finalproject/core/theme/theme_extination.dart';
 import 'package:finalproject/feature/Home/presentation/views/widget/quick_search.dart';
 import 'package:finalproject/feature/Home/presentation/views/widget/user_avatar.dart';
+import 'package:finalproject/feature/auth/data/user_model.dart';
 import 'package:flutter/material.dart';
 
 class TopBar extends StatelessWidget {
   final String title;
   final String role;
-  const TopBar({super.key, required this.title, required this.role});
+  final UserModel? user;
+  final VoidCallback onLogout;
+
+  const TopBar({
+    super.key,
+    required this.title,
+    required this.role,
+    required this.user,
+    required this.onLogout,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -54,7 +64,7 @@ class TopBar extends StatelessWidget {
             color: Colors.grey.withValues(alpha: 0.2),
           ),
           const SizedBox(width: 24),
-          UserAvatar(role: role),
+          UserAvatar(role: role, user: user, onLogout: onLogout),
         ],
       ),
     );

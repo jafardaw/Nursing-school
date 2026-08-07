@@ -1,3 +1,4 @@
+import 'package:finalproject/core/services/firebase_notification_service.dart';
 import 'package:finalproject/feature/Department_Exam/Exam_Session/repo/exam_session_repo.dart';
 import 'package:finalproject/feature/Department_Exam/Exam_Session/repo/exam_session_repo_impl.dart';
 import 'package:finalproject/feature/Department_Exam/Exam_Session/presentation/manger/exam_session_cubit.dart';
@@ -31,6 +32,8 @@ import 'package:finalproject/feature/Department_Student_Affair/specializations/p
 import 'package:finalproject/feature/Department_Student_Affair/specializations/repo/repo_specialization.dart';
 import 'package:finalproject/feature/Department_Student_Affair/specializations/repo/repoimpl_specialization.dart';
 import 'package:finalproject/feature/Department_Student_Affair/student%20Affairs/student%20record/domain/repositories/students_repo_impl.dart';
+import 'package:finalproject/feature/Department_Student_Affair/student%20Affairs/student%20record/domain/repositories/student_documents_repo.dart';
+import 'package:finalproject/feature/Department_Student_Affair/student%20Affairs/student%20record/domain/repositories/student_documents_repo_impl.dart';
 import 'package:finalproject/feature/Department_Student_Affair/student%20Affairs/student%20record/presentation/manger/addstudent/add_student_cubit.dart';
 import 'package:finalproject/feature/Department_Student_Affair/student%20Affairs/student%20record/presentation/manger/cubit/delete_student_cubit.dart';
 import 'package:finalproject/feature/Department_Student_Affair/student%20Affairs/student%20record/presentation/manger/cubit/export_pdf_cubit.dart';
@@ -42,6 +45,7 @@ import 'package:finalproject/feature/Department_Exam/Exam_Schedule/data/reposito
 import 'package:finalproject/feature/Department_Exam/Exam_Schedule/data/repositories/exam_schedule_repo_impl.dart';
 import 'package:finalproject/feature/Department_Exam/Exam_Schedule/presentation/manger/exam_schedule_cubit.dart';
 import 'package:finalproject/feature/Department_Student_Affair/student%20Affairs/student%20record/presentation/manger/students_cubit.dart';
+import 'package:finalproject/feature/Department_Student_Affair/student%20Affairs/student%20record/presentation/manger/student_documents_cubit.dart';
 import 'package:finalproject/feature/auth/presentation/manger/auth_cubit.dart';
 import 'package:finalproject/feature/engineering_office/domain/repositories/complaints_repo.dart';
 import 'package:finalproject/feature/engineering_office/domain/repositories/complaints_repo_impl.dart';
@@ -60,6 +64,9 @@ import 'package:finalproject/feature/Manager/data/repositories/manager_repo.dart
 import 'package:finalproject/feature/Manager/data/repositories/manager_repo_impl.dart';
 import 'package:finalproject/feature/Manager/presentation/manger/manager_dashboard_cubit.dart';
 import 'package:finalproject/feature/Manager/presentation/manger/employees_cubit.dart';
+import 'package:finalproject/feature/announcements/domain/repositories/announcements_repo.dart';
+import 'package:finalproject/feature/announcements/domain/repositories/announcements_repo_impl.dart';
+import 'package:finalproject/feature/announcements/presentation/manger/announcements_cubit.dart';
 import 'package:finalproject/feature/warehouse_officer/complaint/domain/repositories/warehouse_complaints_repo.dart';
 import 'package:finalproject/feature/warehouse_officer/complaint/domain/repositories/warehouse_complaints_repo_impl.dart';
 import 'package:finalproject/feature/warehouse_officer/complaint/presentation/manger/warehouse_complaints_cubit.dart';
@@ -82,6 +89,7 @@ import 'package:finalproject/feature/Department_HeadSupervisor/Dormitory/repo/do
 import 'package:finalproject/feature/Department_HeadSupervisor/Dormitory/repo/dormitory_repo_impl.dart';
 import 'package:finalproject/feature/Department_HeadSupervisor/Dormitory/presentation/manger/dorm_building_cubit/dorm_building_cubit.dart';
 import 'package:finalproject/feature/Department_HeadSupervisor/Dormitory/presentation/manger/dorm_room_cubit/dorm_room_cubit.dart';
+import 'package:flutter/foundation.dart';
 import 'package:get_it/get_it.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:finalproject/core/network/api_service.dart';
@@ -110,6 +118,9 @@ Future<void> initServiceLocator() async {
   sl.registerLazySingleton<StudentsRepo>(
     () => StudentsRepoImpl(apiService: sl()),
   );
+  sl.registerLazySingleton<StudentDocumentsRepo>(
+    () => StudentDocumentsRepoImpl(apiService: sl()),
+  );
 
   // Cubits
   sl.registerFactory<StudentsCubit>(
@@ -120,6 +131,9 @@ Future<void> initServiceLocator() async {
   );
   sl.registerFactory<DeleteStudentCubit>(
     () => DeleteStudentCubit(sl<StudentsRepo>()),
+  );
+  sl.registerFactory<StudentDocumentsCubit>(
+    () => StudentDocumentsCubit(sl<StudentDocumentsRepo>()),
   );
 
   // Cubits (يفضل Factory لضمان حالة نظيفة عند تسجيل الدخول مجدداً)
@@ -133,7 +147,7 @@ Future<void> initServiceLocator() async {
 
   // Cubits (نسخة جديدة عند كل طلب صفحة)
   sl.registerFactory(() => AbsenceCubit(sl()));
-  sl.registerFactory(() => AddPenaltyCubit(sl()));
+  sl.registerFactory(() => AddPenaltyCubit(sl(), storage: sl()));
   //student record
 
   //delete_penalties
@@ -161,7 +175,7 @@ Future<void> initServiceLocator() async {
   );
   // Engineering Office
   sl.registerLazySingleton<ComplaintsRepo>(
-    () => ComplaintsRepoImpl(apiService: sl()),
+    () => ComplaintsRepoImpl(apiService: sl(), storage: sl()),
   );
   sl.registerFactory<ComplaintsCubit>(() => ComplaintsCubit(sl()));
   sl.registerLazySingleton<StockRepo>(() => StockRepoImpl(apiService: sl()));
@@ -290,6 +304,14 @@ Future<void> initServiceLocator() async {
   );
   sl.registerFactory(() => ManagerDashboardCubit(sl()));
   sl.registerFactory(() => EmployeesCubit(sl()));
+
+  /////////// shared announcements
+  sl.registerLazySingleton<AnnouncementsRepo>(
+    () => AnnouncementsRepoImpl(sl()),
+  );
+  sl.registerFactory<AnnouncementsCubit>(
+    () => AnnouncementsCubit(sl<AnnouncementsRepo>()),
+  );
 }
 
 ///////////////////225

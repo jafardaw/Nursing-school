@@ -14,4 +14,9 @@ abstract class ExamSessionRepository {
     required String status,
   });
   Future<void> deleteSession(int id);
+  Future<void> evaluateBulkPromotions({
+    required int studyYear,
+    required String academicYear,
+    required int maxCarriedSubjects,
+  });
 }

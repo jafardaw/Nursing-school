@@ -10,11 +10,13 @@ class ApiEndpoints {
   // Users
   static const String users = 'users';
   static String userById(int id) => 'users/$id';
-  static String penaltiesid(int id) => 'stpenalties/$id';
+  static String penaltiesid(int id) => 'penalties/$id';
 
   static const String students = 'students';
   static const String studentsSearch = 'students/search';
   static String updateStudent(int id) => 'students/$id'; // 🟢 جديد
+  static const String documents = 'documents';
+  static String documentById(int id) => 'documents/$id';
 
   static const String statistics = 'students/statistics';
   static const String specializations = 'specializations';
@@ -46,6 +48,7 @@ class ApiEndpoints {
   // Exam Sessions
   static const String examSessions = 'exam/sessions';
   static String examSessionId(int id) => 'exam/sessions/$id';
+  static const String bulkEvaluatePromotions = 'exam/promotions/bulk/evaluate';
 
   // Halls
   static const String halls = 'halls';
@@ -62,6 +65,11 @@ class ApiEndpoints {
   static const String warehouseReport = 'reports/warehouse';
   static const String employees = 'employees';
   static String employeeById(int id) => 'employees/$id';
+  static const String announcements = 'announcements';
+  static const String announcementsSearch = 'announcements/search';
+  static String announcementById(int id) => 'announcements/$id';
+  static String deleteAnnouncementById(int id) =>
+      'student-affairs/announcements/$id';
 
   // Hospitals (Head Supervisor)
   static const String hospitals = 'hospitals';

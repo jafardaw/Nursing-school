@@ -1,16 +1,20 @@
 import 'package:finalproject/core/constants/app_routes.dart';
+import 'package:finalproject/core/services/firebase_notification_service.dart';
 import 'package:finalproject/core/services/navigation_service.dart';
+import 'package:finalproject/core/storage/storage_service.dart';
 import 'package:finalproject/core/theme/theme_extination.dart';
 import 'package:finalproject/core/widgets/custom_button.dart';
 import 'package:finalproject/core/widgets/custome_text_field.dart';
 import 'package:finalproject/core/widgets/show_snak_bar.dart';
 import 'package:finalproject/feature/auth/presentation/manger/auth_cubit.dart';
 import 'package:finalproject/feature/auth/presentation/manger/auth_state.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:finalproject/core/utils/validators.dart';
 
 import 'package:responsive_framework/responsive_framework.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -33,7 +37,7 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
-  void _handleLogin() {
+  void _handleLogin() async {
     if (_formKey.currentState!.validate()) {
       context.read<AuthCubit>().login(
         email: _emailController.text.trim(),
@@ -41,6 +45,37 @@ class _LoginScreenState extends State<LoginScreen> {
       );
     }
   }
+
+  @override
+  void initState() {
+    getToken();
+    // FirebaseMessaging.onMessage.listen(showflutternoti);
+    super.initState();
+  }
+
+  void getToken() async {
+    String? token = await FirebaseMessaging.instance.getToken();
+    StorageServiceImpl storageService = StorageServiceImpl(await SharedPreferences.getInstance());
+    await storageService.saveString('fcm_token', token ?? '');
+    debugPrint("--- FCM WEB TOKEN ---");
+    debugPrint(token);
+  }
+
+  // void showflutternoti(RemoteMessage message) {
+  //   RemoteNotification? notification = message.notification;
+
+  //   debugPrint('--- FCM Message Received ---');
+  //   debugPrint('Title: ${notification?.title}');
+  //   debugPrint('Body: ${notification?.body}');
+  //   debugPrint('Data: ${message.data}');
+  //   if (notification != null && mounted) {
+  //     showWebBanner(
+  //       context,
+  //       '${notification.title}: ${notification.body}',
+  //       type: BannerType.info,
+  //     );
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {

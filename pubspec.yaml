@@ -33,6 +33,9 @@ dependencies:
   device_info_plus: ^12.4.0
   dio: ^5.9.2
   encrypt: ^5.0.3
+  firebase_core: ^4.12.1
+  firebase_messaging: ^16.4.3
+  file_picker: ^10.3.3
   fl_chart: ^1.2.0
   flutter:
     sdk: flutter

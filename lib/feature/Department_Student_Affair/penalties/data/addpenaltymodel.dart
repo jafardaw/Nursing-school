@@ -5,7 +5,7 @@ class AddPenaltyModel {
   final String date;
   final String body;
 
-  AddPenaltyModel({
+     AddPenaltyModel({
     required this.studentId,
     required this.employeeId,
     required this.type,

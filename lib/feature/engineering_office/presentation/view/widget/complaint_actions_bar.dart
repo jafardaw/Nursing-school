@@ -30,7 +30,7 @@ class ComplaintActionsBar extends StatelessWidget {
           if (state is ForwardComplaintSuccess) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: Text('✅ ${state.message} - المرحلة الحالية: ${state.newStage}'),
+                content: Text('✅ ${state.message} '),
                 backgroundColor: Colors.green,
               ),
             );
@@ -215,7 +215,7 @@ class ComplaintActionsBar extends StatelessWidget {
               Navigator.pop(ctx);
               context.read<ForwardComplaintCubit>().forwardComplaint(
                 complaintId,
-                _nextStage,
+              
               );
             },
             child: const Text('تأكيد'),

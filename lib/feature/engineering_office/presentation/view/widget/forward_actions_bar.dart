@@ -58,7 +58,7 @@ class _ForwardActionsBarState extends State<ForwardActionsBar> {
                   children: [
                     const Icon(Icons.check_circle, color: Colors.white),
                     const SizedBox(width: 8),
-                    Expanded(child: Text('✅ تم تحويل الشكوى إلى ${state.newStage}')),
+                    Expanded(child: Text('✅ تم تحويل الشكوى إلى ')),
                   ],
                 ),
                 backgroundColor: const Color(0xFF50CD89),
@@ -169,7 +169,7 @@ class _ForwardActionsBarState extends State<ForwardActionsBar> {
                     )
                   : const Icon(Icons.arrow_forward_rounded, size: 22),
               label: Text(
-                isLoading ? 'جاري التوجيه...' : 'موافقة وتحويل إلى ${_nextStageLabel()}',
+                isLoading ? 'جاري التوجيه...' : 'موافقة وتحويل إلى ',
                 style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               ),
               style: ElevatedButton.styleFrom(
@@ -216,7 +216,7 @@ class _ForwardActionsBarState extends State<ForwardActionsBar> {
           ],
         ),
         content: Text(
-          'هل أنت متأكد من تحويل الشكوى إلى ${_nextStageLabel()}؟',
+          'هل أنت متأكد من تحويل الشكوى إلى؟',
           style: const TextStyle(fontSize: 15),
         ),
         actions: [
@@ -227,7 +227,7 @@ class _ForwardActionsBarState extends State<ForwardActionsBar> {
           ElevatedButton(
             onPressed: () {
               Navigator.pop(ctx);
-              _cubit.forwardComplaint(widget.complaintId, _nextStage);
+              _cubit.forwardComplaint(widget.complaintId );
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: _stageColor(widget.currentStage),
@@ -241,21 +241,7 @@ class _ForwardActionsBarState extends State<ForwardActionsBar> {
     );
   }
 
-  String get _nextStage {
-    final stages = ['dormitory_supervisor', 'head_supervisor', 'engineering_office', 'warehouse_officer'];
-    final currentIndex = stages.indexOf(widget.currentStage);
-    if (currentIndex < stages.length - 1) return stages[currentIndex + 1];
-    return widget.currentStage;
-  }
 
-  String _nextStageLabel() {
-    switch (_nextStage) {
-      case 'head_supervisor': return 'المشرف العام';
-      case 'engineering_office': return 'المكتب الهندسي';
-      case 'warehouse_officer': return 'أمين المستودع (إنجاز)';
-      default: return _nextStage;
-    }
-  }
 
   Color _stageColor(String stage) {
     switch (stage) {

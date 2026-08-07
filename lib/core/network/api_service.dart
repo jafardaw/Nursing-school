@@ -90,6 +90,7 @@ class ApiService {
     String path,
     dynamic data, {
     Map<String, dynamic>? queryParameters,
+    Options? options,
   }) async {
     try {
       Logger.info('POST $path', tag: 'API');
@@ -99,6 +100,7 @@ class ApiService {
         path,
         data: data,
         queryParameters: queryParameters,
+        options: options,
       );
 
       Logger.info('POST $path - Success (${response.statusCode})', tag: 'API');

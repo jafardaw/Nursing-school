@@ -38,7 +38,6 @@ class _EngineeringDashboardState extends State<EngineeringDashboard> {
 
   @override
   Widget build(BuildContext context) {
-    final styles = context.styles;
     final isDesktop = ResponsiveBreakpoints.of(context).largerThan(TABLET);
 
     return Scaffold(

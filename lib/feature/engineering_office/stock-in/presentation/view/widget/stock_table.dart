@@ -9,24 +9,27 @@ class StockTable extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return DataTable2(
-      columnSpacing: 12,
-      horizontalMargin: 12,
-      minWidth: 800,
-      headingRowHeight: 56,
-      headingTextStyle: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF5E6278), fontSize: 13),
-      headingRowColor: WidgetStateProperty.all(const Color(0xFFF9FAFB)),
-      dataTextStyle: const TextStyle(color: Color(0xFF3F4254), fontSize: 13),
-      dividerThickness: 0.5,
-      columns: const [
-        DataColumn2(label: Text('المادة'), size: ColumnSize.L),
-        DataColumn2(label: Text('الكمية'), size: ColumnSize.S),
-        DataColumn2(label: Text('النوع'), size: ColumnSize.S),
-        DataColumn2(label: Text('المصدر/الوجهة'), size: ColumnSize.M),
-        DataColumn2(label: Text('السبب'), size: ColumnSize.M),
-        DataColumn2(label: Text('التاريخ'), size: ColumnSize.S),
-      ],
-      rows: transactions.map((t) => _buildRow(t)).toList(),
+    return SizedBox(
+      height: 450,
+      child: DataTable2(
+        columnSpacing: 12,
+        horizontalMargin: 12,
+        minWidth: 800,
+        headingRowHeight: 56,
+        headingTextStyle: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF5E6278), fontSize: 13),
+        headingRowColor: WidgetStateProperty.all(const Color(0xFFF9FAFB)),
+        dataTextStyle: const TextStyle(color: Color(0xFF3F4254), fontSize: 13),
+        dividerThickness: 0.5,
+        columns: const [
+          DataColumn2(label: Text('المادة'), size: ColumnSize.L),
+          DataColumn2(label: Text('الكمية'), size: ColumnSize.S),
+          DataColumn2(label: Text('النوع'), size: ColumnSize.S),
+          DataColumn2(label: Text('المصدر/الوجهة'), size: ColumnSize.M),
+          DataColumn2(label: Text('السبب'), size: ColumnSize.M),
+          DataColumn2(label: Text('التاريخ'), size: ColumnSize.S),
+        ],
+        rows: transactions.map((t) => _buildRow(t)).toList(),
+      ),
     );
   }
 

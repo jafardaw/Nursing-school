@@ -97,12 +97,7 @@ class _AbsencePageState extends State<AbsencePage> {
                           value2: selectedRisk,
                           items2: const ['الكل', 'منخفض', 'متوسط', 'عالي'],
                           onChanged2: (val) => setState(() => selectedRisk = val),
-                          onFilterPressed: () => _handleFilterLogic(context),
-                          icon: const Icon(
-                            Icons.add,
-                            color: Colors.white,
-                            size: 20,
-                          ),
+                      
                           onFilterPressedsearch: () {
                             innerContext.read<AbsenceCubit>().fetchAbsencesSearch(
                               _searchController.text.trim(),

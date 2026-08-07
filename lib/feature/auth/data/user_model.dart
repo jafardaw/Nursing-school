@@ -39,19 +39,17 @@ class UserModel {
     );
   }
 
-  // 🟢 من بيانات المستخدم فقط (بدون API Response)
-  //   factory UserModel.fromJson(Map<String, dynamic> json) {
-  //     return UserModel(
-  //       baseResponse: BaseResponse(status: 'success', message: ''),
-  //       id: json['id'] ?? 0,
-  //       firstName: json['first_name'] ?? '',
-  //       lastName: json['last_name'] ?? '',
-  //       email: json['email'] ?? '',
-  //       role: json['role'] ?? '',
-  //       permissions: json['permissions'] != null
-  //           ? List<String>.from(json['permissions'])
-  //           : [],
-  //     );
-  //   }
-  // }
+  factory UserModel.fromJson(Map<String, dynamic> json) {
+    return UserModel(
+      baseResponse: const BaseResponse(status: 'success', message: ''),
+      id: json['id'] ?? 0,
+      firstName: json['first_name'] ?? '',
+      lastName: json['last_name'] ?? '',
+      email: json['email'] ?? '',
+      role: json['role'] ?? '',
+      permissions: json['permissions'] != null
+          ? List<String>.from(json['permissions'])
+          : [],
+    );
+  }
 }

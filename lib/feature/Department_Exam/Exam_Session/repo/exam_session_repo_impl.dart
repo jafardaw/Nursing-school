@@ -65,4 +65,21 @@ class ExamSessionRepositoryImpl implements ExamSessionRepository {
       throw Exception("فشل حذف الدورة الامتحانية: ${e.toString()}");
     }
   }
+
+  @override
+  Future<void> evaluateBulkPromotions({
+    required int studyYear,
+    required String academicYear,
+    required int maxCarriedSubjects,
+  }) async {
+    try {
+      await apiService.post(ApiEndpoints.bulkEvaluatePromotions, {
+        "study_year": studyYear,
+        "academic_year": academicYear,
+        "max_carried_subjects": maxCarriedSubjects,
+      });
+    } catch (e) {
+      throw Exception("فشل تقييم وتدقيق ترفيع الطلاب: ${e.toString()}");
+    }
+  }
 }

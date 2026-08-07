@@ -367,12 +367,13 @@ class _SubjectsMainViewState extends State<SubjectsMainView> {
           crossAxisCount: crossAxisCount,
           crossAxisSpacing: 16,
           mainAxisSpacing: 16,
-          childAspectRatio: 1.35,
+          childAspectRatio: 1.15,
         ),
         delegate: SliverChildBuilderDelegate((context, index) {
           final subject = filtered[index];
           final cardColor = _cardColors[index % _cardColors.length];
           final cardIcon = _subjectIcons[index % _subjectIcons.length];
+          final stats = subject.statistics;
 
           return InkWell(
             borderRadius: BorderRadius.circular(20),
@@ -412,7 +413,7 @@ class _SubjectsMainViewState extends State<SubjectsMainView> {
                     child: Container(color: cardColor),
                   ),
                   Padding(
-                    padding: const EdgeInsets.all(20),
+                    padding: const EdgeInsets.all(18),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -429,57 +430,125 @@ class _SubjectsMainViewState extends State<SubjectsMainView> {
                               ),
                               child: Icon(cardIcon, color: cardColor, size: 24),
                             ),
-                            if (subject.isComprehensive)
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 8,
-                                  vertical: 4,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFFFEF3C7),
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                child: Text(
-                                  "شامل",
-                                  style: styles.bodyHint.copyWith(
-                                    color: const Color(0xFFD97706),
-                                    fontWeight: FontWeight.bold,
+                            Row(
+                              children: [
+                                if (subject.isComprehensive)
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 8,
+                                      vertical: 4,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFFFEF3C7),
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: Text(
+                                      "شامل",
+                                      style: styles.bodyHint.copyWith(
+                                        color: const Color(0xFFD97706),
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  )
+                                else
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 8,
+                                      vertical: 4,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFFF1F5F9),
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: Text(
+                                      "فصلي",
+                                      style: styles.bodyHint.copyWith(
+                                        color: const Color(0xFF64748B),
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
                                   ),
-                                ),
-                              )
-                            else
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 8,
-                                  vertical: 4,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFFF1F5F9),
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                child: Text(
-                                  "فصلي",
-                                  style: styles.bodyHint.copyWith(
-                                    color: const Color(0xFF64748B),
-                                    fontWeight: FontWeight.w600,
+                                const SizedBox(width: 6),
+                                IconButton(
+                                  constraints: const BoxConstraints(),
+                                  padding: EdgeInsets.zero,
+                                  tooltip: "عرض الإحصائيات التفصيلية",
+                                  icon: Icon(
+                                    Icons.analytics_rounded,
+                                    color: cardColor,
+                                    size: 22,
                                   ),
+                                  onPressed: () {
+                                    _showSubjectStatisticsDialog(
+                                      context,
+                                      subject,
+                                      cardColor,
+                                      styles,
+                                    );
+                                  },
                                 ),
-                              ),
+                              ],
+                            ),
                           ],
                         ),
-                        const SizedBox(height: 12),
-                        Expanded(
-                          child: Text(
-                            subject.name,
-                            style: styles.headline6.copyWith(
-                              color: const Color(0xFF1E293B),
-                              fontWeight: FontWeight.bold,
-                              height: 1.3,
-                            ),
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
+                        const SizedBox(height: 8),
+                        Text(
+                          subject.name,
+                          style: styles.headline6.copyWith(
+                            color: const Color(0xFF1E293B),
+                            fontWeight: FontWeight.bold,
+                            height: 1.3,
                           ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
                         ),
+                        const SizedBox(height: 8),
+                        // شريط الإحصائيات السريع في البطاقة
+                        if (stats != null)
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 10,
+                              vertical: 6,
+                            ),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFF8FAFC),
+                              borderRadius: BorderRadius.circular(10),
+                              border: Border.all(
+                                color: const Color(0xFFE2E8F0),
+                              ),
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Row(
+                                  children: [
+                                    Icon(
+                                      Icons.trending_up_rounded,
+                                      size: 14,
+                                      color: stats.passRate >= 50
+                                          ? const Color(0xFF10B981)
+                                          : const Color(0xFFEF4444),
+                                    ),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      "النجاح: ${stats.passRate.toStringAsFixed(0)}%",
+                                      style: styles.bodyXSmall.copyWith(
+                                        fontWeight: FontWeight.bold,
+                                        color: const Color(0xFF334155),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                Text(
+                                  "المتوسط: ${stats.avgMark.toStringAsFixed(1)}",
+                                  style: styles.bodyXSmall.copyWith(
+                                    color: const Color(0xFF64748B),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        const SizedBox(height: 8),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
@@ -754,6 +823,262 @@ class _SubjectsMainViewState extends State<SubjectsMainView> {
           Text(
             error,
             style: styles.bodyMedium.copyWith(color: const Color(0xFFEF4444)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ========== نافذة الإحصائيات التفصيلية للمادة ==========
+  void _showSubjectStatisticsDialog(
+    BuildContext context,
+    SubjectModel subject,
+    Color cardColor,
+    ThemedTextStyles styles,
+  ) {
+    final stats = subject.statistics ??
+        SubjectStatistics(
+          totalResults: 0,
+          passed: 0,
+          failed: 0,
+          passRate: 0.0,
+          avgMark: 0.0,
+          highestMark: 0.0,
+          lowestMark: 0.0,
+        );
+
+    showDialog(
+      context: context,
+      builder: (context) => Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        backgroundColor: Colors.white,
+        child: Container(
+          width: 520,
+          padding: const EdgeInsets.all(28),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // الهيدر
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: cardColor.withValues(alpha: 0.1),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(Icons.analytics_rounded, color: cardColor, size: 28),
+                  ),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          subject.name,
+                          style: styles.headline5.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: const Color(0xFF1E293B),
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          "تحليل الإحصائيات والنتائج الأكاديمية",
+                          style: styles.bodySmall.copyWith(
+                            color: const Color(0xFF64748B),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  IconButton(
+                    onPressed: () => Navigator.pop(context),
+                    icon: const Icon(Icons.close_rounded, color: Color(0xFF64748B)),
+                  ),
+                ],
+              ),
+              const Divider(height: 32, color: Color(0xFFF1F5F9)),
+
+              // شريط دائري لنسبة النجاح
+              Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: cardColor.withValues(alpha: 0.04),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: cardColor.withValues(alpha: 0.12)),
+                ),
+                child: Row(
+                  children: [
+                    Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        SizedBox(
+                          width: 72,
+                          height: 72,
+                          child: CircularProgressIndicator(
+                            value: (stats.passRate / 100).clamp(0.0, 1.0),
+                            backgroundColor: const Color(0xFFE2E8F0),
+                            valueColor: AlwaysStoppedAnimation<Color>(cardColor),
+                            strokeWidth: 8,
+                          ),
+                        ),
+                        Text(
+                          "${stats.passRate.toStringAsFixed(0)}%",
+                          style: TextStyle(
+                            fontWeight: FontWeight.w800,
+                            color: cardColor,
+                            fontSize: 16,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(width: 20),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "نسبة النجاح العامة",
+                            style: styles.headline6.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: const Color(0xFF1E293B),
+                            ),
+                          ),
+                          const SizedBox(height: 6),
+                          Row(
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFD1FAE5),
+                                  borderRadius: BorderRadius.circular(6),
+                                ),
+                                child: Text(
+                                  "ناجح: ${stats.passed}",
+                                  style: styles.bodyXSmall.copyWith(
+                                    color: const Color(0xFF065F46),
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFFEE2E2),
+                                  borderRadius: BorderRadius.circular(6),
+                                ),
+                                child: Text(
+                                  "راسب: ${stats.failed}",
+                                  style: styles.bodyXSmall.copyWith(
+                                    color: const Color(0xFF991B1B),
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 20),
+
+              // شبكة الكروت الإحصائية (2x2)
+              GridView.count(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                crossAxisCount: 2,
+                childAspectRatio: 2.1,
+                crossAxisSpacing: 14,
+                mainAxisSpacing: 14,
+                children: [
+                  _buildStatMetricCard(
+                    title: "إجمالي النتائج",
+                    value: "${stats.totalResults}",
+                    icon: Icons.people_outline_rounded,
+                    color: const Color(0xFF4F46E5),
+                    styles: styles,
+                  ),
+                  _buildStatMetricCard(
+                    title: "متوسط الدرجات",
+                    value: stats.avgMark.toStringAsFixed(1),
+                    icon: Icons.calculate_outlined,
+                    color: const Color(0xFF0EA5E9),
+                    styles: styles,
+                  ),
+                  _buildStatMetricCard(
+                    title: "أعلى درجة",
+                    value: stats.highestMark.toStringAsFixed(1),
+                    icon: Icons.vertical_align_top_rounded,
+                    color: const Color(0xFF10B981),
+                    styles: styles,
+                  ),
+                  _buildStatMetricCard(
+                    title: "أدنى درجة",
+                    value: stats.lowestMark.toStringAsFixed(1),
+                    icon: Icons.vertical_align_bottom_rounded,
+                    color: const Color(0xFFEF4444),
+                    styles: styles,
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildStatMetricCard({
+    required String title,
+    required String value,
+    required IconData icon,
+    required Color color,
+    required ThemedTextStyles styles,
+  }) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.05),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: color.withValues(alpha: 0.12)),
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Icon(icon, color: color, size: 20),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  title,
+                  style: styles.bodyXSmall.copyWith(
+                    color: const Color(0xFF64748B),
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  value,
+                  style: styles.headline6.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: const Color(0xFF1E293B),
+                  ),
+                ),
+              ],
+            ),
           ),
         ],
       ),

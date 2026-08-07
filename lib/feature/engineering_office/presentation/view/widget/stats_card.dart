@@ -73,7 +73,7 @@ class StatsCard extends StatelessWidget {
                     ),
                 ],
               ),
-              const Spacer(),
+              const SizedBox(height: 16),
               Text(
                 value,
                 style: const TextStyle(

@@ -69,7 +69,7 @@ void showStudentDetails({
                     // الرقم الجامعي
                     Text(
                       // fintext,
-                      student.fingerprintId ?? 'N/A',
+                      student.userId.toString(),
                       style: styles.headline5,
                     ),
                   ],
@@ -219,9 +219,15 @@ void showStudentDetails({
                     // تعديل البيانات
                     smallButton(
                       styles,
-                      () {},
+                      () {
+                        NavigationService.pushTo(
+                          context,
+                          AppRoutes.addpenalites,
+                          extra: student.id,
+                        );
+                      },
                       Icons.cancel_outlined,
-                      'إغلاق',
+                      'تسجيل انذار او غياب',
                       styles.errorColor,
                       styles.whiteColor,
                     ),

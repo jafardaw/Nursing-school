@@ -1,12 +1,18 @@
 import 'package:finalproject/core/constants/app_constants.dart';
+import 'package:finalproject/core/constants/app_routes.dart';
 import 'package:finalproject/core/di/service_locator.dart';
 import 'package:finalproject/core/navigation/list_page_home_view.dart';
 import 'package:finalproject/core/storage/storage_service.dart';
 import 'package:finalproject/feature/Home/presentation/views/widget/collapse_botton.dart';
 import 'package:finalproject/feature/Home/presentation/views/widget/customtopbar.dart';
 import 'package:finalproject/feature/Home/presentation/views/widget/railheader.dart';
+import 'package:finalproject/feature/auth/data/user_model.dart';
+import 'package:finalproject/feature/auth/presentation/manger/auth_cubit.dart';
+import 'package:finalproject/feature/auth/repo/auth_repo_impl.dart';
 import 'package:flutter/material.dart';
 import 'package:finalproject/core/theme/theme_extination.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -23,6 +29,7 @@ class _HomeScreenState extends State<HomeScreen> {
   // متغيرات لحفظ الحالة
   List<AppSection>? _activeSections;
   String? _userRole;
+  UserModel? _currentUser;
   bool _isLoading = true;
 
   @override
@@ -33,14 +40,24 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> _initAppData() async {
     final role = await storage.getString(AppConstants.roleKey);
-    print('saaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa$role');
+    final user = await sl<AuthRepoImpl>().getSavedUser();
 
     if (mounted) {
       setState(() {
-        _userRole = role ?? 'guest';
+        _userRole = user?.role.isNotEmpty == true
+            ? user!.role
+            : role ?? 'guest';
+        _currentUser = user;
         _activeSections = NavConfig.getSections(_userRole!);
         _isLoading = false; // انتهى التحميل ولن يعود للظهور مرة أخرى
       });
+    }
+  }
+
+  Future<void> _logout() async {
+    await context.read<AuthCubit>().logout();
+    if (mounted) {
+      context.go(AppRoutes.loginrout);
     }
   }
 
@@ -65,6 +82,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 TopBar(
                   title: _activeSections![_selectedIndex].title,
                   role: _userRole!,
+                  user: _currentUser,
+                  onLogout: _logout,
                 ),
                 Expanded(
                   child: Container(
