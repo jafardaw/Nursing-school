@@ -5,6 +5,7 @@ import 'package:finalproject/core/constants/api_endpoints.dart';
 import 'package:finalproject/core/di/service_locator.dart';
 import 'package:finalproject/core/errors/error_handler.dart';
 import 'package:finalproject/core/network/api_service.dart';
+import 'package:finalproject/core/sound_manager/sound.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
@@ -188,6 +189,7 @@ class _AttendanceScreenState extends State<AttendanceScreen>
           _lastResult = result;
           _screenState = _ScreenState.success;
         });
+        unawaited(_playSuccessSound(result.isIn));
         _cardCtrl.forward(from: 0);
         _logs.insert(0, _LogEntry.success(result));
       } else {
@@ -231,6 +233,18 @@ class _AttendanceScreenState extends State<AttendanceScreen>
 
   bool _shouldRetry(ErrorHandler error) =>
       error.isNetworkError || error.isServerError;
+
+  Future<void> _playSuccessSound(bool isEntry) async {
+    try {
+      if (isEntry) {
+        await SoundManager.playEntrySound();
+      } else {
+        await SoundManager.playExitSound();
+      }
+    } catch (_) {
+      // فشل الصوت لا يجب أن يؤثر في تسجيل حركة البصمة الناجحة.
+    }
+  }
 
   void _scheduleNextScan({int seconds = 1}) {
     if (_disposed) return;
