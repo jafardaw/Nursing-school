@@ -1,9 +1,12 @@
-﻿import 'dart:async';
+import 'dart:async';
 import 'dart:convert';
 
+import 'package:finalproject/core/constants/api_endpoints.dart';
+import 'package:finalproject/core/di/service_locator.dart';
+import 'package:finalproject/core/errors/error_handler.dart';
+import 'package:finalproject/core/network/api_service.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:shared_preferences/shared_preferences.dart';
 
 // ─── Models ──────────────────────────────────────────────────────────────────
 class _ScanResult {
@@ -40,6 +43,8 @@ class _LogEntry {
 
 enum _ScreenState { waiting, loading, success, error }
 
+enum _GateDirection { entry, exit }
+
 // ─────────────────────────────────────────────────────────────────────────────
 
 class AttendanceScreen extends StatefulWidget {
@@ -56,6 +61,9 @@ class _AttendanceScreenState extends State<AttendanceScreen>
   _ScreenState _screenState = _ScreenState.waiting;
   final List<_LogEntry> _logs = [];
   bool _disposed = false;
+  bool _isScanCycleActive = false;
+  Timer? _nextScanTimer;
+  _GateDirection _selectedDirection = _GateDirection.entry;
 
   late AnimationController _pulseCtrl;
   late AnimationController _cardCtrl;
@@ -63,7 +71,7 @@ class _AttendanceScreenState extends State<AttendanceScreen>
   late Animation<double> _cardAnim;
 
   static const String _bridgeUrl = 'http://localhost:5000';
-  static const String _apiUrl = 'https://nursing-school.onrender.com/api';
+  final ApiService _apiService = sl<ApiService>();
 
   // الألوان الثابتة للتصميم
   static const Color _bg = Color(0xFF0D1117);
@@ -93,6 +101,7 @@ class _AttendanceScreenState extends State<AttendanceScreen>
   @override
   void dispose() {
     _disposed = true;
+    _nextScanTimer?.cancel();
     _pulseCtrl.dispose();
     _cardCtrl.dispose();
     super.dispose();
@@ -100,7 +109,8 @@ class _AttendanceScreenState extends State<AttendanceScreen>
 
   // ─── Bridge ──────────────────────────────────────────────────────────────
   Future<void> _scanFingerprint() async {
-    if (_disposed) return;
+    if (_disposed || _isScanCycleActive) return;
+    _isScanCycleActive = true;
     _safeSetState(() {
       _screenState = _ScreenState.waiting;
       _statusMsg = '';
@@ -138,6 +148,7 @@ class _AttendanceScreenState extends State<AttendanceScreen>
           _screenState = _ScreenState.error;
           _statusMsg = 'خطأ CORS\nشغّل Bridge مع:\n--disable-web-security';
         });
+        _scheduleNextScan(seconds: 2);
         return;
       }
       _safeSetState(() {
@@ -155,26 +166,13 @@ class _AttendanceScreenState extends State<AttendanceScreen>
       _statusMsg = '';
     });
     try {
-      final prefs = await SharedPreferences.getInstance();
-      final token = prefs.getString('token') ?? '';
-      final bodyStr = jsonEncode({
+      final response = await _postScanWithRetry({
         'fingerprint_id': fingerprintId,
         'timestamp': DateTime.now().toUtc().toIso8601String(),
       });
-      final response = await http
-          .post(
-            Uri.parse('$_apiUrl/gate/scan'),
-            headers: {
-              'Content-Type': 'application/json',
-              'Accept': 'application/json',
-              if (token.isNotEmpty) 'Authorization': 'Bearer $token',
-            },
-            body: bodyStr,
-          )
-          .timeout(const Duration(seconds: 30));
       if (_disposed) return;
-      final json = jsonDecode(response.body) as Map<String, dynamic>;
-      if (response.statusCode == 200) {
+      final json = response.data as Map<String, dynamic>? ?? {};
+      if (response.statusCode == 200 || response.statusCode == 201) {
         final d = json['data'] as Map<String, dynamic>? ?? {};
         final s = d['student'] as Map<String, dynamic>? ?? {};
         final result = _ScanResult(
@@ -201,19 +199,44 @@ class _AttendanceScreenState extends State<AttendanceScreen>
         });
         _logs.insert(0, _LogEntry.error(msg.toString()));
       }
-    } catch (e) {
+    } on ErrorHandler catch (error) {
       _safeSetState(() {
         _screenState = _ScreenState.error;
-        _statusMsg = 'خطأ في الاتصال بالـ Backend';
+        _statusMsg = error.userFriendlyMessage;
       });
-      _logs.insert(0, _LogEntry.error('خطأ شبكة'));
+      _logs.insert(0, _LogEntry.error(error.userFriendlyMessage));
+    } catch (_) {
+      _safeSetState(() {
+        _screenState = _ScreenState.error;
+        _statusMsg = 'تعذر إتمام العملية، ستتم إعادة المحاولة تلقائياً';
+      });
+      _logs.insert(0, _LogEntry.error('تعذر الاتصال بالخادم'));
     }
     _scheduleNextScan(seconds: 3);
   }
 
+  Future<dynamic> _postScanWithRetry(Map<String, dynamic> body) async {
+    final endpoint = _selectedDirection == _GateDirection.entry
+        ? ApiEndpoints.gateScanIn
+        : ApiEndpoints.gateScanOut;
+
+    try {
+      return await _apiService.post(endpoint, body);
+    } on ErrorHandler catch (error) {
+      if (!_shouldRetry(error)) rethrow;
+      await Future<void>.delayed(const Duration(milliseconds: 500));
+      return _apiService.post(endpoint, body);
+    }
+  }
+
+  bool _shouldRetry(ErrorHandler error) =>
+      error.isNetworkError || error.isServerError;
+
   void _scheduleNextScan({int seconds = 1}) {
     if (_disposed) return;
-    Future.delayed(Duration(seconds: seconds), () {
+    _nextScanTimer?.cancel();
+    _nextScanTimer = Timer(Duration(seconds: seconds), () {
+      _isScanCycleActive = false;
       if (!_disposed) _scanFingerprint();
     });
   }
@@ -311,6 +334,9 @@ class _AttendanceScreenState extends State<AttendanceScreen>
             ),
           ),
 
+          const SizedBox(width: 28),
+          _buildDirectionSelector(),
+
           const Spacer(),
 
           // حالة النظام
@@ -358,6 +384,78 @@ class _AttendanceScreenState extends State<AttendanceScreen>
             style: const TextStyle(color: Colors.white38, fontSize: 12),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildDirectionSelector() {
+    final isEntry = _selectedDirection == _GateDirection.entry;
+
+    return Container(
+      padding: const EdgeInsets.all(3),
+      decoration: BoxDecoration(
+        color: _bg,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: _panelBorder),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _buildDirectionButton(
+            label: 'دخول',
+            icon: Icons.login_rounded,
+            color: const Color(0xFF3FB950),
+            selected: isEntry,
+            direction: _GateDirection.entry,
+          ),
+          _buildDirectionButton(
+            label: 'خروج',
+            icon: Icons.logout_rounded,
+            color: const Color(0xFFF78166),
+            selected: !isEntry,
+            direction: _GateDirection.exit,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDirectionButton({
+    required String label,
+    required IconData icon,
+    required Color color,
+    required bool selected,
+    required _GateDirection direction,
+  }) {
+    return InkWell(
+      onTap: _screenState == _ScreenState.loading
+          ? null
+          : () {
+              _safeSetState(() => _selectedDirection = direction);
+            },
+      borderRadius: BorderRadius.circular(6),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 180),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+        decoration: BoxDecoration(
+          color: selected ? color.withValues(alpha: 0.16) : Colors.transparent,
+          borderRadius: BorderRadius.circular(6),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, color: selected ? color : Colors.white38, size: 16),
+            const SizedBox(width: 6),
+            Text(
+              label,
+              style: TextStyle(
+                color: selected ? color : Colors.white38,
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
