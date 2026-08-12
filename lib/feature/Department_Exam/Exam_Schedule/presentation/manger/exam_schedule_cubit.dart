@@ -28,13 +28,15 @@ class ExamScheduleCubit extends Cubit<ExamScheduleState> {
   }) {
     final list = List<ExamScheduleModel>.from(state.schedules);
     list.removeWhere((s) => s.subjectId == subjectId);
-    list.add(ExamScheduleModel(
-      examSessionId: sessionId,
-      subjectId: subjectId,
-      examDate: date,
-      startTime: startTime,
-      endTime: endTime,
-    ));
+    list.add(
+      ExamScheduleModel(
+        examSessionId: sessionId,
+        subjectId: subjectId,
+        examDate: date,
+        startTime: startTime,
+        endTime: endTime,
+      ),
+    );
     emit(ExamScheduleLoaded(list));
   }
 
@@ -109,7 +111,7 @@ class ExamScheduleCubit extends Cubit<ExamScheduleState> {
     emit(ExamScheduleLoading());
     try {
       final defaultList = DefaultScheduleData.defaultExamSchedule;
-      
+
       // الحصول على التواريخ الفريدة مرتبة تصاعدياً
       final uniqueDates = defaultList
           .map((item) => item['exam_date'] as String)
@@ -131,7 +133,8 @@ class ExamScheduleCubit extends Cubit<ExamScheduleState> {
         int count = 0;
         DateTime current = from;
         while (current.isBefore(to)) {
-          if (current.weekday != DateTime.friday && current.weekday != DateTime.saturday) {
+          if (current.weekday != DateTime.friday &&
+              current.weekday != DateTime.saturday) {
             count++;
           }
           current = current.add(const Duration(days: 1));
@@ -145,12 +148,14 @@ class ExamScheduleCubit extends Cubit<ExamScheduleState> {
         int added = 0;
         while (added < days) {
           current = current.add(const Duration(days: 1));
-          if (current.weekday != DateTime.friday && current.weekday != DateTime.saturday) {
+          if (current.weekday != DateTime.friday &&
+              current.weekday != DateTime.saturday) {
             added++;
           }
         }
         // التأكد من عدم الهبوط في عطلة نهاية الأسبوع
-        while (current.weekday == DateTime.friday || current.weekday == DateTime.saturday) {
+        while (current.weekday == DateTime.friday ||
+            current.weekday == DateTime.saturday) {
           current = current.add(const Duration(days: 1));
         }
         return current;
@@ -168,13 +173,15 @@ class ExamScheduleCubit extends Cubit<ExamScheduleState> {
         final String formattedDate =
             "${newDate.year}-${newDate.month.toString().padLeft(2, '0')}-${newDate.day.toString().padLeft(2, '0')}";
 
-        schedules.add(ExamScheduleModel(
-          examSessionId: sessionId,
-          subjectId: item['subject_id'] as int,
-          examDate: formattedDate,
-          startTime: item['start_time'] as String,
-          endTime: item['end_time'] as String,
-        ));
+        schedules.add(
+          ExamScheduleModel(
+            examSessionId: sessionId,
+            subjectId: item['subject_id'] as int,
+            examDate: formattedDate,
+            startTime: item['start_time'] as String,
+            endTime: item['end_time'] as String,
+          ),
+        );
       }
 
       emit(ExamScheduleLoaded(schedules));
@@ -185,20 +192,33 @@ class ExamScheduleCubit extends Cubit<ExamScheduleState> {
 
   Future<void> saveSchedule() async {
     final currentSchedules = state.schedules;
+
     if (currentSchedules.isEmpty) {
-      emit(ExamScheduleSaveError(currentSchedules, 'لا يوجد بيانات لجدول الامتحانات لحفظها'));
+      emit(
+        ExamScheduleSaveError(
+          currentSchedules,
+          'لا يوجد بيانات لجدول الامتحانات لحفظها',
+        ),
+      );
       return;
     }
 
     emit(ExamScheduleSaving(currentSchedules));
     try {
       await _repository.saveSchedule(currentSchedules);
-      emit(ExamScheduleSaveSuccess(currentSchedules, 'تم حفظ برنامج الامتحانات بنجاح في قاعدة البيانات'));
+      emit(
+        ExamScheduleSaveSuccess(
+          currentSchedules,
+          'تم حفظ برنامج الامتحانات بنجاح في قاعدة البيانات',
+        ),
+      );
     } catch (e) {
-      emit(ExamScheduleSaveError(
-        currentSchedules,
-        e.toString().replaceAll('Exception:', '').trim(),
-      ));
+      emit(
+        ExamScheduleSaveError(
+          currentSchedules,
+          e.toString().replaceAll('Exception:', '').trim(),
+        ),
+      );
     }
   }
 }

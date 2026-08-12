@@ -82,6 +82,7 @@ class ApiEndpoints {
   // Matching Campaigns
   static const String matchingCampaigns = 'matching-campaigns';
   static String matchingCampaignSeats(int id) => 'matching-campaigns/$id/seats';
+  static const String entryexitsupervisor = 'gate/scan';
 
   ApiEndpoints._();
 }

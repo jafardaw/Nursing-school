@@ -18,8 +18,8 @@ class ApiService {
             'Content-Type': 'application/json',
             'Accept': 'application/json',
           },
-          connectTimeout: const Duration(minutes: 1),
-          receiveTimeout: const Duration(minutes: 1),
+          connectTimeout: const Duration(minutes: 3),
+          receiveTimeout: const Duration(minutes: 3),
         ),
       ) {
     _dio.interceptors.add(

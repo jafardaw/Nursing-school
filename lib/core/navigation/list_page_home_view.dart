@@ -29,6 +29,7 @@ import 'package:finalproject/feature/engineering_office/presentation/manger/comp
 import 'package:finalproject/feature/engineering_office/presentation/view/engineering_dashboard.dart';
 import 'package:finalproject/feature/engineering_office/stock-in/presentation/manger/stock_cubit.dart';
 import 'package:finalproject/feature/engineering_office/stock-in/presentation/view/warehouse_dashboard.dart';
+import 'package:finalproject/feature/entry_exit_supervisor/entry_exit_view.dart';
 import 'package:finalproject/feature/warehouse_officer/complaint/presentation/manger/warehouse_complaints_cubit.dart';
 import 'package:finalproject/feature/warehouse_officer/complaint/presentation/view/warehouse_complaints_view.dart';
 import 'package:finalproject/feature/warehouse_officer/custody/presentation/manger/warehouse_custody_cubit.dart';
@@ -230,6 +231,15 @@ class NavConfig {
             ),
           ),
           AppSection(
+            title: "شكاوى المستودع",
+            icon: Icons.inventory_2_outlined,
+            selectedIcon: Icons.inventory_2,
+            page: BlocProvider<WarehouseComplaintsCubit>(
+              create: (_) => sl<WarehouseComplaintsCubit>(),
+              child: const WarehouseComplaintsView(),
+            ),
+          ),
+          AppSection(
             title: "المفاضلات",
             icon: Icons.swap_horiz_outlined,
             selectedIcon: Icons.swap_horiz,
@@ -250,6 +260,13 @@ class NavConfig {
             ),
           ),
           AppSection(
+            title: "الغياب والإنذارات ",
+            icon: Icons.school_outlined,
+            selectedIcon: Icons.school,
+            page: AbsencePage(),
+          ),
+
+          AppSection(
             title: "إدارة الموظفين",
             icon: Icons.badge_outlined,
             selectedIcon: Icons.badge,
@@ -268,52 +285,13 @@ class NavConfig {
             ),
           ),
         ];
-      case 'warehouse_officer':
+      case 'entry_exit_supervisor':
         return [
           AppSection(
-            title: "شكاوى المستودع",
+            title: "الدخول والخروج",
             icon: Icons.inventory_2_outlined,
             selectedIcon: Icons.inventory_2,
-            page: BlocProvider<WarehouseComplaintsCubit>(
-              create: (_) => sl<WarehouseComplaintsCubit>(),
-              child: const WarehouseComplaintsView(),
-            ),
-          ),
-          AppSection(
-            title: "دخول المواد",
-            icon: Icons.add_box_outlined,
-            selectedIcon: Icons.add_box,
-            page: BlocProvider<WarehouseStockInCubit>(
-              create: (_) => sl<WarehouseStockInCubit>(),
-              child: const WarehouseStockInView(),
-            ),
-          ),
-          AppSection(
-            title: "العهد",
-            icon: Icons.assignment_ind_outlined,
-            selectedIcon: Icons.assignment_ind,
-            page: BlocProvider<WarehouseCustodyCubit>(
-              create: (_) => sl<WarehouseCustodyCubit>(),
-              child: const WarehouseCustodyView(),
-            ),
-          ),
-          AppSection(
-            title: "إحصائيات المستودع",
-            icon: Icons.analytics_outlined,
-            selectedIcon: Icons.analytics,
-            page: BlocProvider<WarehouseStatisticsCubit>(
-              create: (_) => sl<WarehouseStatisticsCubit>(),
-              child: const WarehouseStatisticsView(),
-            ),
-          ),
-          AppSection(
-            title: "طلبات الصيانة",
-            icon: Icons.home_repair_service_outlined,
-            selectedIcon: Icons.home_repair_service,
-            page: BlocProvider<WarehouseMaintenanceCubit>(
-              create: (_) => sl<WarehouseMaintenanceCubit>(),
-              child: const WarehouseMaintenanceView(),
-            ),
+            page: AttendanceScreen(),
           ),
         ];
       default:

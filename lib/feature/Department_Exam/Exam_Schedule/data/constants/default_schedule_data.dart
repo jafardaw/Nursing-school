@@ -64,6 +64,7 @@ class DefaultScheduleData {
     3: "مبادئ التشريح والغرائز (الأولى)",
     1: "مبادئ التمريض (نظري + عملي) (الأولى)",
     41: "مبادئ الجراثيم (الرابعة - غرف عمليات)",
+    36: "اللغة الأجنبية (الثالثة)",
   };
 
   // // البرنامج الافتراضي الثابت والمسجل مسبقاً في الـ Seeder
@@ -269,7 +270,7 @@ class DefaultScheduleData {
     // اليوم 10: 2026-02-01 (3 امتحانات)
     {
       "exam_session_id": 6,
-      "subject_id": 32,
+      "subject_id": 61,
       "exam_date": "2026-02-01",
       "start_time": "09:00",
       "end_time": "11:00",
@@ -291,7 +292,7 @@ class DefaultScheduleData {
     // اليوم 11: 2026-02-02 (3 امتحانات)
     {
       "exam_session_id": 6,
-      "subject_id": 36,
+      "subject_id": 73,
       "exam_date": "2026-02-02",
       "start_time": "09:00",
       "end_time": "11:00",
@@ -511,7 +512,7 @@ class DefaultScheduleData {
     // اليوم 21: 2026-02-16 (3 امتحانات)
     {
       "exam_session_id": 6,
-      "subject_id": 61,
+      "subject_id": 32,
       "exam_date": "2026-02-16",
       "start_time": "09:00",
       "end_time": "11:00",
@@ -547,7 +548,7 @@ class DefaultScheduleData {
     },
     {
       "exam_session_id": 6,
-      "subject_id": 73,
+      "subject_id": 36,
       "exam_date": "2026-02-17",
       "start_time": "14:00",
       "end_time": "16:00",
@@ -612,5 +613,4 @@ class DefaultScheduleData {
       "end_time": "13:30",
     },
   ];
-
 }
