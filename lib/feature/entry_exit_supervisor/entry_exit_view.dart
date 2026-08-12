@@ -63,7 +63,8 @@ class _AttendanceScreenState extends State<AttendanceScreen>
   late Animation<double> _cardAnim;
 
   static const String _bridgeUrl = 'http://localhost:5000';
-  static const String _apiUrl = 'https://nursing-school.onrender.com/api';
+  static const String _apiUrl =
+      'https://nursing-school-app-eybnf8hwa0hhavcg.swedencentral-01.azurewebsites.net/api';
 
   // الألوان الثابتة للتصميم
   static const Color _bg = Color(0xFF0D1117);
@@ -163,7 +164,7 @@ class _AttendanceScreenState extends State<AttendanceScreen>
       });
       final response = await http
           .post(
-            Uri.parse('$_apiUrl/gate/scan'),
+            Uri.parse('$_apiUrl/gate/scan/in'),
             headers: {
               'Content-Type': 'application/json',
               'Accept': 'application/json',
