@@ -5,7 +5,7 @@ class ApiEndpoints {
   static const String register = 'register';
   static const String profile = 'profile';
   static const String penalties = 'penalties';
-  static const String penaltiesSearch = '/search';
+  static const String penaltiesSearch = 'search';
 
   // Users
   static const String users = 'users';

@@ -149,7 +149,6 @@ class NavConfig {
             selectedIcon: Icons.edit_calendar,
             page: const Center(child: Text("صفحة تسجيل الغياب للموظف")),
           ),
-     
         ];
       case 'manager':
         return [
@@ -214,6 +213,17 @@ class NavConfig {
             ),
           ),
           AppSection(
+            title: "الشكاوي",
+            icon: Icons.swap_horiz_outlined,
+            selectedIcon: Icons.swap_horiz,
+            page: BlocProvider<WarehouseComplaintsCubit>(
+              create: (_) => sl<WarehouseComplaintsCubit>(),
+              child: const WarehouseComplaintsView(
+                userRole: 'engineering_office',
+              ),
+            ),
+          ),
+          AppSection(
             title: "طلبات الصيانة",
             icon: Icons.home_repair_service_outlined,
             selectedIcon: Icons.home_repair_service,
@@ -274,6 +284,15 @@ class NavConfig {
             page: BlocProvider(
               create: (_) => sl<EmployeesCubit>()..loadEmployees(),
               child: const ManagerEmployeesView(),
+            ),
+          ),
+          AppSection(
+            title: "الشكاوي",
+            icon: Icons.swap_horiz_outlined,
+            selectedIcon: Icons.swap_horiz,
+            page: BlocProvider<WarehouseComplaintsCubit>(
+              create: (_) => sl<WarehouseComplaintsCubit>(),
+              child: const WarehouseComplaintsView(),
             ),
           ),
           AppSection(

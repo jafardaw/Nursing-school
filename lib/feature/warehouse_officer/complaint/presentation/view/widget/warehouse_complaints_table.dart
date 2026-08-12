@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 class WarehouseComplaintsTable extends StatelessWidget {
   final List<WarehouseComplaintModel> complaints;
   final int? approvingComplaintId;
+  final bool isActionable;
   final ValueChanged<WarehouseComplaintModel> onApprove;
   final ValueChanged<WarehouseComplaintModel> onOpenDetails;
 
@@ -14,6 +15,7 @@ class WarehouseComplaintsTable extends StatelessWidget {
     super.key,
     required this.complaints,
     required this.approvingComplaintId,
+    this.isActionable = true,
     required this.onApprove,
     required this.onOpenDetails,
   });
@@ -35,7 +37,7 @@ class WarehouseComplaintsTable extends StatelessWidget {
       child: DataTable2(
         columnSpacing: 12,
         horizontalMargin: 12,
-        minWidth: 1020,
+        minWidth: 1080,
         headingRowHeight: 56,
         headingTextStyle: const TextStyle(
           fontWeight: FontWeight.bold,
@@ -96,29 +98,54 @@ class WarehouseComplaintsTable extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 6),
-              ElevatedButton.icon(
-                onPressed: isLoading || complaint.isResolved
-                    ? null
-                    : () => onApprove(complaint),
-                icon: isLoading
-                    ? const SizedBox(
-                        width: 14,
-                        height: 14,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : const Icon(Icons.check_circle_outline, size: 16),
-                label: Text(complaint.isResolved ? 'منجزة' : 'اعتماد'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF50CD89),
-                  foregroundColor: Colors.white,
-                  disabledBackgroundColor: const Color(0xFFE4E6EF),
-                  disabledForegroundColor: const Color(0xFF7E8299),
-                  elevation: 0,
-                  shape: RoundedRectangleBorder(
+              if (isActionable)
+                ElevatedButton.icon(
+                  onPressed: isLoading || complaint.isResolved
+                      ? null
+                      : () => onApprove(complaint),
+                  icon: isLoading
+                      ? const SizedBox(
+                          width: 14,
+                          height: 14,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : const Icon(Icons.check_circle_outline, size: 16),
+                  label: Text(complaint.isResolved ? 'منجزة' : 'اعتماد'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF50CD89),
+                    foregroundColor: Colors.white,
+                    disabledBackgroundColor: const Color(0xFFE4E6EF),
+                    disabledForegroundColor: const Color(0xFF7E8299),
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                )
+              else
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF1F5F9),
                     borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: const Color(0xFFCBD5E1)),
+                  ),
+                  child: const Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.visibility_rounded, size: 14, color: Color(0xFF64748B)),
+                      SizedBox(width: 4),
+                      Text(
+                        'معاينة فقط',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Color(0xFF64748B),
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-              ),
             ],
           ),
         ),

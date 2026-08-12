@@ -26,7 +26,7 @@ void main() async {
       storageBucket: "nursing-school-system.firebasestorage.app",
     ),
   );
-FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+  FirebaseMessaging.onMessage.listen((RemoteMessage message) {
     RemoteNotification? notification = message.notification;
 
     if (notification != null) {
@@ -60,7 +60,7 @@ class MyApp extends StatelessWidget {
           GlobalWidgetsLocalizations.delegate,
           GlobalCupertinoLocalizations.delegate,
         ],
-        title: 'مشروعي الاحترافي',
+        title: 'نظام اتمتة  مدرسة  التمريض ',
         debugShowCheckedModeBanner: false,
 
         // 🟢 الثيمات

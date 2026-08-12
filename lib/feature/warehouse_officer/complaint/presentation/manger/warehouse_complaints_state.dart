@@ -12,6 +12,8 @@ class WarehouseComplaintsLoaded extends WarehouseComplaintsState {
   final PaginationMeta meta;
   final String statusFilter;
   final String createdAtFilter;
+  final String stageRoleFilter;
+  final String descriptionFilter;
   final bool isSearching;
   final bool isRefreshing;
   final int? approvingComplaintId;
@@ -21,6 +23,8 @@ class WarehouseComplaintsLoaded extends WarehouseComplaintsState {
     required this.meta,
     this.statusFilter = '',
     this.createdAtFilter = '',
+    this.stageRoleFilter = '',
+    this.descriptionFilter = '',
     this.isSearching = false,
     this.isRefreshing = false,
     this.approvingComplaintId,
@@ -31,6 +35,8 @@ class WarehouseComplaintsLoaded extends WarehouseComplaintsState {
     PaginationMeta? meta,
     String? statusFilter,
     String? createdAtFilter,
+    String? stageRoleFilter,
+    String? descriptionFilter,
     bool? isSearching,
     bool? isRefreshing,
     int? approvingComplaintId,
@@ -41,6 +47,8 @@ class WarehouseComplaintsLoaded extends WarehouseComplaintsState {
       meta: meta ?? this.meta,
       statusFilter: statusFilter ?? this.statusFilter,
       createdAtFilter: createdAtFilter ?? this.createdAtFilter,
+      stageRoleFilter: stageRoleFilter ?? this.stageRoleFilter,
+      descriptionFilter: descriptionFilter ?? this.descriptionFilter,
       isSearching: isSearching ?? this.isSearching,
       isRefreshing: isRefreshing ?? this.isRefreshing,
       approvingComplaintId: clearApprovingComplaintId

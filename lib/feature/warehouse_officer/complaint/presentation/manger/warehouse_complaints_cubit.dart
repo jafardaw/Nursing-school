@@ -13,24 +13,30 @@ class WarehouseComplaintsCubit extends Cubit<WarehouseComplaintsState> {
   final int _perPage = 15;
   String _statusFilter = '';
   String _createdAtFilter = '';
+  String _stageRoleFilter = '';
+  String _descriptionFilter = '';
   Timer? _searchDebounce;
 
   WarehouseComplaintsCubit(this._repo) : super(WarehouseComplaintsInitial());
 
-  Future<void> loadComplaints() async {
+  Future<void> loadComplaints({String? initialStageRole}) async {
+    if (initialStageRole != null && initialStageRole.trim().isNotEmpty) {
+      _stageRoleFilter = initialStageRole.trim();
+    }
     emit(WarehouseComplaintsLoading());
 
     try {
       _currentPage = 1;
-      final response = await _repo.getComplaints(
-        page: _currentPage,
-        perPage: _perPage,
-      );
+      final response = await _loadCurrentSearch(page: _currentPage);
 
       emit(
         WarehouseComplaintsLoaded(
           complaints: response.data,
           meta: response.meta,
+          stageRoleFilter: _stageRoleFilter,
+          statusFilter: _statusFilter,
+          createdAtFilter: _createdAtFilter,
+          descriptionFilter: _descriptionFilter,
         ),
       );
     } on ErrorHandler catch (e) {
@@ -65,6 +71,11 @@ class WarehouseComplaintsCubit extends Cubit<WarehouseComplaintsState> {
     }
   }
 
+  void filterByStageRole(String role) {
+    _stageRoleFilter = role;
+    _debounceSearch();
+  }
+
   void searchByStatus(String value) {
     _statusFilter = value;
     _debounceSearch();
@@ -75,10 +86,17 @@ class WarehouseComplaintsCubit extends Cubit<WarehouseComplaintsState> {
     _debounceSearch();
   }
 
-  Future<void> clearFilters() async {
+  void searchByDescription(String value) {
+    _descriptionFilter = value;
+    _debounceSearch();
+  }
+
+  Future<void> clearFilters({String? defaultStageRole}) async {
     _searchDebounce?.cancel();
     _statusFilter = '';
     _createdAtFilter = '';
+    _descriptionFilter = '';
+    _stageRoleFilter = defaultStageRole ?? '';
     await _search(page: 1);
   }
 
@@ -141,6 +159,8 @@ class WarehouseComplaintsCubit extends Cubit<WarehouseComplaintsState> {
         isSearching: true,
         statusFilter: _statusFilter,
         createdAtFilter: _createdAtFilter,
+        stageRoleFilter: _stageRoleFilter,
+        descriptionFilter: _descriptionFilter,
       ),
     );
 
@@ -156,6 +176,8 @@ class WarehouseComplaintsCubit extends Cubit<WarehouseComplaintsState> {
           meta: response.meta,
           statusFilter: _statusFilter,
           createdAtFilter: _createdAtFilter,
+          stageRoleFilter: _stageRoleFilter,
+          descriptionFilter: _descriptionFilter,
           isSearching: false,
         ),
       );
@@ -168,7 +190,10 @@ class WarehouseComplaintsCubit extends Cubit<WarehouseComplaintsState> {
 
   Future<WarehouseComplaintsResponse> _loadCurrentSearch({required int page}) {
     final hasFilters =
-        _statusFilter.trim().isNotEmpty || _createdAtFilter.trim().isNotEmpty;
+        _statusFilter.trim().isNotEmpty ||
+        _createdAtFilter.trim().isNotEmpty ||
+        _stageRoleFilter.trim().isNotEmpty ||
+        _descriptionFilter.trim().isNotEmpty;
 
     if (!hasFilters) {
       return _repo.getComplaints(page: page, perPage: _perPage);
@@ -177,6 +202,8 @@ class WarehouseComplaintsCubit extends Cubit<WarehouseComplaintsState> {
     return _repo.searchComplaints(
       status: _statusFilter,
       createdAt: _createdAtFilter,
+      currentStageRole: _stageRoleFilter,
+      description: _descriptionFilter,
       page: page,
       perPage: _perPage,
     );

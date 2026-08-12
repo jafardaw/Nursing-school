@@ -191,7 +191,7 @@ Future<void> initServiceLocator() async {
     () => MaintenanceRequestsCubit(sl()),
   );
   sl.registerLazySingleton<WarehouseComplaintsRepo>(
-    () => WarehouseComplaintsRepoImpl(apiService: sl()),
+    () => WarehouseComplaintsRepoImpl(apiService: sl(), storageService: sl()  ),
   );
   sl.registerFactory<WarehouseComplaintsCubit>(
     () => WarehouseComplaintsCubit(sl()),

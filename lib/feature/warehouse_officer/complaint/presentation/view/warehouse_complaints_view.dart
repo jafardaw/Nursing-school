@@ -4,6 +4,7 @@ import 'package:finalproject/feature/engineering_office/presentation/view/widget
 import 'package:finalproject/feature/warehouse_officer/complaint/data/model/warehouse_complaint_model.dart';
 import 'package:finalproject/feature/warehouse_officer/complaint/presentation/manger/warehouse_complaints_cubit.dart';
 import 'package:finalproject/feature/warehouse_officer/complaint/presentation/manger/warehouse_complaints_state.dart';
+import 'package:finalproject/feature/warehouse_officer/complaint/presentation/view/widget/complaint_stage_selector.dart';
 import 'package:finalproject/feature/warehouse_officer/complaint/presentation/view/widget/warehouse_complaint_details_dialog.dart';
 import 'package:finalproject/feature/warehouse_officer/complaint/presentation/view/widget/warehouse_complaint_filter_bar.dart';
 import 'package:finalproject/feature/warehouse_officer/complaint/presentation/view/widget/warehouse_complaints_loading_view.dart';
@@ -14,7 +15,12 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 
 class WarehouseComplaintsView extends StatefulWidget {
-  const WarehouseComplaintsView({super.key});
+  final String userRole;
+
+  const WarehouseComplaintsView({
+    super.key,
+    this.userRole = 'warehouse_officer',
+  });
 
   @override
   State<WarehouseComplaintsView> createState() =>
@@ -29,7 +35,9 @@ class _WarehouseComplaintsViewState extends State<WarehouseComplaintsView> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<WarehouseComplaintsCubit>().loadComplaints();
+      context
+          .read<WarehouseComplaintsCubit>()
+          .loadComplaints(initialStageRole: widget.userRole);
     });
   }
 
@@ -54,8 +62,9 @@ class _WarehouseComplaintsViewState extends State<WarehouseComplaintsView> {
             if (state is WarehouseComplaintsError) {
               return ShowErrorWidgetView(
                 errorMessage: state.message,
-                onRetry: () =>
-                    context.read<WarehouseComplaintsCubit>().loadComplaints(),
+                onRetry: () => context
+                    .read<WarehouseComplaintsCubit>()
+                    .loadComplaints(initialStageRole: widget.userRole),
               );
             }
 
@@ -72,6 +81,12 @@ class _WarehouseComplaintsViewState extends State<WarehouseComplaintsView> {
 
   Widget _buildContent(BuildContext context, WarehouseComplaintsLoaded state) {
     final isDesktop = ResponsiveBreakpoints.of(context).largerThan(TABLET);
+    final effectiveUserRole =
+        widget.userRole.isEmpty ? 'warehouse_officer' : widget.userRole;
+    final effectiveSelectedRole = state.stageRoleFilter.isEmpty
+        ? effectiveUserRole
+        : state.stageRoleFilter;
+    final bool isActionable = effectiveSelectedRole == effectiveUserRole;
 
     return RefreshIndicator(
       onRefresh: () => context.read<WarehouseComplaintsCubit>().refresh(),
@@ -94,6 +109,17 @@ class _WarehouseComplaintsViewState extends State<WarehouseComplaintsView> {
                   state,
                 ).animate().fadeIn(duration: 400.ms, delay: 80.ms),
                 const SizedBox(height: 24),
+
+                // 🟢 شريط اختيار المرحلة الحالية وبنر التنبيه بالصلاحيات
+                ComplaintStageSelector(
+                  selectedStageRole: state.stageRoleFilter,
+                  userRole: widget.userRole,
+                  onStageSelected: (role) => context
+                      .read<WarehouseComplaintsCubit>()
+                      .filterByStageRole(role),
+                ).animate().fadeIn(duration: 350.ms).slideY(begin: 0.06, end: 0),
+                const SizedBox(height: 24),
+
                 _buildFocusBand(state)
                     .animate()
                     .fadeIn(duration: 350.ms)
@@ -104,9 +130,9 @@ class _WarehouseComplaintsViewState extends State<WarehouseComplaintsView> {
                       statusValue: _statusValue,
                       onStatusChanged: (value) {
                         setState(() => _statusValue = value);
-                        context.read<WarehouseComplaintsCubit>().searchByStatus(
-                          value,
-                        );
+                        context
+                            .read<WarehouseComplaintsCubit>()
+                            .searchByStatus(value);
                       },
                       onCreatedAtChanged: context
                           .read<WarehouseComplaintsCubit>()
@@ -114,7 +140,9 @@ class _WarehouseComplaintsViewState extends State<WarehouseComplaintsView> {
                       onClear: () {
                         setState(() => _statusValue = '');
                         _createdAtController.clear();
-                        context.read<WarehouseComplaintsCubit>().clearFilters();
+                        context
+                            .read<WarehouseComplaintsCubit>()
+                            .clearFilters(defaultStageRole: widget.userRole);
                       },
                       isSearching: state.isSearching,
                     )
@@ -122,7 +150,7 @@ class _WarehouseComplaintsViewState extends State<WarehouseComplaintsView> {
                     .fadeIn(duration: 350.ms)
                     .slideY(begin: 0.06, end: 0),
                 const SizedBox(height: 24),
-                _buildTableSection(context, state)
+                _buildTableSection(context, state, isActionable)
                     .animate()
                     .fadeIn(duration: 350.ms)
                     .slideY(begin: 0.06, end: 0),
@@ -143,7 +171,7 @@ class _WarehouseComplaintsViewState extends State<WarehouseComplaintsView> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'شكاوى مسؤول المستودع',
+                'شكاوى  المستودع',
                 style: TextStyle(
                   color: Color(0xFF181C32),
                   fontSize: 28,
@@ -304,6 +332,7 @@ class _WarehouseComplaintsViewState extends State<WarehouseComplaintsView> {
   Widget _buildTableSection(
     BuildContext context,
     WarehouseComplaintsLoaded state,
+    bool isActionable,
   ) {
     return Container(
       decoration: BoxDecoration(
@@ -350,6 +379,7 @@ class _WarehouseComplaintsViewState extends State<WarehouseComplaintsView> {
             child: WarehouseComplaintsTable(
               complaints: state.complaints,
               approvingComplaintId: state.approvingComplaintId,
+              isActionable: isActionable,
               onApprove: (complaint) => _confirmApprove(context, complaint),
               onOpenDetails: (complaint) => _showDetails(context, complaint),
             ),

@@ -9,6 +9,8 @@ abstract class WarehouseComplaintsRepo {
   Future<WarehouseComplaintsResponse> searchComplaints({
     String? status,
     String? createdAt,
+    String? currentStageRole,
+    String? description,
     int page = 1,
     int perPage = 15,
   });
