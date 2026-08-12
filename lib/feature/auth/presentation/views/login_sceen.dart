@@ -110,8 +110,13 @@ class _LoginScreenState extends State<LoginScreen> {
                     type: BannerType.success,
                   );
 
-                  NavigationService.pushTo(context, AppRoutes.homerout);
-                  // 🟢 نجاح → اذهب للرئيسية
+                  // توجيه مباشر حسب الـ role
+                  final role = state.user.role;
+                  if (role == 'entry_exit_supervisor') {
+                    NavigationService.pushTo(context, AppRoutes.attendanceRoute);
+                  } else {
+                    NavigationService.pushTo(context, AppRoutes.homerout);
+                  }
                 } else if (state is AuthError) {
                   showWebBanner(context, state.message, type: BannerType.error);
                 }

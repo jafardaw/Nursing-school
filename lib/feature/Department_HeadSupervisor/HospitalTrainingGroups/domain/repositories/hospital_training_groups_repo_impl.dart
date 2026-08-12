@@ -22,7 +22,7 @@ class HospitalTrainingGroupsRepoImpl implements HospitalTrainingGroupsRepo {
   }) async {
     final query = <String, dynamic>{'page': page, 'per_page': 15};
     if (hospitalId != null) query['filters[hospital_id]'] = hospitalId;
-    if (employeeId != null) query['filters[employee_id]'] = employeeId;
+    if (employeeId != null) query['ftilers[employee_id]'] = employeeId;
 
     final response = await _apiService.get(
       ApiEndpoints.hospitalTrainingGroupsSearch,

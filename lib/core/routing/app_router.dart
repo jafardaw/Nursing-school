@@ -53,6 +53,8 @@ import 'package:finalproject/feature/warehouse_officer/statistics/presentation/m
 import 'package:finalproject/feature/warehouse_officer/statistics/presentation/view/warehouse_statistics_view.dart'
     deferred as warehousestatistics;
 
+import 'package:finalproject/feature/entry_exit_supervisor/entry_exit_view.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -162,6 +164,11 @@ class AppRouter {
             builder: () => warehousemaintenance.WarehouseMaintenanceView(),
           ),
         ),
+      ),
+      GoRoute(
+        path: AppRoutes.attendanceRoute,
+        name: AppRoutes.attendanceRoute,
+        builder: (context, state) => const AttendanceScreen(),
       ),
       GoRoute(
         path: AppRoutes.loginrout,

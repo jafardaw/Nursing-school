@@ -20,6 +20,7 @@ class AppRoutes {
   static const String warehouseOfficerMaintenanceRoute = '/warehouse-officer/maintenance';
   static const String hospitalsRoute = '/hospitals';
   static const String dormitoryRoute = '/dormitory';
+  static const String attendanceRoute = '/attendance';
 
   AppRoutes._();
 }

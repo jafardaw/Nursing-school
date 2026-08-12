@@ -88,7 +88,11 @@ class HospitalTrainingGroupsCubit extends Cubit<HospitalTrainingGroupsState> {
 
   Future<void> searchStudents(String query) async {
     try {
+      // state.students.clear();
       final students = await _repo.getStudents(query: query);
+      print(students.length);
+      print("ssssssssssssssssssssssssss");
+
       emit(state.copyWith(students: students));
     } catch (e) {
       emit(state.copyWith(error: 'فشل البحث عن الطالبات'));
