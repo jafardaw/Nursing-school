@@ -1,11 +1,9 @@
 import 'package:finalproject/core/di/service_locator.dart';
-import 'package:finalproject/core/services/firebase_notification_service.dart';
 
 import 'package:finalproject/core/theme/app_theme.dart';
 import 'package:finalproject/core/widgets/show_snak_bar.dart';
 import 'package:finalproject/feature/auth/presentation/manger/auth_cubit.dart';
 import 'package:finalproject/feature/auth/repo/auth_repo_impl.dart';
-import 'package:finalproject/firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
