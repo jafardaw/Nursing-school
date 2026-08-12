@@ -5,8 +5,8 @@ class AppConstants {
 
   // API
   static const String baseUrlPublic =
-      "https://nursing-school-app-eybnf8hwa0hhavcg.swedencentral-01.azurewebsites.net/api/";
-  // 'https://nursing-school.onrender.com/api/';
+      // "https://nursing-school-app-eybnf8hwa0hhavcg.swedencentral-01.azurewebsites.net/api/";
+      'https://nursing-school.onrender.com/api/';
 
   // Validation
   static const int minPasswordLength = 6;
