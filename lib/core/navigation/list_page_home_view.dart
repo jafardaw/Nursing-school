@@ -278,15 +278,15 @@ class NavConfig {
               child: const DormitoryView(),
             ),
           ),
-          AppSection(
-            title: "شكاوى المستودع",
-            icon: Icons.inventory_2_outlined,
-            selectedIcon: Icons.inventory_2,
-            page: BlocProvider<WarehouseComplaintsCubit>(
-              create: (_) => sl<WarehouseComplaintsCubit>(),
-              child: const WarehouseComplaintsView(),
-            ),
-          ),
+          // AppSection(
+          //   title: "شكاوى المستودع",
+          //   icon: Icons.inventory_2_outlined,
+          //   selectedIcon: Icons.inventory_2,
+          //   page: BlocProvider<WarehouseComplaintsCubit>(
+          //     create: (_) => sl<WarehouseComplaintsCubit>(),
+          //     child: const WarehouseComplaintsView(),
+          //   ),
+          // ),
           AppSection(
             title: "المفاضلات",
             icon: Icons.swap_horiz_outlined,
