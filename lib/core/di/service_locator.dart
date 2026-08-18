@@ -95,6 +95,15 @@ import 'package:finalproject/feature/Department_HeadSupervisor/Dormitory/repo/do
 import 'package:finalproject/feature/Department_HeadSupervisor/Dormitory/repo/dormitory_repo_impl.dart';
 import 'package:finalproject/feature/Department_HeadSupervisor/Dormitory/presentation/manger/dorm_building_cubit/dorm_building_cubit.dart';
 import 'package:finalproject/feature/Department_HeadSupervisor/Dormitory/presentation/manger/dorm_room_cubit/dorm_room_cubit.dart';
+import 'package:finalproject/feature/Department_HeadSupervisor/attendance_monitoring/hospital_attendance/domain/repositories/hospital_attendance_repo.dart';
+import 'package:finalproject/feature/Department_HeadSupervisor/attendance_monitoring/hospital_attendance/domain/repositories/hospital_attendance_repo_impl.dart';
+import 'package:finalproject/feature/Department_HeadSupervisor/attendance_monitoring/hospital_attendance/presentation/manger/hospital_attendance_cubit.dart';
+import 'package:finalproject/feature/Department_HeadSupervisor/attendance_monitoring/gate_attendance/domain/repositories/gate_attendance_repo.dart';
+import 'package:finalproject/feature/Department_HeadSupervisor/attendance_monitoring/gate_attendance/domain/repositories/gate_attendance_repo_impl.dart';
+import 'package:finalproject/feature/Department_HeadSupervisor/attendance_monitoring/gate_attendance/presentation/manger/gate_attendance_cubit.dart';
+import 'package:finalproject/feature/Department_HeadSupervisor/attendance_monitoring/dormitory_attendance/domain/repositories/dormitory_attendance_repo.dart';
+import 'package:finalproject/feature/Department_HeadSupervisor/attendance_monitoring/dormitory_attendance/domain/repositories/dormitory_attendance_repo_impl.dart';
+import 'package:finalproject/feature/Department_HeadSupervisor/attendance_monitoring/dormitory_attendance/presentation/manger/dormitory_attendance_cubit.dart';
 import 'package:flutter/foundation.dart';
 import 'package:get_it/get_it.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -318,6 +327,26 @@ Future<void> initServiceLocator() async {
   );
   sl.registerFactory<HospitalTrainingGroupsCubit>(
     () => HospitalTrainingGroupsCubit(sl<HospitalTrainingGroupsRepo>()),
+  );
+
+  /////////// attendance monitoring (head supervisor)
+  sl.registerLazySingleton<HospitalAttendanceRepo>(
+    () => HospitalAttendanceRepoImpl(sl()),
+  );
+  sl.registerFactory<HospitalAttendanceCubit>(
+    () => HospitalAttendanceCubit(sl<HospitalAttendanceRepo>()),
+  );
+  sl.registerLazySingleton<GateAttendanceRepo>(
+    () => GateAttendanceRepoImpl(sl()),
+  );
+  sl.registerFactory<GateAttendanceCubit>(
+    () => GateAttendanceCubit(sl<GateAttendanceRepo>()),
+  );
+  sl.registerLazySingleton<DormitoryAttendanceRepo>(
+    () => DormitoryAttendanceRepoImpl(sl()),
+  );
+  sl.registerFactory<DormitoryAttendanceCubit>(
+    () => DormitoryAttendanceCubit(sl<DormitoryAttendanceRepo>()),
   );
 
   /////////// manager dashboard

@@ -2,14 +2,15 @@ import 'package:finalproject/core/di/service_locator.dart';
 import 'package:finalproject/feature/Department_Exam/Subject/presentation/views/year_view.dart';
 import 'package:finalproject/feature/Department_Exam/Exam_Session/presentation/views/exam_sessions_view.dart';
 import 'package:finalproject/feature/Department_Exam/Halls/presentation/views/halls_view.dart';
+import 'package:finalproject/feature/Department_HeadSupervisor/HospitalTrainingGroups/presentation/views/hospital_training_groups_page.dart';
 import 'package:finalproject/feature/Department_Student_Affair/Statistic/presentation/views/statistic_view.dart';
 import 'package:finalproject/feature/Department_HeadSupervisor/matching/presentation/views/matching_campaigns_view.dart';
 import 'package:finalproject/feature/Department_HeadSupervisor/Hospitals/presentation/views/hospitals_view.dart';
 import 'package:finalproject/feature/Department_HeadSupervisor/HospitalTrainingGroups/presentation/manger/hospital_training_groups_cubit.dart';
-import 'package:finalproject/feature/Department_HeadSupervisor/HospitalTrainingGroups/presentation/views/hospital_training_groups_view.dart';
 import 'package:finalproject/feature/Department_HeadSupervisor/Dormitory/presentation/views/dormitory_view.dart';
 import 'package:finalproject/feature/Department_HeadSupervisor/Dormitory/presentation/manger/dorm_building_cubit/dorm_building_cubit.dart';
 import 'package:finalproject/feature/Department_HeadSupervisor/Dormitory/presentation/manger/dorm_room_cubit/dorm_room_cubit.dart';
+import 'package:finalproject/feature/Department_HeadSupervisor/attendance_monitoring/presentation/view/attendance_monitoring_view.dart';
 import 'package:finalproject/feature/Department_Student_Affair/student%20Affairs/student%20record/presentation/manger/cubit/delete_student_cubit.dart';
 import 'package:finalproject/feature/Department_Student_Affair/student%20Affairs/student%20record/presentation/manger/students_cubit.dart';
 import 'package:finalproject/feature/Department_Student_Affair/penalties/presentation/views/penalties_view.dart';
@@ -328,8 +329,14 @@ class NavConfig {
             selectedIcon: Icons.groups_2,
             page: BlocProvider(
               create: (_) => sl<HospitalTrainingGroupsCubit>(),
-              child: const HospitalTrainingGroupsView(),
+              child: const HospitalTrainingGroupsPage(),
             ),
+          ),
+          AppSection(
+            title: "مراقبة الحضور",
+            icon: Icons.monitor_heart_outlined,
+            selectedIcon: Icons.monitor_heart,
+            page: const AttendanceMonitoringView(),
           ),
           _announcementsSection(),
         ];
@@ -402,7 +409,7 @@ class NavConfig {
               child: const WarehouseMaintenanceView(),
             ),
           ),
-          _announcementsSection(),
+          // _announcementsSection(),
         ];
       default:
         return [
