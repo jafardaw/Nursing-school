@@ -11,8 +11,12 @@ class HallRepositoryImpl implements HallRepository {
   @override
   Future<List<HallModel>> getHalls() async {
     try {
-      final response = await apiService.get(ApiEndpoints.halls);
-      final List data = response.data['data'];
+      final response = await apiService.get(
+        ApiEndpoints.halls,
+        queryParameters: {'per_page': 100},
+      );
+      final rawData = response.data['data'] ?? response.data;
+      final List data = rawData is List ? rawData : [];
       return data.map((json) => HallModel.fromJson(json)).toList();
     } catch (e) {
       throw Exception("فشل جلب القاعات الامتحانية: ${e.toString()}");

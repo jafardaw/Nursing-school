@@ -6,7 +6,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 class StudentPenaltiesDialog extends StatefulWidget {
   final StudentPenaltiesModel studentData;
-  final Function(int penaltyId) onEdit; // نمرر الـ ID
+  final ValueChanged<PenaltyModel> onEdit; // نمرر الـ ID
   final Function(int penaltyId) onDelete;
   final List<int> loadingIds; // 👈 هاد المتغير الجديد
 
@@ -118,7 +118,7 @@ class _StudentPenaltiesDialogState extends State<StudentPenaltiesDialog> {
           IconButton(
             onPressed: () {
               Navigator.pop(context);
-              widget.onEdit(widget.studentData.student.id);
+              widget.onEdit(penalty);
             },
             icon: const Icon(Icons.edit_outlined, color: Colors.green),
             tooltip: 'تعديل',

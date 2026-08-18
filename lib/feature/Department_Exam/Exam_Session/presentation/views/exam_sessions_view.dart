@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:finalproject/core/di/service_locator.dart';
 import 'package:finalproject/core/theme/theme_extination.dart';
 import 'package:finalproject/core/widgets/custom_confirm_dialog.dart';
@@ -10,6 +11,7 @@ import 'package:finalproject/feature/Department_Exam/Exam_Session/presentation/m
 import 'package:finalproject/feature/Department_Exam/Exam_Session/presentation/manger/exam_session_state.dart';
 import 'package:finalproject/feature/Department_Exam/Exam_Session/presentation/views/widget/add_edit_session_dialog.dart';
 import 'package:finalproject/feature/Department_Exam/Exam_Session/presentation/views/widget/evaluate_promotions_dialog.dart';
+import 'package:finalproject/feature/Department_Exam/Exam_Session/presentation/views/widget/session_statistics_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:data_table_2/data_table_2.dart';
@@ -179,6 +181,13 @@ class _ExamSessionsPageState extends State<ExamSessionsPage> {
     );
   }
 
+  void _openStatisticsDialog(ExamSessionModel session) {
+    showDialog(
+      context: context,
+      builder: (context) => SessionStatisticsDialog(session: session),
+    );
+  }
+
   void _deleteSession(ExamSessionModel session) {
     confirmDelete(context, () {
       setState(() {
@@ -264,49 +273,66 @@ class _ExamSessionsPageState extends State<ExamSessionsPage> {
                           );
                     }).toList();
 
-                    if (filtered.isEmpty && sessions.isNotEmpty) {
-                      return const SliverFillRemaining(
-                        child: EmptyListViews(
-                          text: 'لا توجد نتائج مطابقة للبحث',
-                        ),
-                      );
-                    }
-                    if (filtered.isEmpty) {
-                      return const SliverFillRemaining(
-                        child: EmptyListViews(
-                          text: 'لا يوجد دورات امتحانية حالياً',
-                        ),
-                      );
-                    }
-
-                    return SliverPadding(
-                      padding: EdgeInsets.only(
-                        left: isDesktop ? 24 : 12,
-                        right: isDesktop ? 24 : 12,
-                        top: 20,
-                        bottom: 24,
-                      ),
-                      sliver: SliverToBoxAdapter(
-                        child: Container(
-                          height: 600,
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(20),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withValues(alpha: 0.02),
-                                blurRadius: 15,
-                                offset: const Offset(0, 8),
+                    return SliverMainAxisGroup(
+                      slivers: [
+                        if (sessions.isNotEmpty)
+                          SliverPadding(
+                            padding: EdgeInsets.only(
+                              left: isDesktop ? 24 : 12,
+                              right: isDesktop ? 24 : 12,
+                              top: 20,
+                            ),
+                            sliver: SliverToBoxAdapter(
+                              child: _buildOverviewKPIs(sessions),
+                            ),
+                          ),
+                        if (filtered.isEmpty && sessions.isNotEmpty)
+                          const SliverFillRemaining(
+                            child: EmptyListViews(
+                              text: 'لا توجد نتائج مطابقة للبحث',
+                            ),
+                          )
+                        else if (filtered.isEmpty)
+                          const SliverFillRemaining(
+                            child: EmptyListViews(
+                              text: 'لا يوجد دورات امتحانية حالياً',
+                            ),
+                          )
+                        else
+                          SliverPadding(
+                            padding: EdgeInsets.only(
+                              left: isDesktop ? 24 : 12,
+                              right: isDesktop ? 24 : 12,
+                              top: 20,
+                              bottom: 24,
+                            ),
+                            sliver: SliverToBoxAdapter(
+                              child: Container(
+                                height: 600,
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(20),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withValues(
+                                        alpha: 0.02,
+                                      ),
+                                      blurRadius: 15,
+                                      offset: const Offset(0, 8),
+                                    ),
+                                  ],
+                                  border: Border.all(
+                                    color: const Color(0xFFF1F5F9),
+                                  ),
+                                ),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(16),
+                                  child: _buildDataTable(filtered, styles),
+                                ),
                               ),
-                            ],
-                            border: Border.all(color: const Color(0xFFF1F5F9)),
+                            ),
                           ),
-                          child: Padding(
-                            padding: const EdgeInsets.all(16),
-                            child: _buildDataTable(filtered, styles),
-                          ),
-                        ),
-                      ),
+                      ],
                     );
                   },
                 ),
@@ -394,30 +420,181 @@ class _ExamSessionsPageState extends State<ExamSessionsPage> {
     );
   }
 
+  Widget _buildOverviewKPIs(List<ExamSessionModel> sessions) {
+    final activeCount = sessions.where((s) => s.status == 'active').length;
+    int totalStudentsSum = 0;
+    double passRateSum = 0;
+    int validPassRateCount = 0;
+    double maxMarkOverall = 0;
+
+    for (var s in sessions) {
+      final overview = s.statistics?.overview;
+      if (overview != null) {
+        totalStudentsSum += overview.totalStudents;
+        if (overview.totalStudents > 0) {
+          passRateSum += overview.passRate;
+          validPassRateCount++;
+        }
+        if (overview.highestMark > maxMarkOverall) {
+          maxMarkOverall = overview.highestMark;
+        }
+      }
+    }
+
+    final avgPassRate = validPassRateCount > 0
+        ? (passRateSum / validPassRateCount)
+        : 0.0;
+
+    return Wrap(
+      spacing: 16,
+      runSpacing: 16,
+      children: [
+        _buildKpiCard(
+          title: "إجمالي الدورات",
+          value: "${sessions.length}",
+          subtitle: "$activeCount نشطة حالياً",
+          icon: Icons.calendar_month_rounded,
+          color: const Color(0xFF2563EB),
+        ),
+        _buildKpiCard(
+          title: "إجمالي الطلاب بالدورات",
+          value: "$totalStudentsSum",
+          subtitle: "طالب مسجل",
+          icon: Icons.groups_rounded,
+          color: const Color(0xFF0D9488),
+        ),
+        _buildKpiCard(
+          title: "متوسط معدل النجاح العام",
+          value: "${avgPassRate.toStringAsFixed(1)}%",
+          subtitle: "عبر كافة الدورات",
+          icon: Icons.pie_chart_rounded,
+          color: const Color(0xFF059669),
+        ),
+        _buildKpiCard(
+          title: "أعلى درجة مسجلة",
+          value: maxMarkOverall > 0
+              ? "${maxMarkOverall.toStringAsFixed(0)}%"
+              : "-",
+          subtitle: "أعلى أداء طلابي",
+          icon: Icons.emoji_events_rounded,
+          color: const Color(0xFFD97706),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildKpiCard({
+    required String title,
+    required String value,
+    required String subtitle,
+    required IconData icon,
+    required Color color,
+  }) {
+    return Container(
+      width: 230,
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFF1F5F9)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.02),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Icon(icon, color: color, size: 24),
+          ),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: Color(0xFF64748B),
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  value,
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF0F172A),
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  subtitle,
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: color,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildDataTable(
     List<ExamSessionModel> sessions,
     ThemedTextStyles styles,
   ) {
-    return DataTable2(
-      columnSpacing: 20,
-      horizontalMargin: 12,
-      minWidth: 800,
-      headingRowHeight: 56,
-      headingTextStyle: const TextStyle(
-        fontWeight: FontWeight.bold,
-        color: Color(0xFF475569),
-        fontSize: 14,
+    return ScrollConfiguration(
+      behavior: ScrollConfiguration.of(context).copyWith(
+        dragDevices: {
+          PointerDeviceKind.touch,
+          PointerDeviceKind.mouse,
+          PointerDeviceKind.trackpad,
+          PointerDeviceKind.stylus,
+        },
       ),
-      headingRowColor: WidgetStateProperty.all(const Color(0xFFF8F9FD)),
-      columns: const [
-        DataColumn2(label: Text('رقم الدورة'), size: ColumnSize.S),
-        DataColumn2(label: Text('اسم الدورة الامتحانية'), size: ColumnSize.L),
-        DataColumn2(label: Text('السنة الدراسية'), size: ColumnSize.M),
-        DataColumn2(label: Text('الحالة'), size: ColumnSize.S),
-        DataColumn2(label: Text('تاريخ الإنشاء'), size: ColumnSize.M),
-        DataColumn2(label: Text('إجراءات'), size: ColumnSize.M),
-      ],
-      rows: sessions.map((session) => _buildDataRow(session, styles)).toList(),
+      child: DataTable2(
+        columnSpacing: 12,
+        horizontalMargin: 12,
+        minWidth: 850,
+        headingRowHeight: 56,
+        headingTextStyle: const TextStyle(
+          fontWeight: FontWeight.bold,
+          color: Color(0xFF475569),
+          fontSize: 14,
+        ),
+        headingRowColor: WidgetStateProperty.all(const Color(0xFFF8F9FD)),
+        columns: const [
+          DataColumn2(label: Text('رقم الدورة'), size: ColumnSize.S),
+          DataColumn2(label: Text('اسم الدورة الامتحانية'), size: ColumnSize.L),
+          DataColumn2(label: Text('السنة الدراسية'), size: ColumnSize.M),
+          DataColumn2(label: Text('الحالة'), size: ColumnSize.S),
+          DataColumn2(label: Text('الطلاب والنجاح'), size: ColumnSize.M),
+          DataColumn2(label: Text('متوسط الدرجات'), size: ColumnSize.S),
+          DataColumn2(label: Text('تاريخ الإنشاء'), size: ColumnSize.M),
+          DataColumn2(
+            label: Text('إجراءات'),
+            size: ColumnSize.L,
+            fixedWidth: 175,
+          ),
+        ],
+        rows: sessions.map((session) => _buildDataRow(session, styles)).toList(),
+      ),
     );
   }
 
@@ -430,6 +607,8 @@ class _ExamSessionsPageState extends State<ExamSessionsPage> {
     final String formattedDate = createdDate != null
         ? "${createdDate.year}/${createdDate.month.toString().padLeft(2, '0')}/${createdDate.day.toString().padLeft(2, '0')} ${createdDate.hour.toString().padLeft(2, '0')}:${createdDate.minute.toString().padLeft(2, '0')}"
         : '-';
+
+    final overview = session.statistics?.overview;
 
     return DataRow(
       cells: [
@@ -491,6 +670,69 @@ class _ExamSessionsPageState extends State<ExamSessionsPage> {
           ),
         ),
         DataCell(
+          overview == null
+              ? const Text('-', style: TextStyle(color: Color(0xFF94A3B8)))
+              : Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      '${overview.passed}/${overview.totalStudents}',
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 13,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 3,
+                      ),
+                      decoration: BoxDecoration(
+                        color:
+                            (overview.passRate >= 60
+                                    ? const Color(0xFF10B981)
+                                    : const Color(0xFFF59E0B))
+                                .withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: Text(
+                        '${overview.passRate.toStringAsFixed(0)}%',
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
+                          color: overview.passRate >= 60
+                              ? const Color(0xFF059669)
+                              : const Color(0xFFD97706),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+        ),
+        DataCell(
+          overview == null || overview.avgMark == 0
+              ? const Text('-', style: TextStyle(color: Color(0xFF94A3B8)))
+              : Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 3,
+                  ),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF8B5CF6).withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: Text(
+                    overview.avgMark.toStringAsFixed(1),
+                    style: const TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF7C3AED),
+                    ),
+                  ),
+                ),
+        ),
+        DataCell(
           Text(
             formattedDate,
             style: const TextStyle(color: Color(0xFF64748B), fontSize: 13),
@@ -500,8 +742,22 @@ class _ExamSessionsPageState extends State<ExamSessionsPage> {
           Row(
             mainAxisSize: MainAxisSize.min,
             children: [
+              // زر عرض الإحصائيات الشاملة
+              IconButton(
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
+                icon: const Icon(
+                  Icons.analytics_rounded,
+                  size: 20,
+                  color: Color(0xFF2563EB),
+                ),
+                tooltip: 'عرض الإحصائيات الشاملة',
+                onPressed: () => _openStatisticsDialog(session),
+              ),
               // زر ترفيع الطلاب (متاح فقط للدورات غير النشطة)
               IconButton(
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
                 icon: Icon(
                   Icons.trending_up_rounded,
                   size: 20,
@@ -517,6 +773,8 @@ class _ExamSessionsPageState extends State<ExamSessionsPage> {
                     : null,
               ),
               IconButton(
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
                 icon: const Icon(
                   Icons.edit_outlined,
                   size: 18,
@@ -526,6 +784,8 @@ class _ExamSessionsPageState extends State<ExamSessionsPage> {
                 onPressed: () => _openAddEditDialog(session: session),
               ),
               IconButton(
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
                 icon: const Icon(
                   Icons.delete_outline_rounded,
                   size: 18,

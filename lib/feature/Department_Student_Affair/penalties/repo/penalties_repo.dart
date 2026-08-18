@@ -10,9 +10,20 @@ class PenaltyResult {
 abstract class AbsenceRepository {
   Future<PenaltyResult> getAbsences({int page = 1});
 
-  Future<PenaltyResult> getAbsencesSearch(String name, String year);
+  Future<PenaltyResult> getAbsencesSearch({
+    String? name,
+    String? yearId,
+    int page = 1,
+  });
 
   Future<void> addPenalty(AddPenaltyModel penalty); // الجديدة
+
+  Future<void> updatePenalty({
+    required int penaltyId,
+    required String type,
+    required String date,
+    required String body,
+  });
 
   Future<String> deletePenalty(int id);
 }

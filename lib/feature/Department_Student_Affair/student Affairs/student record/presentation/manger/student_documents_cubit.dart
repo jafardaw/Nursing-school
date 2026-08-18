@@ -24,20 +24,19 @@ class StudentDocumentsCubit extends Cubit<StudentDocumentsState> {
     );
 
     try {
-      final uploaded = await _repository.uploadDocuments(
+      await _repository.uploadDocuments(
         studentId: studentId,
         documents: documents,
       );
       if (isClosed) return;
 
-      final documentsById = {
-        for (final document in state.documents) document.id: document,
-        for (final document in uploaded) document.id: document,
-      };
+      final loadedDocuments = await _repository.getDocumentsByStudent(
+        studentId,
+      );
 
       emit(
         state.copyWith(
-          documents: documentsById.values.toList(growable: false),
+          documents: loadedDocuments,
           status: StudentDocumentsStatus.uploadSuccess,
           message: 'تم رفع المستندات بنجاح',
         ),
@@ -78,6 +77,24 @@ class StudentDocumentsCubit extends Cubit<StudentDocumentsState> {
       _emitFailure(error.userFriendlyMessage);
     } catch (_) {
       _emitFailure('تعذر حذف المستند، يرجى المحاولة مرة أخرى');
+    }
+  }
+
+  Future<void> fetchDocuments(int studentId) async {
+    try {
+      final documents = await _repository.getDocumentsByStudent(studentId);
+      if (isClosed) return;
+      emit(
+        state.copyWith(
+          documents: documents,
+          status: StudentDocumentsStatus.idle,
+          clearMessage: true,
+        ),
+      );
+    } on ErrorHandler catch (error) {
+      _emitFailure(error.userFriendlyMessage);
+    } catch (_) {
+      _emitFailure('Unable to load student documents.');
     }
   }
 

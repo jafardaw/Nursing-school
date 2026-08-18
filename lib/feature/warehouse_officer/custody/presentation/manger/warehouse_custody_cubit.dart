@@ -2,6 +2,7 @@ import 'package:finalproject/core/errors/error_handler.dart';
 import 'package:finalproject/feature/warehouse_officer/custody/data/model/warehouse_custody_model.dart';
 import 'package:finalproject/feature/warehouse_officer/custody/domain/repositories/warehouse_custody_repo.dart';
 import 'package:finalproject/feature/warehouse_officer/custody/presentation/manger/warehouse_custody_state.dart';
+import 'package:finalproject/feature/warehouse_officer/items/data/model/warehouse_item_model.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class WarehouseCustodyCubit extends Cubit<WarehouseCustodyState> {
@@ -10,6 +11,7 @@ class WarehouseCustodyCubit extends Cubit<WarehouseCustodyState> {
   int _currentPage = 1;
   final int _perPage = 15;
   int? _studentIdFilter;
+  String? _studentNameSearch;
 
   WarehouseCustodyCubit(this._repo) : super(WarehouseCustodyInitial());
 
@@ -45,6 +47,14 @@ class WarehouseCustodyCubit extends Cubit<WarehouseCustodyState> {
     } catch (_) {
       emit(WarehouseCustodyError(message: 'حدث خطأ غير متوقع'));
     }
+  }
+
+  Future<void> filterByStudentName(String? studentName) async {
+    final trimmed = studentName?.trim();
+    _studentNameSearch =
+        (trimmed != null && trimmed.length >= 2) ? trimmed : null;
+    _currentPage = 1;
+    await loadCustodies(refresh: true);
   }
 
   Future<void> filterByStudentId(int? studentId) async {
@@ -154,6 +164,14 @@ class WarehouseCustodyCubit extends Cubit<WarehouseCustodyState> {
   }
 
   Future<WarehouseCustodyListResponse> _loadCurrentPage({required int page}) {
+    if (_studentNameSearch != null && _studentNameSearch!.isNotEmpty) {
+      return _repo.searchCustodies(
+        studentName: _studentNameSearch!,
+        page: page,
+        perPage: _perPage,
+      );
+    }
+
     if (_studentIdFilter != null) {
       return _repo.getStudentCustodies(
         studentId: _studentIdFilter!,
@@ -185,5 +203,13 @@ class WarehouseCustodyCubit extends Cubit<WarehouseCustodyState> {
       selectedStudentId: _studentIdFilter,
       successMessage: successMessage,
     );
+  }
+
+  Future<List<Map<String, dynamic>>> searchStudents(String query) {
+    return _repo.searchStudents(query);
+  }
+
+  Future<List<WarehouseItemModel>> getAvailableItems() {
+    return _repo.getAvailableItems();
   }
 }

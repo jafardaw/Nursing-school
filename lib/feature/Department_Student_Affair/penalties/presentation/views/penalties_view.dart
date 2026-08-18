@@ -6,6 +6,7 @@ import 'package:finalproject/core/widgets/custom_confirm_dialog.dart';
 import 'package:finalproject/core/widgets/customfilterbar.dart';
 import 'package:finalproject/core/widgets/show_snak_bar.dart';
 import 'package:finalproject/feature/Department_Student_Affair/penalties/data/penalties_model.dart';
+import 'package:finalproject/feature/Department_Student_Affair/penalties/presentation/views/edit_penalty_dialog.dart';
 import 'package:finalproject/feature/Department_Student_Affair/penalties/presentation/manger/cubit_delete/delete_penalties_cubit.dart';
 import 'package:finalproject/feature/Department_Student_Affair/penalties/presentation/manger/cubit_delete/delete_penalties_state.dart';
 import 'package:finalproject/feature/Department_Student_Affair/penalties/presentation/manger/cubit_get/get_all_penalties_cubit.dart';
@@ -29,15 +30,23 @@ class _AbsencePageState extends State<AbsencePage> {
   // تعريف المتحكمات والمتغيرات الخاصة بالفلترة
   final TextEditingController _searchController = TextEditingController();
   String? selectedYear = 'الكل';
-  String? selectedRisk = 'الكل';
 
   late final AbsenceCubit absenceCubit;
 
   @override
   void initState() {
     super.initState();
-
     absenceCubit = AbsenceCubit(sl<AbsenceRepository>())..fetchAbsences();
+  }
+
+  void _triggerSearch(BuildContext context) {
+    final name = _searchController.text.trim();
+    final year = selectedYear;
+    context.read<AbsenceCubit>().fetchAbsencesSearch(
+      name: name.isEmpty ? null : name,
+      yearId: year == 'الكل' ? null : year,
+      page: 1,
+    );
   }
 
   @override
@@ -85,32 +94,20 @@ class _AbsencePageState extends State<AbsencePage> {
                       padding: const EdgeInsets.all(25.0),
                       sliver: SliverToBoxAdapter(
                         child: CustomFilterBar(
-                          buttonTooltip: 'اضافه اجراء(غياب/انذار)',
+                          buttonTooltip: 'بحث عن سجل غياب/إنذار',
                           searchHint: "ابحث عن طالب بالاسم...",
                           searchController: _searchController,
-                          onSearchSubmitted: (val) => _handleFilterLogic(context),
+                          onSearchSubmitted: (val) => _triggerSearch(innerContext),
                           label1: "السنة الدراسية",
                           value1: selectedYear,
                           items1: const ['الكل', '1', '2', '3', '4'],
-                          onChanged1: (val) => setState(() => selectedYear = val),
-                          label2: "مستوى الخطر",
-                          value2: selectedRisk,
-                          items2: const ['الكل', 'منخفض', 'متوسط', 'عالي'],
-                          onChanged2: (val) => setState(() => selectedRisk = val),
-                      
-                          onFilterPressedsearch: () {
-                            innerContext.read<AbsenceCubit>().fetchAbsencesSearch(
-                              _searchController.text.trim(),
-                              selectedYear!,
-                            );
+                          onChanged1: (val) {
+                            setState(() => selectedYear = val);
+                            _triggerSearch(innerContext);
                           },
+                          onFilterPressedsearch: () => _triggerSearch(innerContext),
                           icon2: const Icon(Icons.search),
-                          onChanged3: (String? p1) {
-                            innerContext.read<AbsenceCubit>().fetchAbsencesSearch(
-                              _searchController.text.trim(),
-                              selectedYear!,
-                            );
-                          },
+                          onChanged3: (val) => _triggerSearch(innerContext),
                         ),
                       ),
                     ),
@@ -118,9 +115,7 @@ class _AbsencePageState extends State<AbsencePage> {
                       builder: (context, state) {
                         if (state is AbsenceLoading) {
                           return const SliverFillRemaining(
-                            child: Center(
-                              child: CircularProgressIndicator(),
-                            ),
+                            child: Center(child: CircularProgressIndicator()),
                           );
                         }
                         if (state is AbsenceError) {
@@ -132,12 +127,16 @@ class _AbsencePageState extends State<AbsencePage> {
                           if (state.absences.isEmpty) {
                             return const SliverFillRemaining(
                               child: Center(
-                                child: Text('لا توجد سجلات غيابات أو عقوبات حالياً'),
+                                child: Text(
+                                  'لا توجد سجلات غيابات أو عقوبات حالياً',
+                                ),
                               ),
                             );
                           }
                           return SliverPadding(
-                            padding: const EdgeInsets.symmetric(horizontal: 25.0),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 25.0,
+                            ),
                             sliver: SliverList(
                               delegate: SliverChildListDelegate([
                                 Container(
@@ -147,7 +146,9 @@ class _AbsencePageState extends State<AbsencePage> {
                                     borderRadius: BorderRadius.circular(16),
                                     boxShadow: [
                                       BoxShadow(
-                                        color: Colors.black.withValues(alpha: 0.04),
+                                        color: Colors.black.withValues(
+                                          alpha: 0.04,
+                                        ),
                                         blurRadius: 20,
                                         offset: const Offset(0, 10),
                                       ),
@@ -162,10 +163,9 @@ class _AbsencePageState extends State<AbsencePage> {
                                       horizontalMargin: 12,
                                       minWidth: 900,
                                       headingRowHeight: 60,
-                                      headingRowColor:
-                                          WidgetStateProperty.all(
-                                            const Color(0xFFF9FAFB),
-                                          ),
+                                      headingRowColor: WidgetStateProperty.all(
+                                        const Color(0xFFF9FAFB),
+                                      ),
                                       columns: const [
                                         DataColumn2(
                                           label: Text('الطالب'),
@@ -281,7 +281,12 @@ class _AbsencePageState extends State<AbsencePage> {
                         loadingIds: currentLoadingId != null
                             ? [currentLoadingId]
                             : [],
-                        onEdit: (id) {},
+                        onEdit: (penalty) async {
+                          await showEditPenaltyDialog(
+                            context: context,
+                            penalty: penalty,
+                          );
+                        },
                         onDelete: (penaltyId) {
                           confirmDelete(context, () {
                             deleteCubit.deletePenalty(penaltyId);

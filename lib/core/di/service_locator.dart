@@ -1,3 +1,5 @@
+import 'package:finalproject/feature/Department_Exam/Exam_Schedule/presentation/manger/seat_allocation/exam_seat_allocation_cubit.dart';
+import 'package:finalproject/feature/Department_Exam/Exam_Schedule/data/repositories/exam_seating_repository.dart';
 import 'package:finalproject/core/services/firebase_notification_service.dart';
 import 'package:finalproject/feature/Department_Exam/Exam_Session/repo/exam_session_repo.dart';
 import 'package:finalproject/feature/Department_Exam/Exam_Session/repo/exam_session_repo_impl.dart';
@@ -44,6 +46,7 @@ import 'package:finalproject/feature/Department_Exam/Marks/presentation/manger/m
 import 'package:finalproject/feature/Department_Exam/Exam_Schedule/data/repositories/exam_schedule_repo.dart';
 import 'package:finalproject/feature/Department_Exam/Exam_Schedule/data/repositories/exam_schedule_repo_impl.dart';
 import 'package:finalproject/feature/Department_Exam/Exam_Schedule/presentation/manger/exam_schedule_cubit.dart';
+import 'package:finalproject/feature/Department_Exam/Exam_Schedule/presentation/manger/management/exam_schedule_management_cubit.dart';
 import 'package:finalproject/feature/Department_Student_Affair/student%20Affairs/student%20record/presentation/manger/students_cubit.dart';
 import 'package:finalproject/feature/Department_Student_Affair/student%20Affairs/student%20record/presentation/manger/student_documents_cubit.dart';
 import 'package:finalproject/feature/auth/presentation/manger/auth_cubit.dart';
@@ -82,6 +85,9 @@ import 'package:finalproject/feature/warehouse_officer/stock_in_warehouse/presen
 import 'package:finalproject/feature/warehouse_officer/statistics/domain/repositories/warehouse_statistics_repo.dart';
 import 'package:finalproject/feature/warehouse_officer/statistics/domain/repositories/warehouse_statistics_repo_impl.dart';
 import 'package:finalproject/feature/warehouse_officer/statistics/presentation/manger/warehouse_statistics_cubit.dart';
+import 'package:finalproject/feature/warehouse_officer/items/domain/repositories/warehouse_items_repo.dart';
+import 'package:finalproject/feature/warehouse_officer/items/domain/repositories/warehouse_items_repo_impl.dart';
+import 'package:finalproject/feature/warehouse_officer/items/presentation/manger/warehouse_items_cubit.dart';
 import 'package:finalproject/feature/Department_HeadSupervisor/Hospitals/presentation/manger/hospital_cubit.dart';
 import 'package:finalproject/feature/Department_HeadSupervisor/Hospitals/repo/hospital_repo.dart';
 import 'package:finalproject/feature/Department_HeadSupervisor/Hospitals/repo/hospital_repo_impl.dart';
@@ -191,7 +197,7 @@ Future<void> initServiceLocator() async {
     () => MaintenanceRequestsCubit(sl()),
   );
   sl.registerLazySingleton<WarehouseComplaintsRepo>(
-    () => WarehouseComplaintsRepoImpl(apiService: sl(), storageService: sl()  ),
+    () => WarehouseComplaintsRepoImpl(apiService: sl(), storageService: sl()),
   );
   sl.registerFactory<WarehouseComplaintsCubit>(
     () => WarehouseComplaintsCubit(sl()),
@@ -215,6 +221,12 @@ Future<void> initServiceLocator() async {
   );
   sl.registerFactory<WarehouseMaintenanceCubit>(
     () => WarehouseMaintenanceCubit(sl()),
+  );
+  sl.registerLazySingleton<WarehouseItemsRepo>(
+    () => WarehouseItemsRepoImpl(apiService: sl()),
+  );
+  sl.registerFactory<WarehouseItemsCubit>(
+    () => WarehouseItemsCubit(sl()),
   );
 
   ///////////subject
@@ -247,6 +259,16 @@ Future<void> initServiceLocator() async {
     () => ExamScheduleRepositoryImpl(sl()),
   );
   sl.registerFactory(() => ExamScheduleCubit(sl()));
+  sl.registerFactory(() => ExamScheduleManagementCubit(sl()));
+  sl.registerLazySingleton<ExamSeatingRepository>(
+    () => ExamSeatingRepositoryImpl(sl()),
+  );
+  sl.registerFactory<ExamSeatAllocationCubit>(
+    () => ExamSeatAllocationCubit(
+      sl<HallRepository>(),
+      sl<ExamSeatingRepository>(),
+    ),
+  );
 
   /////////// head supervisor hospitals
   sl.registerLazySingleton<HospitalRepository>(

@@ -1,3 +1,8 @@
+import 'package:finalproject/core/di/service_locator.dart';
+import 'package:finalproject/core/widgets/date_time_picker_field.dart';
+import 'package:finalproject/feature/warehouse_officer/items/data/model/warehouse_item_model.dart';
+import 'package:finalproject/feature/warehouse_officer/items/domain/repositories/warehouse_items_repo.dart';
+import 'package:finalproject/feature/warehouse_officer/items/presentation/view/widget/warehouse_item_dropdown.dart';
 import 'package:finalproject/feature/warehouse_officer/maintenance_warehouse_officer/data/model/warehouse_maintenance_model.dart';
 import 'package:flutter/material.dart';
 
@@ -17,10 +22,36 @@ class _WarehouseMaintenanceFormDialogState
   final _dateController = TextEditingController();
   final _items = <_MaintenanceItemControllers>[_MaintenanceItemControllers()];
 
+  List<WarehouseItemModel> _existingItems = [];
+  bool _isLoadingItems = false;
+  String? _itemsError;
+
   @override
   void initState() {
     super.initState();
     _dateController.text = _formatDateTime(DateTime.now());
+    _fetchItems();
+  }
+
+  Future<void> _fetchItems() async {
+    setState(() {
+      _isLoadingItems = true;
+      _itemsError = null;
+    });
+    try {
+      final response = await sl<WarehouseItemsRepo>().getItems(perPage: 100);
+      setState(() {
+        _existingItems = response.data;
+        _isLoadingItems = false;
+      });
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isLoadingItems = false;
+          _itemsError = 'فشل جلب قائمة المواد المخزنية';
+        });
+      }
+    }
   }
 
   @override
@@ -58,10 +89,9 @@ class _WarehouseMaintenanceFormDialogState
                     ),
                     const SizedBox(width: 12),
                     Expanded(
-                      child: _textField(
+                      child: DateTimePickerField(
                         controller: _dateController,
                         label: 'تاريخ الطلب',
-                        icon: Icons.event_outlined,
                       ),
                     ),
                   ],
@@ -80,6 +110,18 @@ class _WarehouseMaintenanceFormDialogState
                     controllers: entry.value,
                     canRemove: _items.length > 1,
                     onRemove: () => _removeItem(entry.key),
+                    items: _existingItems,
+                    isLoading: _isLoadingItems,
+                    error: _itemsError,
+                    onRetry: _fetchItems,
+                    onChanged: (item) {
+                      setState(() {
+                        entry.value.selectedItem = item;
+                        if (item != null) {
+                          entry.value.itemId.text = '${item.id}';
+                        }
+                      });
+                    },
                   );
                 }),
                 Align(
@@ -132,7 +174,7 @@ class _WarehouseMaintenanceFormDialogState
       dateSubmitted: _dateController.text,
       items: _items.map((item) {
         return CreateWarehouseMaintenanceItemRequest(
-          itemId: int.parse(item.itemId.text.trim()),
+          itemId: item.selectedItem?.id ?? int.parse(item.itemId.text.trim()),
           qty: int.parse(item.qty.text.trim()),
           reason: item.reason.text,
         );
@@ -158,12 +200,23 @@ class _MaintenanceItemCard extends StatelessWidget {
   final _MaintenanceItemControllers controllers;
   final bool canRemove;
   final VoidCallback onRemove;
+  
+  final List<WarehouseItemModel> items;
+  final bool isLoading;
+  final String? error;
+  final VoidCallback onRetry;
+  final ValueChanged<WarehouseItemModel?> onChanged;
 
   const _MaintenanceItemCard({
     required this.index,
     required this.controllers,
     required this.canRemove,
     required this.onRemove,
+    required this.items,
+    required this.isLoading,
+    required this.error,
+    required this.onRetry,
+    required this.onChanged,
   });
 
   @override
@@ -193,17 +246,29 @@ class _MaintenanceItemCard extends StatelessWidget {
                 ),
             ],
           ),
+          const SizedBox(height: 8),
+          WarehouseItemDropdown(
+            items: items,
+            selectedItem: controllers.selectedItem,
+            isLoading: isLoading,
+            error: error,
+            onRetry: onRetry,
+            onChanged: onChanged,
+          ),
+          const SizedBox(height: 12),
           Row(
             children: [
               Expanded(
-                child: _numberField(
-                  controller: controllers.itemId,
-                  label: 'رقم المادة',
-                  icon: Icons.inventory_2_outlined,
+                flex: 2,
+                child: _textField(
+                  controller: controllers.reason,
+                  label: 'سبب الطلب',
+                  icon: Icons.fact_check_outlined,
                 ),
               ),
               const SizedBox(width: 12),
               Expanded(
+                flex: 1,
                 child: _numberField(
                   controller: controllers.qty,
                   label: 'الكمية',
@@ -211,12 +276,6 @@ class _MaintenanceItemCard extends StatelessWidget {
                 ),
               ),
             ],
-          ),
-          const SizedBox(height: 12),
-          _textField(
-            controller: controllers.reason,
-            label: 'سبب الطلب',
-            icon: Icons.fact_check_outlined,
           ),
         ],
       ),
@@ -228,6 +287,8 @@ class _MaintenanceItemControllers {
   final itemId = TextEditingController();
   final qty = TextEditingController(text: '1');
   final reason = TextEditingController();
+  
+  WarehouseItemModel? selectedItem;
 
   void dispose() {
     itemId.dispose();

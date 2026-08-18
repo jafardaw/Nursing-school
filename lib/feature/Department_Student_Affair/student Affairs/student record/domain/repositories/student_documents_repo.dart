@@ -6,5 +6,7 @@ abstract class StudentDocumentsRepo {
     required List<StudentDocumentUpload> documents,
   });
 
+  Future<List<StudentDocumentModel>> getDocumentsByStudent(int studentId);
+
   Future<void> deleteDocument(int documentId);
 }
