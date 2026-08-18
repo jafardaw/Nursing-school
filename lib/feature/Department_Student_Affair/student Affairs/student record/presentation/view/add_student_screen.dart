@@ -145,9 +145,6 @@ class _AddStudentScreenState extends State<AddStudentScreen> with TickerProvider
               _scannedFingerprintId = rawId.toString();
               _isScanActive = false; 
             });
-            // Auto submit after a tiny delay for user to see success
-            await Future.delayed(const Duration(milliseconds: 600));
-            if (mounted) _submit();
             return;
           }
         }
@@ -470,12 +467,27 @@ class _AddStudentScreenState extends State<AddStudentScreen> with TickerProvider
             }
 
             if (_scanState == FingerprintState.success) {
-               return CustomButton(
-                text: state is AddStudentError ? 'إعادة محاولة الحفظ' : 'جاري الحفظ...',
-                icon: Icons.save,
-                onTap: state is AddStudentError ? _submit : null,
-                isLoading: state is AddStudentLoading,
-              );
+               return Row(
+                 children: [
+                   Expanded(
+                     child: CustomButton(
+                       text: 'إعادة مسح البصمة',
+                       icon: Icons.refresh_rounded,
+                       onTap: isLoading ? null : _startScanning,
+                       isLoading: false,
+                     ),
+                   ),
+                   const SizedBox(width: 16),
+                   Expanded(
+                     child: CustomButton(
+                       text: 'حفظ وتسجيل الطالبة',
+                       icon: Icons.save,
+                       onTap: isLoading ? null : _submit,
+                       isLoading: isLoading,
+                     ),
+                   ),
+                 ],
+               );
             }
 
             return const SizedBox(height: 50); 

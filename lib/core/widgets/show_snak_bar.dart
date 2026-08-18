@@ -144,6 +144,8 @@ void showWebBanner(
   VoidCallback? onAction,
   String? actionLabel,
 }) {
+  final messenger = ScaffoldMessenger.of(context);
+  
   final banner = MaterialBanner(
     content: Text(message, style: const TextStyle(color: Colors.white)),
     backgroundColor: _getBannerColor(type),
@@ -155,22 +157,19 @@ void showWebBanner(
           child: Text(actionLabel, style: const TextStyle(color: Colors.white)),
         ),
       TextButton(
-        onPressed: () =>
-            ScaffoldMessenger.of(context).hideCurrentMaterialBanner(),
+        onPressed: () => messenger.hideCurrentMaterialBanner(),
         child: const Text('إغلاق', style: TextStyle(color: Colors.white70)),
       ),
     ],
   );
 
-  ScaffoldMessenger.of(context)
+  messenger
     ..hideCurrentMaterialBanner()
     ..showMaterialBanner(banner);
 
   // إخفاء تلقائي بعد 4 ثواني
   Future.delayed(const Duration(seconds: 4), () {
-    if (context.mounted) {
-      ScaffoldMessenger.of(context).hideCurrentMaterialBanner();
-    }
+    messenger.hideCurrentMaterialBanner();
   });
 }
 

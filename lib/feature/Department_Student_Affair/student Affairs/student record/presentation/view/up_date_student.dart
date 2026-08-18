@@ -170,8 +170,6 @@ class _UpdateStudentScreenState extends State<UpdateStudentScreen> with TickerPr
               _scannedFingerprintId = rawId.toString();
               _isScanActive = false; 
             });
-            await Future.delayed(const Duration(milliseconds: 600));
-            if (mounted) _submit();
             return;
           }
         }
@@ -198,11 +196,14 @@ class _UpdateStudentScreenState extends State<UpdateStudentScreen> with TickerPr
   }
 
   void _submit() {
-    if (_formKey.currentState!.validate()) {
-      if (_scannedFingerprintId == null || _scannedFingerprintId!.isEmpty) {
-        showWebBanner(context, 'لا يوجد رقم بصمة مسجل لهذه الطالبة', type: BannerType.error);
-        return;
-      }
+    if (_currentPage == 0) {
+      if (!_formKey.currentState!.validate()) return;
+    }
+
+    if (_scannedFingerprintId == null || _scannedFingerprintId!.isEmpty) {
+      showWebBanner(context, 'لا يوجد رقم بصمة مسجل لهذه الطالبة', type: BannerType.error);
+      return;
+    }
       
       final request = CreateStudentRequest(
         firstName: _firstNameCtrl.text,
@@ -226,7 +227,6 @@ class _UpdateStudentScreenState extends State<UpdateStudentScreen> with TickerPr
       );
 
       context.read<UpdateStudentCubit>().updateStudent(widget.student.id, request);
-    }
   }
 
   @override
@@ -251,6 +251,8 @@ class _UpdateStudentScreenState extends State<UpdateStudentScreen> with TickerPr
         listener: (context, state) {
           if (state is UpdateStudentSuccess) {
             showWebBanner(context, state.message, type: BannerType.success);
+
+          
             NavigationService.goBack(context);
           } else if (state is UpdateStudentError) {
             showWebBanner(context, state.message, type: BannerType.error);
@@ -510,12 +512,27 @@ class _UpdateStudentScreenState extends State<UpdateStudentScreen> with TickerPr
             }
 
             if (_scanState == FingerprintState.success) {
-               return CustomButton(
-                text: state is UpdateStudentError ? 'إعادة محاولة الحفظ' : 'جاري الحفظ...',
-                icon: Icons.save,
-                onTap: state is UpdateStudentError ? _submit : null,
-                isLoading: state is UpdateStudentLoading,
-              );
+               return Row(
+                 children: [
+                   Expanded(
+                     child: CustomButton(
+                       text: 'إعادة مسح البصمة',
+                       icon: Icons.refresh_rounded,
+                       onTap: isLoading ? null : _startScanning,
+                       isLoading: false,
+                     ),
+                   ),
+                   const SizedBox(width: 16),
+                   Expanded(
+                     child: CustomButton(
+                       text: 'حفظ وتسجيل التعديلات',
+                       icon: Icons.save,
+                       onTap: isLoading ? null : _submit,
+                       isLoading: isLoading,
+                     ),
+                   ),
+                 ],
+               );
             }
 
             return const SizedBox(height: 50); 
@@ -533,4 +550,4 @@ class _UpdateStudentScreenState extends State<UpdateStudentScreen> with TickerPr
       ],
     );
   }
-}
+}

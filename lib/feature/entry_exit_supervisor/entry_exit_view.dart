@@ -128,7 +128,7 @@ class _AttendanceScreenState extends State<AttendanceScreen>
           )
           .timeout(const Duration(seconds: 30));
       if (_disposed) return;
-      if (response.statusCode == 200) {
+      if (response.statusCode == 200 || response.statusCode == 201) {
         final data = jsonDecode(response.body) as Map<String, dynamic>;
         final rawId = data['fingerprint_id'];
         if (rawId != null) {
@@ -138,7 +138,9 @@ class _AttendanceScreenState extends State<AttendanceScreen>
       }
       _scheduleNextScan(seconds: 1);
     } on TimeoutException {
-      _scheduleNextScan(seconds: 0);
+      _scheduleNextScan(
+        seconds: 2,
+      ); // Increased to 2 seconds to avoid freezing the bridge
     } catch (e) {
       final errStr = e.toString().toLowerCase();
       if (errStr.contains('xmlhttprequest') ||

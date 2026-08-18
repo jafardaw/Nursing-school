@@ -171,4 +171,18 @@ class MarksCubit extends Cubit<MarksState> {
       }
     }
   }
+
+  Future<void> importExcelMarks({
+    required int sessionId,
+    required int subjectId,
+    required List<int> fileBytes,
+    required String fileName,
+  }) async {
+    await _marksRepository.importExcelMarks(
+      sessionId: sessionId,
+      subjectId: subjectId,
+      fileBytes: fileBytes,
+      fileName: fileName,
+    );
+  }
 }

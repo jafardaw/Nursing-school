@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:data_table_2/data_table_2.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 import 'package:finalproject/core/theme/theme_extination.dart';
 import 'package:finalproject/core/widgets/show_snak_bar.dart';
@@ -170,6 +171,75 @@ class _MarksEntryPageState extends State<MarksEntryPage> {
       ),
       resultId: existingResultId,
     );
+  }
+
+  Future<void> _handleImportExcel() async {
+    if (_selectedSessionId == null) return;
+    
+    try {
+      final result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['xlsx', 'xls'],
+        withData: true,
+      );
+
+      if (result == null || result.files.isEmpty) return; // المستخدم ألغى الاختيار
+
+      final file = result.files.first;
+      if (file.bytes == null) {
+        if (mounted) {
+          showWebBanner(context, 'فشل في قراءة الملف', type: BannerType.error);
+        }
+        return;
+      }
+
+      if (mounted) {
+        showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (ctx) => AlertDialog(
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            content: Row(
+              children: [
+                const CircularProgressIndicator(),
+                const SizedBox(width: 20),
+                Text("جاري استيراد العلامات...", style: context.styles.bodyMedium),
+              ],
+            ),
+          ),
+        );
+      }
+
+      await context.read<MarksCubit>().importExcelMarks(
+        sessionId: _selectedSessionId!,
+        subjectId: widget.subjectId,
+        fileBytes: file.bytes!,
+        fileName: file.name,
+      );
+
+      if (mounted) {
+        Navigator.pop(context); // إغلاق الديالوج
+        showWebBanner(
+          context, 
+          'تم استيراد العلامات بنجاح من ملف الإكسل', 
+          type: BannerType.success
+        );
+        // تحديث الجدول لجلب العلامات الجديدة
+        context.read<MarksCubit>().loadStudents(
+          sessionId: _selectedSessionId!,
+          subjectId: widget.subjectId,
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        Navigator.pop(context); // إغلاق الديالوج
+        showWebBanner(
+          context, 
+          e.toString().replaceAll('Exception: ', ''), 
+          type: BannerType.error
+        );
+      }
+    }
   }
 
   @override
@@ -659,6 +729,21 @@ class _MarksEntryPageState extends State<MarksEntryPage> {
                   ),
                 ),
                 const Spacer(),
+                ElevatedButton.icon(
+                  onPressed: _handleImportExcel,
+                  icon: const Icon(Icons.file_upload_outlined, size: 18),
+                  label: const Text("استيراد من Excel 📊"),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF10B981),
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 16),
                 Text(
                   "إجمالي الطالبات: ${students.length}",
                   style: styles.bodySmall.copyWith(

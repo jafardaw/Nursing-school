@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import '../../../../../core/network/api_service.dart';
 import '../../../../../core/constants/api_endpoints.dart';
 import '../../domain/repositories/marks_repo.dart';
@@ -74,6 +75,31 @@ class MarksRepositoryImpl implements MarksRepository {
       );
     } catch (e) {
       throw Exception('فشل تعديل العلامة: ${e.toString()}');
+    }
+  }
+
+  @override
+  Future<void> importExcelMarks({
+    required int sessionId,
+    required int subjectId,
+    required List<int> fileBytes,
+    required String fileName,
+  }) async {
+    try {
+      final formData = FormData.fromMap({
+        'subject_id': subjectId.toString(),
+        'file': MultipartFile.fromBytes(fileBytes, filename: fileName),
+      });
+
+      await _apiService.post(
+        'exam/sessions/$sessionId/import/grades',
+        formData,
+        options: Options(
+          headers: {'Content-Type': 'multipart/form-data'},
+        ),
+      );
+    } catch (e) {
+      throw Exception('فشل استيراد العلامات من ملف إكسل: ${e.toString()}');
     }
   }
 }
