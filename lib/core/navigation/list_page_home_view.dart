@@ -188,6 +188,15 @@ class NavConfig {
             selectedIcon: Icons.school,
             page: const Center(child: Text("صفحة إدارة الطالبات للمدير")),
           ),
+          AppSection(
+            title: "الشكاوي",
+            icon: Icons.swap_horiz_outlined,
+            selectedIcon: Icons.swap_horiz,
+            page: BlocProvider<WarehouseComplaintsCubit>(
+              create: (_) => sl<WarehouseComplaintsCubit>(),
+              child: const WarehouseComplaintsView(userRole: 'head_supervisor'),
+            ),
+          ),
           _announcementsSection(),
         ];
       case 'engineering_office':
@@ -320,7 +329,7 @@ class NavConfig {
             selectedIcon: Icons.swap_horiz,
             page: BlocProvider<WarehouseComplaintsCubit>(
               create: (_) => sl<WarehouseComplaintsCubit>(),
-              child: const WarehouseComplaintsView(),
+              child: const WarehouseComplaintsView(userRole: 'head_supervisor'),
             ),
           ),
           AppSection(
