@@ -795,13 +795,17 @@ class _MarksEntryPageState extends State<MarksEntryPage> {
             children: [
               Row(
                 children: [
-                  Text(
-                    student.fullName,
-                    style: styles.bodyMedium.copyWith(
-                      color: (student.hasGrade && !isEditing)
-                          ? const Color(0xFF94A3B8)
-                          : const Color(0xFF1E293B),
-                      fontWeight: FontWeight.bold,
+                  Expanded(
+                    child: Text(
+                      student.fullName,
+                      style: styles.bodyMedium.copyWith(
+                        color: (student.hasGrade && !isEditing)
+                            ? const Color(0xFF94A3B8)
+                            : const Color(0xFF1E293B),
+                        fontWeight: FontWeight.bold,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
                   if (student.hasGrade) ...[
