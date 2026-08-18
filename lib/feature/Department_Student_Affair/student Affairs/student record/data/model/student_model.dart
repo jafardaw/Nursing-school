@@ -95,7 +95,17 @@ class StudentModeljd {
       academicStatus: json['academic_status'],
       clearanceStatus: json['clearance_status'] ?? false,
       createdAt: json['created_at'],
-      user: json['user'] != null ? StudentUser.fromJson(json['user']) : null,
+      user: json['user'] != null 
+          ? StudentUser.fromJson(json['user']) 
+          : (json['first_name'] != null 
+              ? StudentUser(
+                  id: 0, 
+                  firstName: json['first_name'], 
+                  lastName: json['last_name'] ?? '', 
+                  email: '', 
+                  role: ''
+                ) 
+              : null),
       governorate: json['governorate'] != null ? Governorate.fromJson(json['governorate']) : null,
       nationality: json['nationality'] != null ? Nationality.fromJson(json['nationality']) : null,
       academicYear: json['academic_year'] != null ? AcademicYear.fromJson(json['academic_year']) : null,

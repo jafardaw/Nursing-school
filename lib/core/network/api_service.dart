@@ -161,10 +161,15 @@ class ApiService {
 
   Future<Response> delete(
     String path, {
+    dynamic data,
     Map<String, dynamic>? queryParameters,
   }) async {
     try {
-      return await _dio.delete(path, queryParameters: queryParameters);
+      return await _dio.delete(
+        path,
+        data: data,
+        queryParameters: queryParameters,
+      );
     } on DioException catch (e) {
       throw ErrorHandler.handleDioError(e);
     }

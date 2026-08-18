@@ -22,7 +22,7 @@ class HospitalTrainingGroupsRepoImpl implements HospitalTrainingGroupsRepo {
   }) async {
     final query = <String, dynamic>{'page': page, 'per_page': 15};
     if (hospitalId != null) query['filters[hospital_id]'] = hospitalId;
-    if (employeeId != null) query['ftilers[employee_id]'] = employeeId;
+    if (employeeId != null) query['filters[employee_id]'] = employeeId;
 
     final response = await _apiService.get(
       ApiEndpoints.hospitalTrainingGroupsSearch,
@@ -51,7 +51,11 @@ class HospitalTrainingGroupsRepoImpl implements HospitalTrainingGroupsRepo {
   Future<List<EmployeeItem>> getEmployees() async {
     final response = await _apiService.get(
       ApiEndpoints.employees,
-      queryParameters: {'page': 1, 'per_page': 100},
+      queryParameters: {
+        'page': 1,
+        'per_page': 100,
+        'filters[role]': 'hospital_supervisor',
+      },
     );
     return response.data['data'] is List
         ? (response.data['data'] as List)
@@ -64,6 +68,7 @@ class HospitalTrainingGroupsRepoImpl implements HospitalTrainingGroupsRepo {
   Future<List<StudentModeljd>> getStudents({
     String query = '',
     int page = 1,
+    int? academicYearId,
   }) async {
     final endpoint = query.trim().isEmpty
         ? ApiEndpoints.students
@@ -71,6 +76,9 @@ class HospitalTrainingGroupsRepoImpl implements HospitalTrainingGroupsRepo {
     final queryParameters = <String, dynamic>{'page': page, 'per_page': 15};
     if (query.trim().isNotEmpty) {
       queryParameters['filters[first_name]'] = query.trim();
+    }
+    if (academicYearId != null) {
+      queryParameters['filters[academic_year_id]'] = academicYearId;
     }
 
     final response = await _apiService.get(

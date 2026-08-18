@@ -1,3 +1,5 @@
+import 'package:finalproject/feature/Department_Exam/Exam_Schedule/presentation/manger/seat_allocation/exam_seat_allocation_cubit.dart';
+import 'package:finalproject/feature/Department_Exam/Exam_Schedule/data/repositories/exam_seating_repository.dart';
 import 'package:finalproject/core/services/firebase_notification_service.dart';
 import 'package:finalproject/feature/Department_Exam/Exam_Session/repo/exam_session_repo.dart';
 import 'package:finalproject/feature/Department_Exam/Exam_Session/repo/exam_session_repo_impl.dart';
@@ -44,6 +46,7 @@ import 'package:finalproject/feature/Department_Exam/Marks/presentation/manger/m
 import 'package:finalproject/feature/Department_Exam/Exam_Schedule/data/repositories/exam_schedule_repo.dart';
 import 'package:finalproject/feature/Department_Exam/Exam_Schedule/data/repositories/exam_schedule_repo_impl.dart';
 import 'package:finalproject/feature/Department_Exam/Exam_Schedule/presentation/manger/exam_schedule_cubit.dart';
+import 'package:finalproject/feature/Department_Exam/Exam_Schedule/presentation/manger/management/exam_schedule_management_cubit.dart';
 import 'package:finalproject/feature/Department_Student_Affair/student%20Affairs/student%20record/presentation/manger/students_cubit.dart';
 import 'package:finalproject/feature/Department_Student_Affair/student%20Affairs/student%20record/presentation/manger/student_documents_cubit.dart';
 import 'package:finalproject/feature/auth/presentation/manger/auth_cubit.dart';
@@ -82,6 +85,9 @@ import 'package:finalproject/feature/warehouse_officer/stock_in_warehouse/presen
 import 'package:finalproject/feature/warehouse_officer/statistics/domain/repositories/warehouse_statistics_repo.dart';
 import 'package:finalproject/feature/warehouse_officer/statistics/domain/repositories/warehouse_statistics_repo_impl.dart';
 import 'package:finalproject/feature/warehouse_officer/statistics/presentation/manger/warehouse_statistics_cubit.dart';
+import 'package:finalproject/feature/warehouse_officer/items/domain/repositories/warehouse_items_repo.dart';
+import 'package:finalproject/feature/warehouse_officer/items/domain/repositories/warehouse_items_repo_impl.dart';
+import 'package:finalproject/feature/warehouse_officer/items/presentation/manger/warehouse_items_cubit.dart';
 import 'package:finalproject/feature/Department_HeadSupervisor/Hospitals/presentation/manger/hospital_cubit.dart';
 import 'package:finalproject/feature/Department_HeadSupervisor/Hospitals/repo/hospital_repo.dart';
 import 'package:finalproject/feature/Department_HeadSupervisor/Hospitals/repo/hospital_repo_impl.dart';
@@ -89,6 +95,15 @@ import 'package:finalproject/feature/Department_HeadSupervisor/Dormitory/repo/do
 import 'package:finalproject/feature/Department_HeadSupervisor/Dormitory/repo/dormitory_repo_impl.dart';
 import 'package:finalproject/feature/Department_HeadSupervisor/Dormitory/presentation/manger/dorm_building_cubit/dorm_building_cubit.dart';
 import 'package:finalproject/feature/Department_HeadSupervisor/Dormitory/presentation/manger/dorm_room_cubit/dorm_room_cubit.dart';
+import 'package:finalproject/feature/Department_HeadSupervisor/attendance_monitoring/hospital_attendance/domain/repositories/hospital_attendance_repo.dart';
+import 'package:finalproject/feature/Department_HeadSupervisor/attendance_monitoring/hospital_attendance/domain/repositories/hospital_attendance_repo_impl.dart';
+import 'package:finalproject/feature/Department_HeadSupervisor/attendance_monitoring/hospital_attendance/presentation/manger/hospital_attendance_cubit.dart';
+import 'package:finalproject/feature/Department_HeadSupervisor/attendance_monitoring/gate_attendance/domain/repositories/gate_attendance_repo.dart';
+import 'package:finalproject/feature/Department_HeadSupervisor/attendance_monitoring/gate_attendance/domain/repositories/gate_attendance_repo_impl.dart';
+import 'package:finalproject/feature/Department_HeadSupervisor/attendance_monitoring/gate_attendance/presentation/manger/gate_attendance_cubit.dart';
+import 'package:finalproject/feature/Department_HeadSupervisor/attendance_monitoring/dormitory_attendance/domain/repositories/dormitory_attendance_repo.dart';
+import 'package:finalproject/feature/Department_HeadSupervisor/attendance_monitoring/dormitory_attendance/domain/repositories/dormitory_attendance_repo_impl.dart';
+import 'package:finalproject/feature/Department_HeadSupervisor/attendance_monitoring/dormitory_attendance/presentation/manger/dormitory_attendance_cubit.dart';
 import 'package:flutter/foundation.dart';
 import 'package:get_it/get_it.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -191,7 +206,7 @@ Future<void> initServiceLocator() async {
     () => MaintenanceRequestsCubit(sl()),
   );
   sl.registerLazySingleton<WarehouseComplaintsRepo>(
-    () => WarehouseComplaintsRepoImpl(apiService: sl(), storageService: sl()  ),
+    () => WarehouseComplaintsRepoImpl(apiService: sl(), storageService: sl()),
   );
   sl.registerFactory<WarehouseComplaintsCubit>(
     () => WarehouseComplaintsCubit(sl()),
@@ -215,6 +230,12 @@ Future<void> initServiceLocator() async {
   );
   sl.registerFactory<WarehouseMaintenanceCubit>(
     () => WarehouseMaintenanceCubit(sl()),
+  );
+  sl.registerLazySingleton<WarehouseItemsRepo>(
+    () => WarehouseItemsRepoImpl(apiService: sl()),
+  );
+  sl.registerFactory<WarehouseItemsCubit>(
+    () => WarehouseItemsCubit(sl()),
   );
 
   ///////////subject
@@ -247,6 +268,16 @@ Future<void> initServiceLocator() async {
     () => ExamScheduleRepositoryImpl(sl()),
   );
   sl.registerFactory(() => ExamScheduleCubit(sl()));
+  sl.registerFactory(() => ExamScheduleManagementCubit(sl()));
+  sl.registerLazySingleton<ExamSeatingRepository>(
+    () => ExamSeatingRepositoryImpl(sl()),
+  );
+  sl.registerFactory<ExamSeatAllocationCubit>(
+    () => ExamSeatAllocationCubit(
+      sl<HallRepository>(),
+      sl<ExamSeatingRepository>(),
+    ),
+  );
 
   /////////// head supervisor hospitals
   sl.registerLazySingleton<HospitalRepository>(
@@ -296,6 +327,26 @@ Future<void> initServiceLocator() async {
   );
   sl.registerFactory<HospitalTrainingGroupsCubit>(
     () => HospitalTrainingGroupsCubit(sl<HospitalTrainingGroupsRepo>()),
+  );
+
+  /////////// attendance monitoring (head supervisor)
+  sl.registerLazySingleton<HospitalAttendanceRepo>(
+    () => HospitalAttendanceRepoImpl(sl()),
+  );
+  sl.registerFactory<HospitalAttendanceCubit>(
+    () => HospitalAttendanceCubit(sl<HospitalAttendanceRepo>()),
+  );
+  sl.registerLazySingleton<GateAttendanceRepo>(
+    () => GateAttendanceRepoImpl(sl()),
+  );
+  sl.registerFactory<GateAttendanceCubit>(
+    () => GateAttendanceCubit(sl<GateAttendanceRepo>()),
+  );
+  sl.registerLazySingleton<DormitoryAttendanceRepo>(
+    () => DormitoryAttendanceRepoImpl(sl()),
+  );
+  sl.registerFactory<DormitoryAttendanceCubit>(
+    () => DormitoryAttendanceCubit(sl<DormitoryAttendanceRepo>()),
   );
 
   /////////// manager dashboard

@@ -5,7 +5,7 @@ class ApiEndpoints {
   static const String register = 'register';
   static const String profile = 'profile';
   static const String penalties = 'penalties';
-  static const String penaltiesSearch = 'search';
+  static const String penaltiesSearch = 'penalties/search';
 
   // Users
   static const String users = 'users';
@@ -16,6 +16,8 @@ class ApiEndpoints {
   static const String studentsSearch = 'students/search';
   static String updateStudent(int id) => 'students/$id'; // 🟢 جديد
   static const String documents = 'documents';
+  static String documentsByStudent(int studentId) =>
+      'documents/student/$studentId';
   static String documentById(int id) => 'documents/$id';
 
   static const String statistics = 'students/statistics';
@@ -30,14 +32,16 @@ class ApiEndpoints {
   static String forwardComplaint(int id) => 'complaints/$id/forward';
   static const String stockIn = 'stock-in';
   static const String stockOut = 'stock-out';
-  static const String stockItems = 'items';
-  static String stockItemById(int id) => 'items/$id';
+  static const String items = 'items';
+  static const String itemsSearch = 'items/search';
+  static String itemById(int id) => 'items/$id';
   static const String inventoryStatistics = 'inventory/statistics';
   static const String inventorySearch = 'inventory/search';
   static const String maintenanceRequests = 'maintenance-requests';
   static const String maintenanceRequestsSearch = 'maintenance-requests/search';
   static String maintenanceRequestById(int id) => 'maintenance-requests/$id';
   static const String custodies = 'custodies';
+  static const String custodiesSearch = 'custodies/search';
   static String custodyById(int id) => 'custodies/$id';
   static String returnCustody(int id) => 'custodies/$id/return';
   static String studentCustodies(int studentId) =>
@@ -61,6 +65,8 @@ class ApiEndpoints {
   static const String examResultsSearch = 'exam/results/search';
   static String examResultId(int id) => 'exam-results/$id';
   static const String examSchedules = 'exam/schedules';
+  static String examSessionSchedulesWithCount(int id) =>
+      'exam/sessions/$id/schedules-with-count';
   static const String managerDashboard = 'dashboard/statistics';
   static const String warehouseReport = 'reports/warehouse';
   static const String employees = 'employees';
@@ -93,5 +99,15 @@ class ApiEndpoints {
   static const String gateScanIn = 'gate/scan/in';
   static const String gateScanOut = 'gate/scan/out';
 
+  // ====== Attendance Monitoring (Head Supervisor) ======
+  static const String hospitalAttendance = 'hospitals/attendance';
+  static const String gateLogs = 'gate/logs';
+  static const String gateLogsFilter = 'gate/logs/filter';
+  static const String dormitoryNightChecks = 'housing/night-checks';
+
   ApiEndpoints._();
+
+  static String examScheduleAllocateSeats(int id) =>
+      'exam/schedules/$id/allocate-seats';
+  static String examScheduleSeatings(int id) => 'exam/schedules/$id/seatings';
 }

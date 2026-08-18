@@ -53,6 +53,25 @@ class StudentDocumentsRepoImpl implements StudentDocumentsRepo {
   }
 
   @override
+  Future<List<StudentDocumentModel>> getDocumentsByStudent(
+    int studentId,
+  ) async {
+    final response = await _apiService.get(
+      ApiEndpoints.documentsByStudent(studentId),
+    );
+    final responseData = response.data;
+    final rawDocuments = responseData is Map ? responseData['data'] : null;
+    if (rawDocuments is! List) return const [];
+    return rawDocuments
+        .whereType<Map>()
+        .map(
+          (json) =>
+              StudentDocumentModel.fromJson(Map<String, dynamic>.from(json)),
+        )
+        .toList(growable: false);
+  }
+
+  @override
   Future<void> deleteDocument(int documentId) {
     return _apiService.delete(ApiEndpoints.documentById(documentId));
   }

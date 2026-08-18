@@ -12,16 +12,22 @@ class StudentPenaltiesModel {
 
   factory StudentPenaltiesModel.fromJson(Map<String, dynamic> json) {
     final studentData = StudentModel.fromJson(json['student'] ?? {});
+    if (json['penalties'] != null && json['penalties'] is List) {
+      return StudentPenaltiesModel(
+        student: studentData,
+        penalties: (json['penalties'] as List)
+            .map(
+              (e) =>
+                  PenaltyModel.fromJson(e, studentName: studentData.fullName),
+            )
+            .toList(),
+      );
+    }
+    // إذا كان العنصر سجل عقوبة منفرد من البحث
+    final penalty = PenaltyModel.fromJson(json, studentName: studentData.fullName);
     return StudentPenaltiesModel(
       student: studentData,
-      penalties:
-          (json['penalties'] as List?)
-              ?.map(
-                (e) =>
-                    PenaltyModel.fromJson(e, studentName: studentData.fullName),
-              )
-              .toList() ??
-          [],
+      penalties: [penalty],
     );
   }
 }

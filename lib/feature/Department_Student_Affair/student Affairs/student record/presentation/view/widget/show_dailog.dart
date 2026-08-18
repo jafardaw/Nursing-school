@@ -188,7 +188,7 @@ void showStudentDetails({
                   ),
                 ),
                 child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
                     smallButton(
                       styles,
@@ -205,16 +205,16 @@ void showStudentDetails({
                       styles.whiteColor,
                     ),
                     // تعديل البيانات
-                    smallButton(
-                      styles,
-                      () {
-                        Navigator.pop(context);
-                      },
-                      Icons.add_circle_outline,
-                      'طلب جديد',
-                      styles.successColor,
-                      styles.whiteColor,
-                    ),
+                    // smallButton(
+                    //   styles,
+                    //   () {
+                    //     Navigator.pop(context);
+                    //   },
+                    //   Icons.add_circle_outline,
+                    //   'طلب جديد',
+                    //   styles.successColor,
+                    //   styles.whiteColor,
+                    // ),
 
                     // تعديل البيانات
                     smallButton(

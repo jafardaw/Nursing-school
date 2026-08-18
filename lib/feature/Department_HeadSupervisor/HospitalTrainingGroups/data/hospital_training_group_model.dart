@@ -22,52 +22,41 @@ class HospitalTrainingGroupsResponse {
 class HospitalTrainingGroupModel {
   final int id;
   final String name;
-  final int hospitalId;
-  final int academicYearId;
-  final String employeename;
-  final String employeenamelast;
-  final int countstundents;
-  final String createdAt;
   final GroupHospital? hospital;
-  final GroupEmployee? employee;
-
+  final int academicYearId;
+  final String academicYearName;
+  final GroupSupervisor? supervisor;
+  final int studentsCount;
   final List<StudentModeljd> students;
+  final String createdAt;
 
   HospitalTrainingGroupModel({
     required this.id,
     required this.name,
-    required this.hospitalId,
-    required this.academicYearId,
-    required this.employeename,
-    required this.createdAt,
     this.hospital,
-    this.employee,
+    required this.academicYearId,
+    required this.academicYearName,
+    this.supervisor,
+    required this.studentsCount,
     required this.students,
-    required this.employeenamelast,
-    required this.countstundents,
+    required this.createdAt,
   });
 
   factory HospitalTrainingGroupModel.fromJson(Map<String, dynamic> json) {
     return HospitalTrainingGroupModel(
       id: json['id'] ?? 0,
       name: json['name'] ?? '',
-      hospitalId: json['hospital_id'] ?? 0,
-      academicYearId: json['academic_year']['id'] ?? 0,
-      employeename: json['supervisor']['first_name'] ?? '',
-      employeenamelast: json['supervisor']['last_name'] ?? '',
-      createdAt: json['created_at'] ?? '',
-      hospital: json['hospital'] != null
-          ? GroupHospital.fromJson(json['hospital'])
-          : null,
-      employee: json['employee'] != null
-          ? GroupEmployee.fromJson(json['employee'])
-          : null,
+      hospital: json['hospital'] != null ? GroupHospital.fromJson(json['hospital']) : null,
+      academicYearId: json['academic_year']?['id'] ?? 0,
+      academicYearName: json['academic_year']?['name'] ?? '',
+      supervisor: json['supervisor'] != null ? GroupSupervisor.fromJson(json['supervisor']) : null,
+      studentsCount: json['students_count'] ?? 0,
       students: json['students'] is List
           ? (json['students'] as List)
                 .map((item) => StudentModeljd.fromJson(item))
                 .toList()
           : [],
-      countstundents: json['students_count'] ?? 0,
+      createdAt: json['created_at'] ?? '',
     );
   }
 }
@@ -83,31 +72,26 @@ class GroupHospital {
   }
 }
 
-class GroupEmployee {
-  final int id;
-  final String department;
-  final String jobTitle;
-  final String fullName;
+class GroupSupervisor {
+  final int employeeId;
+  final String firstName;
+  final String lastName;
 
-  GroupEmployee({
-    required this.id,
-    required this.department,
-    required this.jobTitle,
-    required this.fullName,
+  GroupSupervisor({
+    required this.employeeId,
+    required this.firstName,
+    required this.lastName,
   });
 
-  factory GroupEmployee.fromJson(Map<String, dynamic> json) {
-    final user = json['user'];
-    final userName = user is Map<String, dynamic>
-        ? '${user['first_name'] ?? ''} ${user['last_name'] ?? ''}'.trim()
-        : '';
-    return GroupEmployee(
-      id: json['id'] ?? 0,
-      department: json['department'] ?? '',
-      jobTitle: json['job_title'] ?? '',
-      fullName: json['full_name'] ?? userName,
+  factory GroupSupervisor.fromJson(Map<String, dynamic> json) {
+    return GroupSupervisor(
+      employeeId: json['employee_id'] ?? 0,
+      firstName: json['first_name'] ?? '',
+      lastName: json['last_name'] ?? '',
     );
   }
+
+  String get fullName => [firstName, lastName].where((s) => s.isNotEmpty).join(' ');
 }
 
 class CreateHospitalTrainingGroupRequest {

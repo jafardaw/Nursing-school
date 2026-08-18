@@ -30,10 +30,11 @@ class AppConstants {
   ];
   static const List<ItemModel> academicYears = [
     ItemModel(id: 1, name: 'الأولى'),
-    ItemModel(id: 3, name: 'الثالثة'),
     ItemModel(id: 2, name: 'الثانية'),
-    ItemModel(id: 5, name: 'الخامسة'),
+    ItemModel(id: 3, name: 'الثالثة'),
+
     ItemModel(id: 4, name: 'الرابعة'),
+    ItemModel(id: 5, name: 'الخامسة'),
   ];
 
   static const List<ItemModel> nationalities = [

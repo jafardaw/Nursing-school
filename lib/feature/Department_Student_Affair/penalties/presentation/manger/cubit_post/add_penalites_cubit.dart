@@ -15,6 +15,31 @@ class AddPenaltyCubit extends Cubit<AddPenaltyState> {
     : _storage = storage,
       super(AddPenaltyInitial());
 
+  Future<void> updatePenalty({
+    required int penaltyId,
+    required String type,
+    required String date,
+    required String body,
+  }) async {
+    emit(AddPenaltyLoading());
+    try {
+      await _repository.updatePenalty(
+        penaltyId: penaltyId,
+        type: type,
+        date: date,
+        body: body,
+      );
+      AppEvents.fire('penalty_updated');
+      emit(AddPenaltySuccess());
+    } catch (error) {
+      if (error is ErrorHandler) {
+        emit(AddPenaltyError(error.userFriendlyMessage));
+      } else {
+        emit(AddPenaltyError('Ø­Ø¯Ø« Ø®Ø·Ø£ ØºÙŠØ± Ù…ØªÙˆÙ‚Ø¹'));
+      }
+    }
+  }
+
   Future<void> createPenalty({
     required int studentId,
     required String type,

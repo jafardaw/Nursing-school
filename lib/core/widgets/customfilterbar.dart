@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class CustomFilterBar extends StatelessWidget {
   final String searchHint;
   final TextEditingController searchController;
-  final Function(String) onSearchSubmitted;
+  final Function(String)? onSearchSubmitted;
 
   // الفلتر الأول
   final String label1;
@@ -12,15 +12,14 @@ class CustomFilterBar extends StatelessWidget {
   final Function(String?) onChanged1;
 
   final Widget icon2;
-  final Function(String?) onChanged3;
+  final Function(String?)? onChanged3;
 
-  // الفلتر الثاني
-  final String label2;
+  // الفلتر الثاني (اختياري)
+  final String? label2;
   final String? value2;
-  final List<String> items2;
-  final Function(String?) onChanged2;
+  final List<String>? items2;
+  final Function(String?)? onChanged2;
 
-  // final VoidCallback onFilterPressed;
   final VoidCallback onFilterPressedsearch;
 
   final String? buttonTooltip;
@@ -29,18 +28,17 @@ class CustomFilterBar extends StatelessWidget {
     super.key,
     required this.searchHint,
     required this.searchController,
-    required this.onSearchSubmitted,
+    this.onSearchSubmitted,
     required this.label1,
     required this.value1,
     required this.items1,
     required this.onChanged1,
-    required this.label2,
-    required this.value2,
-    required this.items2,
-    required this.onChanged2,
-    required this.onChanged3, 
+    this.label2,
+    this.value2,
+    this.items2,
+    this.onChanged2,
+    this.onChanged3,
 
-    // required this.onFilterPressed,
     required this.onFilterPressedsearch,
 
     required this.icon2,
@@ -93,10 +91,12 @@ class CustomFilterBar extends StatelessWidget {
 
           // 🔽 الدروب داون الأول
           _buildDropdown(label1, value1, items1, onChanged1),
-          const SizedBox(width: 12),
 
-          // 🔽 الدروب داون الثاني
-          _buildDropdown(label2, value2, items2, onChanged2),
+          // 🔽 الدروب داون الثاني (إذا وجد)
+          if (label2 != null && items2 != null && onChanged2 != null) ...[
+            const SizedBox(width: 12),
+            _buildDropdown(label2!, value2, items2!, onChanged2!),
+          ],
           const SizedBox(width: 12),
           Tooltip(
             message: buttonTooltip,
@@ -116,9 +116,6 @@ class CustomFilterBar extends StatelessWidget {
               child: icon2,
             ),
           ),
-          const SizedBox(width: 12),
-
-          // 🚀 زر التنفيذ
         ],
       ),
     );

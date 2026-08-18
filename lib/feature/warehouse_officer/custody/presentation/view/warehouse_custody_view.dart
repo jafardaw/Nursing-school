@@ -253,10 +253,11 @@ class _WarehouseCustodyViewState extends State<WarehouseCustodyView> {
           Expanded(
             child: TextField(
               controller: _studentIdController,
-              keyboardType: TextInputType.number,
+              keyboardType: TextInputType.text,
               decoration: InputDecoration(
-                labelText: 'بحث برقم الطالب',
-                hintText: 'مثال: 1',
+                labelText: 'بحث باسم الطالبة',
+                hintText: 'مثال: مروة النجار...',
+                prefixIcon: const Icon(Icons.person_search_outlined),
                 filled: true,
                 fillColor: const Color(0xFFF9FAFB),
                 border: OutlineInputBorder(
@@ -273,18 +274,19 @@ class _WarehouseCustodyViewState extends State<WarehouseCustodyView> {
           const SizedBox(width: 12),
           ElevatedButton.icon(
             onPressed: () => _applyStudentFilter(context),
-            icon: const Icon(Icons.filter_alt_outlined, size: 18),
-            label: const Text('تطبيق'),
+            icon: const Icon(Icons.search_outlined, size: 18),
+            label: const Text('بحث'),
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFF0D47A1),
               foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
             ),
           ),
           const SizedBox(width: 8),
           TextButton.icon(
             onPressed: () {
               _studentIdController.clear();
-              context.read<WarehouseCustodyCubit>().filterByStudentId(null);
+              context.read<WarehouseCustodyCubit>().filterByStudentName(null);
             },
             icon: const Icon(Icons.clear_outlined, size: 18),
             label: const Text('مسح'),
@@ -379,8 +381,20 @@ class _WarehouseCustodyViewState extends State<WarehouseCustodyView> {
   }
 
   void _applyStudentFilter(BuildContext context) {
-    final value = int.tryParse(_studentIdController.text.trim());
-    context.read<WarehouseCustodyCubit>().filterByStudentId(value);
+    final text = _studentIdController.text.trim();
+    
+    if (text.isNotEmpty && text.length < 2) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('يرجى كتابة حرفين على الأقل للبحث باسم الطالبة'),
+          backgroundColor: Color(0xFFFF9800),
+          duration: Duration(seconds: 2),
+        ),
+      );
+      return;
+    }
+
+    context.read<WarehouseCustodyCubit>().filterByStudentName(text);
   }
 
   Future<void> _openAssignDialog(BuildContext context) async {

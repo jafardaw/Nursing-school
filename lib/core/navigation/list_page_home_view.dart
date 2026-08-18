@@ -2,19 +2,21 @@ import 'package:finalproject/core/di/service_locator.dart';
 import 'package:finalproject/feature/Department_Exam/Subject/presentation/views/year_view.dart';
 import 'package:finalproject/feature/Department_Exam/Exam_Session/presentation/views/exam_sessions_view.dart';
 import 'package:finalproject/feature/Department_Exam/Halls/presentation/views/halls_view.dart';
+import 'package:finalproject/feature/Department_HeadSupervisor/HospitalTrainingGroups/presentation/views/hospital_training_groups_page.dart';
 import 'package:finalproject/feature/Department_Student_Affair/Statistic/presentation/views/statistic_view.dart';
 import 'package:finalproject/feature/Department_HeadSupervisor/matching/presentation/views/matching_campaigns_view.dart';
 import 'package:finalproject/feature/Department_HeadSupervisor/Hospitals/presentation/views/hospitals_view.dart';
 import 'package:finalproject/feature/Department_HeadSupervisor/HospitalTrainingGroups/presentation/manger/hospital_training_groups_cubit.dart';
-import 'package:finalproject/feature/Department_HeadSupervisor/HospitalTrainingGroups/presentation/views/hospital_training_groups_view.dart';
 import 'package:finalproject/feature/Department_HeadSupervisor/Dormitory/presentation/views/dormitory_view.dart';
 import 'package:finalproject/feature/Department_HeadSupervisor/Dormitory/presentation/manger/dorm_building_cubit/dorm_building_cubit.dart';
 import 'package:finalproject/feature/Department_HeadSupervisor/Dormitory/presentation/manger/dorm_room_cubit/dorm_room_cubit.dart';
+import 'package:finalproject/feature/Department_HeadSupervisor/attendance_monitoring/presentation/view/attendance_monitoring_view.dart';
 import 'package:finalproject/feature/Department_Student_Affair/student%20Affairs/student%20record/presentation/manger/cubit/delete_student_cubit.dart';
 import 'package:finalproject/feature/Department_Student_Affair/student%20Affairs/student%20record/presentation/manger/students_cubit.dart';
 import 'package:finalproject/feature/Department_Student_Affair/penalties/presentation/views/penalties_view.dart';
 import 'package:finalproject/feature/Department_Student_Affair/student%20Affairs/student%20record/presentation/view/students_screen.dart';
 import 'package:finalproject/feature/Department_Exam/Exam_Schedule/presentation/views/exam_schedule_page.dart';
+import 'package:finalproject/feature/Department_Exam/Exam_Schedule/presentation/views/exam_schedule_management_page.dart';
 import 'package:finalproject/feature/Department_Exam/Exam_Schedule/presentation/manger/exam_schedule_cubit.dart';
 import 'package:finalproject/feature/Department_Exam/Exam_Session/presentation/manger/exam_session_cubit.dart';
 import 'package:finalproject/feature/Manager/presentation/manger/manager_dashboard_cubit.dart';
@@ -36,10 +38,13 @@ import 'package:finalproject/feature/warehouse_officer/custody/presentation/mang
 import 'package:finalproject/feature/warehouse_officer/custody/presentation/view/warehouse_custody_view.dart';
 import 'package:finalproject/feature/warehouse_officer/maintenance_warehouse_officer/presentation/manger/warehouse_maintenance_cubit.dart';
 import 'package:finalproject/feature/warehouse_officer/maintenance_warehouse_officer/presentation/view/warehouse_maintenance_view.dart';
-import 'package:finalproject/feature/warehouse_officer/stock_in_warehouse/presentation/manger/warehouse_stock_in_cubit.dart';
-import 'package:finalproject/feature/warehouse_officer/stock_in_warehouse/presentation/view/warehouse_stock_in_view.dart';
 import 'package:finalproject/feature/warehouse_officer/statistics/presentation/manger/warehouse_statistics_cubit.dart';
 import 'package:finalproject/feature/warehouse_officer/statistics/presentation/view/warehouse_statistics_view.dart';
+import 'package:finalproject/feature/warehouse_officer/stock_in_warehouse/presentation/manger/warehouse_stock_in_cubit.dart';
+import 'package:finalproject/feature/warehouse_officer/stock_in_warehouse/presentation/view/warehouse_stock_in_view.dart';
+import 'package:finalproject/feature/warehouse_officer/items/presentation/manger/warehouse_items_cubit.dart';
+import 'package:finalproject/feature/warehouse_officer/items/presentation/view/warehouse_items_view.dart';
+
 import 'package:finalproject/feature/announcements/presentation/manger/announcements_cubit.dart';
 import 'package:finalproject/feature/announcements/presentation/view/announcements_view.dart';
 import 'package:flutter/material.dart';
@@ -82,12 +87,12 @@ class NavConfig {
             selectedIcon: Icons.dashboard,
             page: StudentsScreen(),
           ),
-          AppSection(
-            title: "إدارة الطالبات",
-            icon: Icons.school_outlined,
-            selectedIcon: Icons.school,
-            page: const Center(child: Text("صفحة إدارة الطالبات للمدير")),
-          ),
+          // AppSection(
+          //   title: "إدارة الطالبات",
+          //   icon: Icons.school_outlined,
+          //   selectedIcon: Icons.school,
+          //   page: const Center(child: Text("صفحة إدارة الطالبات للمدير")),
+          // ),
           AppSection(
             title: "الغياب والإنذارات ",
             icon: Icons.school_outlined,
@@ -137,6 +142,12 @@ class NavConfig {
               ],
               child: const ExamSchedulePage(),
             ),
+          ),
+          AppSection(
+            title: "إدارة برنامج الامتحانات",
+            icon: Icons.fact_check_outlined,
+            selectedIcon: Icons.fact_check,
+            page: const ExamScheduleManagementPage(),
           ),
           AppSection(
             title: "القاعات الامتحانية",
@@ -233,7 +244,7 @@ class NavConfig {
               child: const MaintenanceRequestsView(),
             ),
           ),
-          _announcementsSection(),
+          // _announcementsSection(),
         ];
       case 'head_supervisor':
       case 'headsupervisor':
@@ -318,8 +329,14 @@ class NavConfig {
             selectedIcon: Icons.groups_2,
             page: BlocProvider(
               create: (_) => sl<HospitalTrainingGroupsCubit>(),
-              child: const HospitalTrainingGroupsView(),
+              child: const HospitalTrainingGroupsPage(),
             ),
+          ),
+          AppSection(
+            title: "مراقبة الحضور",
+            icon: Icons.monitor_heart_outlined,
+            selectedIcon: Icons.monitor_heart,
+            page: const AttendanceMonitoringView(),
           ),
           _announcementsSection(),
         ];
@@ -332,6 +349,67 @@ class NavConfig {
             page: AttendanceScreen(),
           ),
           _announcementsSection(),
+        ];
+      case 'warehouse_officer':
+      case 'warehouse_manager':
+        return [
+          AppSection(
+            title: "لوحة التحكم والاحصائيات",
+            icon: Icons.dashboard_outlined,
+            selectedIcon: Icons.dashboard,
+            page: BlocProvider<WarehouseStatisticsCubit>(
+              create: (_) => sl<WarehouseStatisticsCubit>(),
+              child: const WarehouseStatisticsView(),
+            ),
+          ),
+          AppSection(
+            title: "إدارة المواد المخزنية",
+            icon: Icons.category_outlined,
+            selectedIcon: Icons.category,
+            page: BlocProvider<WarehouseItemsCubit>(
+              create: (_) => sl<WarehouseItemsCubit>(),
+              child: const WarehouseItemsView(),
+            ),
+          ),
+          AppSection(
+            title: "حركات التخزين",
+            icon: Icons.warehouse_outlined,
+            selectedIcon: Icons.warehouse,
+            page: BlocProvider<WarehouseStockInCubit>(
+              create: (_) => sl<WarehouseStockInCubit>(),
+              child: const WarehouseStockInView(),
+            ),
+          ),
+          AppSection(
+            title: "العهد المستلمة",
+            icon: Icons.inventory_2_outlined,
+            selectedIcon: Icons.inventory_2,
+            page: BlocProvider<WarehouseCustodyCubit>(
+              create: (_) => sl<WarehouseCustodyCubit>(),
+              child: const WarehouseCustodyView(),
+            ),
+          ),
+          AppSection(
+            title: "الشكاوى",
+            icon: Icons.swap_horiz_outlined,
+            selectedIcon: Icons.swap_horiz,
+            page: BlocProvider<WarehouseComplaintsCubit>(
+              create: (_) => sl<WarehouseComplaintsCubit>(),
+              child: const WarehouseComplaintsView(
+                userRole: 'warehouse_officer',
+              ),
+            ),
+          ),
+          AppSection(
+            title: "طلبات الصيانة",
+            icon: Icons.home_repair_service_outlined,
+            selectedIcon: Icons.home_repair_service,
+            page: BlocProvider<WarehouseMaintenanceCubit>(
+              create: (_) => sl<WarehouseMaintenanceCubit>(),
+              child: const WarehouseMaintenanceView(),
+            ),
+          ),
+          // _announcementsSection(),
         ];
       default:
         return [

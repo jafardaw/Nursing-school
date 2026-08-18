@@ -17,7 +17,7 @@ Future<void> showStudentDocumentsDialog({
     context: context,
     barrierDismissible: false,
     builder: (_) => BlocProvider(
-      create: (_) => sl<StudentDocumentsCubit>(),
+      create: (_) => sl<StudentDocumentsCubit>()..fetchDocuments(student.id),
       child: StudentDocumentsDialog(
         studentId: student.id,
         studentName: fullName.isEmpty ? student.nationalNumber : fullName,

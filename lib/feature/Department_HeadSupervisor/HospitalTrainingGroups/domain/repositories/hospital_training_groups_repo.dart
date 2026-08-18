@@ -16,5 +16,5 @@ abstract class HospitalTrainingGroupsRepo {
 
   Future<List<EmployeeItem>> getEmployees();
 
-  Future<List<StudentModeljd>> getStudents({String query = '', int page = 1});
+  Future<List<StudentModeljd>> getStudents({String query = '', int page = 1, int? academicYearId});
 }

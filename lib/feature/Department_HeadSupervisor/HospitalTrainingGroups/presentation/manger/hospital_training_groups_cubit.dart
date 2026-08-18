@@ -86,16 +86,30 @@ class HospitalTrainingGroupsCubit extends Cubit<HospitalTrainingGroupsState> {
     }
   }
 
-  Future<void> searchStudents(String query) async {
+  Future<void> searchStudents(String query, {int? academicYearId}) async {
     try {
-      // state.students.clear();
-      final students = await _repo.getStudents(query: query);
-      print(students.length);
-      print("ssssssssssssssssssssssssss");
-
+      final students = await _repo.getStudents(query: query, academicYearId: academicYearId);
       emit(state.copyWith(students: students));
     } catch (e) {
       emit(state.copyWith(error: 'فشل البحث عن الطالبات'));
+    }
+  }
+
+  Future<void> nextPage() async {
+    if (state.meta != null && state.meta!.currentPage < state.meta!.lastPage) {
+      await loadGroups(page: state.meta!.currentPage + 1);
+    }
+  }
+
+  Future<void> previousPage() async {
+    if (state.meta != null && state.meta!.currentPage > 1) {
+      await loadGroups(page: state.meta!.currentPage - 1);
+    }
+  }
+
+  Future<void> goToPage(int page) async {
+    if (state.meta != null && page > 0 && page <= state.meta!.lastPage) {
+      await loadGroups(page: page);
     }
   }
 
