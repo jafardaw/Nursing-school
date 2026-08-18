@@ -101,7 +101,7 @@ class ErrorHandler implements Exception {
     } else if (isServerError) {
       return 'مشكلة في الخادم، يرجى المحاولة لاحقاً';
     } else if (isNotFound) {
-      return 'الخدمة غير متوفرة حالياً';
+      return message;
     } else if (isForbidden) {
       return 'ليس لديك صلاحية للوصول لهذه الخدمة';
     } else {

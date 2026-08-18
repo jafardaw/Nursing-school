@@ -18,4 +18,11 @@ abstract class MarksRepository {
     required int resultId,
     required SaveMarkRequest request,
   });
+
+  Future<void> importExcelMarks({
+    required int sessionId,
+    required int subjectId,
+    required List<int> fileBytes,
+    required String fileName,
+  });
 }
