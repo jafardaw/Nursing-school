@@ -97,7 +97,54 @@ class MatchingCampaignCubit extends Cubit<MatchingCampaignState> {
         status: status,
       );
       campaigns.insert(0, created);
-      emit(MatchingCampaignActionSuccess('تم إنشاء المفاضلة بنجاح'));
+      // إعادة الحالة إلى Loaded بالبيانات المُحدّثة
+      emit(
+        MatchingCampaignLoaded(
+          campaigns: campaigns,
+          hospitals: hospitals,
+          specializations: specializations,
+        ),
+      );
+      return true;
+    } catch (e) {
+      emit(
+        MatchingCampaignError(e.toString().replaceAll('Exception:', '').trim()),
+      );
+      return false;
+    }
+  }
+
+  Future<bool> updateCampaign({
+    required int id,
+    String? title,
+    String? type,
+    String? startDate,
+    String? endDate,
+    String? status,
+  }) async {
+    emit(MatchingCampaignActionLoading());
+    try {
+      final updated = await repository.updateCampaign(
+        id: id,
+        title: title,
+        type: type,
+        startDate: startDate,
+        endDate: endDate,
+        status: status,
+      );
+      
+      final index = campaigns.indexWhere((c) => c.id == id);
+      if (index != -1) {
+        campaigns[index] = updated;
+      }
+      
+      emit(
+        MatchingCampaignLoaded(
+          campaigns: campaigns,
+          hospitals: hospitals,
+          specializations: specializations,
+        ),
+      );
       return true;
     } catch (e) {
       emit(
@@ -114,7 +161,34 @@ class MatchingCampaignCubit extends Cubit<MatchingCampaignState> {
     emit(MatchingCampaignActionLoading());
     try {
       await repository.createSeats(campaignId: campaignId, seats: seats);
-      emit(MatchingCampaignActionSuccess('تم حفظ المقاعد بنجاح'));
+      // إعادة الحالة إلى Loaded بالبيانات الحالية لتفادي كسر الواجهة
+      emit(
+        MatchingCampaignLoaded(
+          campaigns: campaigns,
+          hospitals: hospitals,
+          specializations: specializations,
+        ),
+      );
+      return true;
+    } catch (e) {
+      emit(
+        MatchingCampaignError(e.toString().replaceAll('Exception:', '').trim()),
+      );
+      return false;
+    }
+  }
+  Future<bool> deleteCampaign(int id) async {
+    emit(MatchingCampaignActionLoading());
+    try {
+      await repository.deleteCampaign(id);
+      campaigns.removeWhere((c) => c.id == id);
+      emit(
+        MatchingCampaignLoaded(
+          campaigns: campaigns,
+          hospitals: hospitals,
+          specializations: specializations,
+        ),
+      );
       return true;
     } catch (e) {
       emit(

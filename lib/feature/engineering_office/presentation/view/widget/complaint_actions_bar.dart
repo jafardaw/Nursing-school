@@ -37,14 +37,18 @@ class ComplaintActionsBar extends StatelessWidget {
             context.read<ForwardComplaintCubit>().reset();
           } else if (state is ForwardComplaintError) {
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('❌ ${state.message}'), backgroundColor: Colors.red),
+              SnackBar(
+                content: Text('❌ ${state.message}'),
+                backgroundColor: Colors.red,
+              ),
             );
             context.read<ForwardComplaintCubit>().reset();
           }
         },
         builder: (context, state) {
-          final isLoading = state is ForwardComplaintLoading && 
-                           state.complaintId == complaintId;
+          final isLoading =
+              state is ForwardComplaintLoading &&
+              state.complaintId == complaintId;
 
           return Container(
             padding: const EdgeInsets.all(16),
@@ -93,15 +97,22 @@ class ComplaintActionsBar extends StatelessWidget {
                         ? const SizedBox(
                             width: 20,
                             height: 20,
-                            child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
                           )
                         : const Icon(Icons.arrow_forward, size: 20),
-                    label: Text(isLoading ? 'جاري التوجيه...' : _nextStageLabel()),
+                    label: Text(
+                      isLoading ? 'جاري التوجيه...' : _nextStageLabel(),
+                    ),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: _stageColor(currentStage),
                       foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(vertical: 14),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
                     ),
                   ),
                 ),
@@ -119,14 +130,23 @@ class ComplaintActionsBar extends StatelessWidget {
       decoration: BoxDecoration(
         color: const Color(0xFF50CD89).withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFF50CD89).withValues(alpha: 0.3)),
+        border: Border.all(
+          color: const Color(0xFF50CD89).withValues(alpha: 0.3),
+        ),
       ),
       child: const Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(Icons.check_circle, color: Color(0xFF50CD89), size: 24),
           SizedBox(width: 8),
-          Text('تم إنجاز الشكوى ✅', style: TextStyle(color: Color(0xFF50CD89), fontWeight: FontWeight.bold, fontSize: 16)),
+          Text(
+            'تم إنجاز الشكوى ✅',
+            style: TextStyle(
+              color: Color(0xFF50CD89),
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
+            ),
+          ),
         ],
       ),
     );
@@ -134,7 +154,7 @@ class ComplaintActionsBar extends StatelessWidget {
 
   Widget _buildProgressBar() {
     final stages = [
-      'dormitory_supervisor',
+      'housing_unit_supervisor',
       'head_supervisor',
       'engineering_office',
       'warehouse_officer',
@@ -171,8 +191,8 @@ class ComplaintActionsBar extends StatelessWidget {
                       color: isCompleted
                           ? const Color(0xFF50CD89)
                           : isCurrent
-                              ? _stageColor(stage)
-                              : Colors.grey[300],
+                          ? _stageColor(stage)
+                          : Colors.grey[300],
                     ),
                   ),
                   if (index < stages.length - 1)
@@ -191,7 +211,9 @@ class ComplaintActionsBar extends StatelessWidget {
                 _stageLabel(stage),
                 style: TextStyle(
                   fontSize: 10,
-                  color: isCompleted || isCurrent ? _stageColor(stage) : Colors.grey,
+                  color: isCompleted || isCurrent
+                      ? _stageColor(stage)
+                      : Colors.grey,
                 ),
                 textAlign: TextAlign.center,
               ),
@@ -209,13 +231,15 @@ class ComplaintActionsBar extends StatelessWidget {
         title: const Text('تأكيد التوجيه'),
         content: Text('هل تريد تحويل الشكوى إلى ${_nextStageLabel()}؟'),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('إلغاء')),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('إلغاء'),
+          ),
           ElevatedButton(
             onPressed: () {
               Navigator.pop(ctx);
               context.read<ForwardComplaintCubit>().forwardComplaint(
                 complaintId,
-              
               );
             },
             child: const Text('تأكيد'),
@@ -227,7 +251,7 @@ class ComplaintActionsBar extends StatelessWidget {
 
   String get _nextStage {
     final stages = [
-      'dormitory_supervisor',
+      'housing_unit_supervisor',
       'head_supervisor',
       'engineering_office',
       'warehouse_officer',
@@ -241,31 +265,46 @@ class ComplaintActionsBar extends StatelessWidget {
 
   String _stageLabel(String stage) {
     switch (stage) {
-      case 'dormitory_supervisor': return 'مشرفة السكن';
-      case 'head_supervisor': return 'المشرف العام';
-      case 'engineering_office': return 'المكتب الهندسي';
-      case 'warehouse_officer': return 'أمين المستودع';
-      default: return stage;
+      case 'housing_unit_supervisor':
+        return 'مشرفة السكن';
+      case 'head_supervisor':
+        return 'المشرف العام';
+      case 'engineering_office':
+        return 'المكتب الهندسي';
+      case 'warehouse_officer':
+        return 'أمين المستودع';
+      default:
+        return stage;
     }
   }
 
   String _nextStageLabel() {
     switch (_nextStage) {
-      case 'dormitory_supervisor': return 'مشرفة السكن';
-      case 'head_supervisor': return 'المشرف العام';
-      case 'engineering_office': return 'المكتب الهندسي';
-      case 'warehouse_officer': return 'أمين المستودع (إنجاز)';
-      default: return _nextStage;
+      case 'housing_unit_supervisor':
+        return 'مشرفة السكن';
+      case 'head_supervisor':
+        return 'المشرف العام';
+      case 'engineering_office':
+        return 'المكتب الهندسي';
+      case 'warehouse_officer':
+        return 'أمين المستودع (إنجاز)';
+      default:
+        return _nextStage;
     }
   }
 
   Color _stageColor(String stage) {
     switch (stage) {
-      case 'dormitory_supervisor': return const Color(0xFFFF9800);
-      case 'head_supervisor': return const Color(0xFF2196F3);
-      case 'engineering_office': return const Color(0xFF9C27B0);
-      case 'warehouse_officer': return const Color(0xFF4CAF50);
-      default: return Colors.grey;
+      case 'housing_unit_supervisor':
+        return const Color(0xFFFF9800);
+      case 'head_supervisor':
+        return const Color(0xFF2196F3);
+      case 'engineering_office':
+        return const Color(0xFF9C27B0);
+      case 'warehouse_officer':
+        return const Color(0xFF4CAF50);
+      default:
+        return Colors.grey;
     }
   }
 }

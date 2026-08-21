@@ -63,10 +63,15 @@ class _ForwardActionsBarState extends State<ForwardActionsBar> {
                 ),
                 backgroundColor: const Color(0xFF50CD89),
                 behavior: SnackBarBehavior.floating,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
               ),
             );
-            Navigator.pop(context, true); // إغلاق الـ Dialog وتحديث الـ Dashboard
+            Navigator.pop(
+              context,
+              true,
+            ); // إغلاق الـ Dialog وتحديث الـ Dashboard
           } else if (state is ForwardComplaintError) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
@@ -79,14 +84,17 @@ class _ForwardActionsBarState extends State<ForwardActionsBar> {
                 ),
                 backgroundColor: const Color(0xFFF1416C),
                 behavior: SnackBarBehavior.floating,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
               ),
             );
           }
         },
         builder: (context, state) {
-          final isLoading = state is ForwardComplaintLoading && 
-                           state.complaintId == widget.complaintId;
+          final isLoading =
+              state is ForwardComplaintLoading &&
+              state.complaintId == widget.complaintId;
 
           return _buildActionCard(isLoading);
         },
@@ -119,7 +127,11 @@ class _ForwardActionsBarState extends State<ForwardActionsBar> {
           SizedBox(width: 12),
           Text(
             'تم إنجاز الشكوى بنجاح ✅',
-            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18),
+            style: TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+              fontSize: 18,
+            ),
           ),
         ],
       ),
@@ -146,11 +158,23 @@ class _ForwardActionsBarState extends State<ForwardActionsBar> {
           // معلومات سريعة
           Row(
             children: [
-              _infoChip(Icons.build, widget.complaintType, const Color(0xFFFF9800)),
+              _infoChip(
+                Icons.build,
+                widget.complaintType,
+                const Color(0xFFFF9800),
+              ),
               const SizedBox(width: 8),
-              _infoChip(Icons.meeting_room, 'غرفة ${widget.roomNumber}', const Color(0xFF2196F3)),
+              _infoChip(
+                Icons.meeting_room,
+                'غرفة ${widget.roomNumber}',
+                const Color(0xFF2196F3),
+              ),
               const SizedBox(width: 8),
-              _infoChip(Icons.business, widget.buildingName, const Color(0xFF9C27B0)),
+              _infoChip(
+                Icons.business,
+                widget.buildingName,
+                const Color(0xFF9C27B0),
+              ),
             ],
           ),
           const SizedBox(height: 16),
@@ -165,17 +189,25 @@ class _ForwardActionsBarState extends State<ForwardActionsBar> {
                   ? const SizedBox(
                       width: 22,
                       height: 22,
-                      child: CircularProgressIndicator(strokeWidth: 2.5, color: Colors.white),
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2.5,
+                        color: Colors.white,
+                      ),
                     )
                   : const Icon(Icons.arrow_forward_rounded, size: 22),
               label: Text(
                 isLoading ? 'جاري التوجيه...' : 'موافقة وتحويل إلى ',
-                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               style: ElevatedButton.styleFrom(
                 backgroundColor: _stageColor(widget.currentStage),
                 foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
                 elevation: 2,
               ),
             ),
@@ -197,7 +229,14 @@ class _ForwardActionsBarState extends State<ForwardActionsBar> {
         children: [
           Icon(icon, size: 14, color: color),
           const SizedBox(width: 4),
-          Text(label, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: color)),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              color: color,
+            ),
+          ),
         ],
       ),
     );
@@ -227,12 +266,14 @@ class _ForwardActionsBarState extends State<ForwardActionsBar> {
           ElevatedButton(
             onPressed: () {
               Navigator.pop(ctx);
-              _cubit.forwardComplaint(widget.complaintId );
+              _cubit.forwardComplaint(widget.complaintId);
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: _stageColor(widget.currentStage),
               foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
             ),
             child: const Text('تأكيد'),
           ),
@@ -241,15 +282,18 @@ class _ForwardActionsBarState extends State<ForwardActionsBar> {
     );
   }
 
-
-
   Color _stageColor(String stage) {
     switch (stage) {
-      case 'dormitory_supervisor': return const Color(0xFFFF9800);
-      case 'head_supervisor': return const Color(0xFF2196F3);
-      case 'engineering_office': return const Color(0xFF9C27B0);
-      case 'warehouse_officer': return const Color(0xFF4CAF50);
-      default: return Colors.grey;
+      case 'housing_unit_supervisor':
+        return const Color(0xFFFF9800);
+      case 'head_supervisor':
+        return const Color(0xFF2196F3);
+      case 'engineering_office':
+        return const Color(0xFF9C27B0);
+      case 'warehouse_officer':
+        return const Color(0xFF4CAF50);
+      default:
+        return Colors.grey;
     }
   }
 }

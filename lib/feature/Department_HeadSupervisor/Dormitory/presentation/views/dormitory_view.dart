@@ -42,7 +42,9 @@ class _DormitoryViewState extends State<DormitoryView>
   bool _isLoaderOpen = false;
 
   // Premium colors
-  static const Color _primaryColor = Color(0xFF6366F1); // Indigo
+
+  static const Color _primaryColor = Color(0xFF0EA5E9);
+  static const Color _primaryDark = Color(0xFF0284C7);
   static const Color _secondaryColor = Color(0xFF8B5CF6); // Purple
   static const Color _accentColor = Color(0xFF0EA5E9); // Sky blue
 
@@ -353,7 +355,7 @@ class _DormitoryViewState extends State<DormitoryView>
           flexibleSpace: Container(
             decoration: const BoxDecoration(
               gradient: LinearGradient(
-                colors: [_primaryColor, _secondaryColor],
+                colors: [_primaryColor, _primaryDark, Color(0xFF0369A1)],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
@@ -872,7 +874,7 @@ class _DormitoryViewState extends State<DormitoryView>
                   ),
                 ),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: _secondaryColor,
+                  backgroundColor: _primaryColor,
                   padding: const EdgeInsets.symmetric(
                     horizontal: 20,
                     vertical: 14,
@@ -950,7 +952,7 @@ class _DormitoryViewState extends State<DormitoryView>
                   ),
                   child: const Icon(
                     Icons.meeting_room_rounded,
-                    color: _secondaryColor,
+                    color: _primaryColor,
                     size: 20,
                   ),
                 ),

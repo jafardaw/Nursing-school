@@ -1,22 +1,39 @@
 import 'package:finalproject/core/di/service_locator.dart';
+import 'package:finalproject/feature/Department_HeadSupervisor/matching/data/matching_campaign_model.dart';
 import 'package:finalproject/feature/Department_HeadSupervisor/matching/presentation/manger/matching_campaign_cubit.dart';
 import 'package:flutter/material.dart';
 
-class CreateCampaignDialog extends StatefulWidget {
-  const CreateCampaignDialog({super.key});
+class EditCampaignDialog extends StatefulWidget {
+  final MatchingCampaignModel campaign;
+
+  const EditCampaignDialog({super.key, required this.campaign});
 
   @override
-  State<CreateCampaignDialog> createState() => _CreateCampaignDialogState();
+  State<EditCampaignDialog> createState() => _EditCampaignDialogState();
 }
 
-class _CreateCampaignDialogState extends State<CreateCampaignDialog> {
+class _EditCampaignDialogState extends State<EditCampaignDialog> {
   final _formKey = GlobalKey<FormState>();
-  final _titleController = TextEditingController();
-  final _startDateController = TextEditingController();
-  final _endDateController = TextEditingController();
-  String _type = 'Specialization';
-  String _status = 'Draft';
+  late final TextEditingController _titleController;
+  late final TextEditingController _startDateController;
+  late final TextEditingController _endDateController;
+  late String _type;
+  late String _status;
   bool _isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _titleController = TextEditingController(text: widget.campaign.title);
+    _startDateController = TextEditingController(text: widget.campaign.startDate);
+    _endDateController = TextEditingController(text: widget.campaign.endDate);
+    
+    // Ensure that if it has unexpected type or status we fallback to a valid default for dropdown
+    _type = ['Specialization', 'General_Hospital'].contains(widget.campaign.type) 
+        ? widget.campaign.type : 'Specialization';
+    _status = ['Draft', 'Active', 'Completed'].contains(widget.campaign.status)
+        ? widget.campaign.status : 'Draft';
+  }
 
   @override
   void dispose() {
@@ -27,7 +44,7 @@ class _CreateCampaignDialogState extends State<CreateCampaignDialog> {
   }
 
   Future<void> _selectDate(BuildContext context, TextEditingController controller) async {
-    final initialDate = DateTime.now();
+    final initialDate = DateTime.tryParse(controller.text) ?? DateTime.now();
     final pickedDate = await showDatePicker(
       context: context,
       initialDate: initialDate,
@@ -37,13 +54,13 @@ class _CreateCampaignDialogState extends State<CreateCampaignDialog> {
         return Theme(
           data: Theme.of(context).copyWith(
             colorScheme: const ColorScheme.light(
-              primary: Color(0xFF2563EB), // header background color
-              onPrimary: Colors.white, // header text color
-              onSurface: Color(0xFF1E293B), // body text color
+              primary: Color(0xFF2563EB), 
+              onPrimary: Colors.white, 
+              onSurface: Color(0xFF1E293B), 
             ),
             textButtonTheme: TextButtonThemeData(
               style: TextButton.styleFrom(
-                foregroundColor: const Color(0xFF2563EB), // button text color
+                foregroundColor: const Color(0xFF2563EB), 
               ),
             ),
           ),
@@ -63,7 +80,8 @@ class _CreateCampaignDialogState extends State<CreateCampaignDialog> {
 
     setState(() => _isLoading = true);
     final cubit = sl<MatchingCampaignCubit>();
-    final created = await cubit.createCampaign(
+    final updated = await cubit.updateCampaign(
+      id: widget.campaign.id,
       title: _titleController.text.trim(),
       type: _type,
       startDate: _startDateController.text.trim(),
@@ -72,7 +90,7 @@ class _CreateCampaignDialogState extends State<CreateCampaignDialog> {
     );
     setState(() => _isLoading = false);
 
-    if (created && mounted) {
+    if (updated && mounted) {
       Navigator.of(context).pop(true);
     }
   }
@@ -104,7 +122,7 @@ class _CreateCampaignDialogState extends State<CreateCampaignDialog> {
                       color: const Color(0xFFDBEAFE),
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    child: const Icon(Icons.add_chart_rounded, color: Color(0xFF2563EB)),
+                    child: const Icon(Icons.edit_note_rounded, color: Color(0xFF2563EB)),
                   ),
                   const SizedBox(width: 16),
                   const Expanded(
@@ -112,7 +130,7 @@ class _CreateCampaignDialogState extends State<CreateCampaignDialog> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'إنشاء مفاضلة جديدة',
+                          'تعديل المفاضلة',
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.w800,
@@ -121,7 +139,7 @@ class _CreateCampaignDialogState extends State<CreateCampaignDialog> {
                         ),
                         SizedBox(height: 4),
                         Text(
-                          'أدخل تفاصيل حملة المفاضلة وتواريخها',
+                          'تعديل تفاصيل حملة المفاضلة وتواريخها',
                           style: TextStyle(
                             fontSize: 13,
                             color: Color(0xFF64748B),
@@ -181,6 +199,7 @@ class _CreateCampaignDialogState extends State<CreateCampaignDialog> {
                               items: const [
                                 DropdownMenuItem(value: 'Draft', child: Text('مسودة')),
                                 DropdownMenuItem(value: 'Active', child: Text('نشط')),
+                                DropdownMenuItem(value: 'Completed', child: Text('مكتملة')),
                               ],
                               onChanged: (v) => setState(() => _status = v ?? 'Draft'),
                             ),
@@ -264,7 +283,7 @@ class _CreateCampaignDialogState extends State<CreateCampaignDialog> {
                               child: CircularProgressIndicator(strokeWidth: 2.5, color: Colors.white),
                             )
                           : const Text(
-                              'إنشاء المفاضلة',
+                              'حفظ التعديلات',
                               style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
                             ),
                     ),
@@ -324,7 +343,7 @@ class _CreateCampaignDialogState extends State<CreateCampaignDialog> {
   }) {
     return TextFormField(
       controller: controller,
-      readOnly: true, // يمنع الكتابة اليدوية ويفرض استخدام Picker
+      readOnly: true, 
       onTap: onTap,
       validator: validator,
       style: const TextStyle(fontWeight: FontWeight.w600, color: Color(0xFF1E293B), fontSize: 15),

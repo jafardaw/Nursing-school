@@ -5,6 +5,7 @@ class MatchingCampaignModel {
   final String status;
   final String startDate;
   final String endDate;
+  final List<MatchingSeat> seats;
 
   MatchingCampaignModel({
     required this.id,
@@ -13,9 +14,11 @@ class MatchingCampaignModel {
     required this.status,
     required this.startDate,
     required this.endDate,
+    this.seats = const [],
   });
 
   factory MatchingCampaignModel.fromJson(Map<String, dynamic> json) {
+    final seatsJson = json['seats'] as List<dynamic>? ?? [];
     return MatchingCampaignModel(
       id: json['id'] ?? 0,
       title: json['title'] ?? '',
@@ -23,8 +26,20 @@ class MatchingCampaignModel {
       status: json['status'] ?? '',
       startDate: json['start_date'] ?? '',
       endDate: json['end_date'] ?? '',
+      seats: seatsJson.map((s) => MatchingSeat.fromJson(s)).toList(),
     );
   }
+
+  bool get hasSeats => seats.isNotEmpty;
+
+  int get totalCapacity =>
+      seats.fold(0, (sum, s) => sum + s.capacity);
+
+  int get totalMatched =>
+      seats.fold(0, (sum, s) => sum + s.matchedCount);
+
+  int get totalRemaining =>
+      seats.fold(0, (sum, s) => sum + s.remaining);
 
   String get typeLabel {
     switch (type) {
@@ -43,12 +58,61 @@ class MatchingCampaignModel {
         return 'نشط';
       case 'Draft':
         return 'مسودة';
+      case 'Completed':
+        return 'مكتمل';
       default:
         return status.isEmpty ? 'غير محدد' : status;
     }
   }
 }
 
+/// مقعد مفاضلة (بيانات القراءة من الـ API)
+class MatchingSeat {
+  final int id;
+  final int capacity;
+  final int matchedCount;
+  final int remaining;
+  final String? hospitalName;
+  final int? hospitalId;
+  final String? specializationName;
+  final int? specializationId;
+
+  MatchingSeat({
+    required this.id,
+    required this.capacity,
+    required this.matchedCount,
+    required this.remaining,
+    this.hospitalName,
+    this.hospitalId,
+    this.specializationName,
+    this.specializationId,
+  });
+
+  factory MatchingSeat.fromJson(Map<String, dynamic> json) {
+    final hospital = json['hospital'] as Map<String, dynamic>?;
+    final specialization = json['specialization'] as Map<String, dynamic>?;
+    return MatchingSeat(
+      id: json['id'] ?? 0,
+      capacity: json['capacity'] ?? 0,
+      matchedCount: json['matched_count'] ?? 0,
+      remaining: json['remaining'] ?? 0,
+      hospitalName: hospital?['name'],
+      hospitalId: hospital?['id'],
+      specializationName: specialization?['name'],
+      specializationId: specialization?['id'],
+    );
+  }
+
+  /// الاسم المعروض في الجدول
+  String get displayName {
+    if (hospitalName != null && specializationName != null) {
+      return '$hospitalName - $specializationName';
+    }
+    return hospitalName ?? specializationName ?? 'غير محدد';
+  }
+}
+
+/// مقعد مفاضلة (بيانات الإرسال للـ API)
 class MatchingSeatInput {
   final int? hospitalId;
   final int? specializationId;

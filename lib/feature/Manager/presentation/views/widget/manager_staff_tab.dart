@@ -28,7 +28,7 @@ class ManagerStaffTab extends StatelessWidget {
       child: LayoutBuilder(
         builder: (context, constraints) {
           final isNarrow = constraints.maxWidth < 850;
-          
+
           final pieChartCard = Container(
             padding: const EdgeInsets.all(24),
             height: 480,
@@ -73,7 +73,8 @@ class ManagerStaffTab extends StatelessWidget {
                   child: ListView.separated(
                     physics: const BouncingScrollPhysics(),
                     itemCount: deptData.length,
-                    separatorBuilder: (context, index) => const Divider(height: 1),
+                    separatorBuilder: (context, index) =>
+                        const Divider(height: 1),
                     itemBuilder: (context, index) {
                       final dept = deptData[index];
                       return Padding(
@@ -84,22 +85,34 @@ class ManagerStaffTab extends StatelessWidget {
                             Row(
                               children: [
                                 CircleAvatar(
-                                  backgroundColor: styles.primaryColor.withValues(alpha: 0.1),
-                                  child: Icon(Icons.business_rounded, color: styles.primaryColor, size: 20),
+                                  backgroundColor: styles.primaryColor
+                                      .withValues(alpha: 0.1),
+                                  child: Icon(
+                                    Icons.business_rounded,
+                                    color: styles.primaryColor,
+                                    size: 20,
+                                  ),
                                 ),
                                 const SizedBox(width: 16),
                                 Text(
                                   _translateDepartment(dept.department),
-                                  style: styles.bodyMedium.copyWith(fontWeight: FontWeight.bold),
+                                  style: styles.bodyMedium.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
                               ],
                             ),
                             Row(
                               children: [
                                 Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 4,
+                                  ),
                                   decoration: BoxDecoration(
-                                    color: styles.primaryColor.withValues(alpha: 0.08),
+                                    color: styles.primaryColor.withValues(
+                                      alpha: 0.08,
+                                    ),
                                     borderRadius: BorderRadius.circular(12),
                                   ),
                                   child: Text(
@@ -124,25 +137,15 @@ class ManagerStaffTab extends StatelessWidget {
 
           if (isNarrow) {
             return Column(
-              children: [
-                pieChartCard,
-                const SizedBox(height: 24),
-                listCard,
-              ],
+              children: [pieChartCard, const SizedBox(height: 24), listCard],
             ).animate().fade(duration: 450.ms).slideY(begin: 0.1);
           } else {
             return Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Expanded(
-                  flex: 4,
-                  child: pieChartCard,
-                ),
+                Expanded(flex: 4, child: pieChartCard),
                 const SizedBox(width: 24),
-                Expanded(
-                  flex: 6,
-                  child: listCard,
-                ),
+                Expanded(flex: 6, child: listCard),
               ],
             ).animate().fade(duration: 450.ms).slideY(begin: 0.1);
           }
@@ -151,7 +154,9 @@ class ManagerStaffTab extends StatelessWidget {
     );
   }
 
-  List<PieChartSectionData> _buildPieChartSections(List<ManagerDepartmentStats> data) {
+  List<PieChartSectionData> _buildPieChartSections(
+    List<ManagerDepartmentStats> data,
+  ) {
     if (data.isEmpty) {
       return [
         PieChartSectionData(
@@ -159,8 +164,12 @@ class ManagerStaffTab extends StatelessWidget {
           value: 100,
           title: 'لا يوجد',
           radius: 50,
-          titleStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.white),
-        )
+          titleStyle: const TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
+        ),
       ];
     }
 
@@ -267,7 +276,9 @@ class ManagerStaffTab extends StatelessWidget {
       color: isDark ? const Color(0xFF1E293B) : Colors.white,
       borderRadius: BorderRadius.circular(20),
       border: Border.all(
-        color: isDark ? Colors.white.withValues(alpha: 0.05) : const Color(0xFFE2E8F0),
+        color: isDark
+            ? Colors.white.withValues(alpha: 0.05)
+            : const Color(0xFFE2E8F0),
       ),
       boxShadow: [
         BoxShadow(

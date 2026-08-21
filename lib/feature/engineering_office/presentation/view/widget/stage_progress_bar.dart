@@ -15,10 +15,30 @@ class StageProgressBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final stages = [
-      _StageInfo('dormitory_supervisor', 'مشرفة\nالسكن', Icons.person, const Color(0xFFFF9800)),
-      _StageInfo('head_supervisor', 'المشرف\nالعام', Icons.admin_panel_settings, const Color(0xFF2196F3)),
-      _StageInfo('engineering_office', 'المكتب\nالهندسي', Icons.engineering, const Color(0xFF9C27B0)),
-      _StageInfo('warehouse_officer', 'أمين\nالمستودع', Icons.inventory, const Color(0xFF4CAF50)),
+      _StageInfo(
+        'housing_unit_supervisor',
+        'مشرفة\nالسكن',
+        Icons.person,
+        const Color(0xFFFF9800),
+      ),
+      _StageInfo(
+        'head_supervisor',
+        'المشرف\nالعام',
+        Icons.admin_panel_settings,
+        const Color(0xFF2196F3),
+      ),
+      _StageInfo(
+        'engineering_office',
+        'المكتب\nالهندسي',
+        Icons.engineering,
+        const Color(0xFF9C27B0),
+      ),
+      _StageInfo(
+        'warehouse_officer',
+        'أمين\nالمستودع',
+        Icons.inventory,
+        const Color(0xFF4CAF50),
+      ),
     ];
 
     final currentIndex = stages.indexWhere((s) => s.key == currentStage);
@@ -47,7 +67,9 @@ class StageProgressBar extends StatelessWidget {
                               height: 3,
                               margin: const EdgeInsets.symmetric(horizontal: 2),
                               decoration: BoxDecoration(
-                                color: isCompleted ? stage.color : Colors.grey[300],
+                                color: isCompleted
+                                    ? stage.color
+                                    : Colors.grey[300],
                                 borderRadius: BorderRadius.circular(2),
                               ),
                             ),
@@ -59,20 +81,33 @@ class StageProgressBar extends StatelessWidget {
                             shape: BoxShape.circle,
                             gradient: isCompleted || isCurrent
                                 ? LinearGradient(
-                                    colors: [stage.color, stage.color.withValues(alpha: 0.7)],
+                                    colors: [
+                                      stage.color,
+                                      stage.color.withValues(alpha: 0.7),
+                                    ],
                                     begin: Alignment.topLeft,
                                     end: Alignment.bottomRight,
                                   )
                                 : null,
-                            color: (!isCompleted && !isCurrent) ? Colors.grey[300] : null,
+                            color: (!isCompleted && !isCurrent)
+                                ? Colors.grey[300]
+                                : null,
                             boxShadow: isCurrent
-                                ? [BoxShadow(color: stage.color.withValues(alpha: 0.4), blurRadius: 8, offset: const Offset(0, 2))]
+                                ? [
+                                    BoxShadow(
+                                      color: stage.color.withValues(alpha: 0.4),
+                                      blurRadius: 8,
+                                      offset: const Offset(0, 2),
+                                    ),
+                                  ]
                                 : null,
                           ),
                           child: Icon(
                             isCompleted ? Icons.check : stage.icon,
                             size: 16,
-                            color: (isCompleted || isCurrent) ? Colors.white : Colors.grey[500],
+                            color: (isCompleted || isCurrent)
+                                ? Colors.white
+                                : Colors.grey[500],
                           ),
                         ),
                         if (index < stages.length - 1)
@@ -81,7 +116,9 @@ class StageProgressBar extends StatelessWidget {
                               height: 3,
                               margin: const EdgeInsets.symmetric(horizontal: 2),
                               decoration: BoxDecoration(
-                                color: isCompleted ? stage.color : Colors.grey[300],
+                                color: isCompleted
+                                    ? stage.color
+                                    : Colors.grey[300],
                                 borderRadius: BorderRadius.circular(2),
                               ),
                             ),
@@ -95,7 +132,9 @@ class StageProgressBar extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 10,
                       fontWeight: isCurrent ? FontWeight.bold : FontWeight.w500,
-                      color: isCompleted || isCurrent ? stage.color : Colors.grey,
+                      color: isCompleted || isCurrent
+                          ? stage.color
+                          : Colors.grey,
                       height: 1.3,
                     ),
                     textAlign: TextAlign.center,

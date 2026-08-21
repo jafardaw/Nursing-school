@@ -88,6 +88,31 @@ class MatchingCampaignRepositoryImpl implements MatchingCampaignRepository {
   }
 
   @override
+  Future<MatchingCampaignModel> updateCampaign({
+    required int id,
+    String? title,
+    String? type,
+    String? startDate,
+    String? endDate,
+    String? status,
+  }) async {
+    try {
+      final body = <String, dynamic>{};
+      if (title != null) body['title'] = title;
+      if (type != null) body['type'] = type;
+      if (startDate != null) body['start_date'] = startDate;
+      if (endDate != null) body['end_date'] = endDate;
+      if (status != null) body['status'] = status;
+
+      final response = await apiService.put('${ApiEndpoints.matchingCampaigns}/$id', body);
+      final data = response.data['data'] ?? response.data;
+      return MatchingCampaignModel.fromJson(data);
+    } catch (e) {
+      throw Exception('فشل تعديل المفاضلة: ${e.toString()}');
+    }
+  }
+
+  @override
   Future<void> createSeats({
     required int campaignId,
     required List<MatchingSeatInput> seats,
@@ -98,6 +123,14 @@ class MatchingCampaignRepositoryImpl implements MatchingCampaignRepository {
       });
     } catch (e) {
       throw Exception('فشل حفظ المقاعد: ${e.toString()}');
+    }
+  }
+  @override
+  Future<void> deleteCampaign(int id) async {
+    try {
+      await apiService.delete('${ApiEndpoints.matchingCampaigns}/$id');
+    } catch (e) {
+      throw Exception('فشل حذف المفاضلة: ${e.toString()}');
     }
   }
 }

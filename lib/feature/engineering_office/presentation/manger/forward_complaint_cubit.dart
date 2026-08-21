@@ -9,7 +9,7 @@ class ForwardComplaintCubit extends Cubit<ForwardComplaintState> {
 
   ForwardComplaintCubit(this._repo) : super(ForwardComplaintInitial());
 
-  Future<void> forwardComplaint(int id,) async {
+  Future<void> forwardComplaint(int id) async {
     emit(ForwardComplaintLoading(complaintId: id));
 
     try {

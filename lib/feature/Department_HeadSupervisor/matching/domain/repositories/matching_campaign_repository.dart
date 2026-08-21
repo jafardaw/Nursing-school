@@ -14,8 +14,19 @@ abstract class MatchingCampaignRepository {
     required String status,
   });
 
+  Future<MatchingCampaignModel> updateCampaign({
+    required int id,
+    String? title,
+    String? type,
+    String? startDate,
+    String? endDate,
+    String? status,
+  });
+
   Future<void> createSeats({
     required int campaignId,
     required List<MatchingSeatInput> seats,
   });
+
+  Future<void> deleteCampaign(int id);
 }
