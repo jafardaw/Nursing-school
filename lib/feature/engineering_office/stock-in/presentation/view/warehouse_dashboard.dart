@@ -60,7 +60,7 @@ class _WarehouseDashboardState extends State<WarehouseDashboard> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildHeader(isDesktop),
+          // _buildHeader(isDesktop),
           const SizedBox(height: 24),
           _buildStatsRow(state, isDesktop),
           const SizedBox(height: 24),

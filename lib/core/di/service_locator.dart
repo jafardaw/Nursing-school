@@ -1,5 +1,13 @@
 import 'package:finalproject/feature/Department_Exam/Exam_Schedule/presentation/manger/seat_allocation/exam_seat_allocation_cubit.dart';
 import 'package:finalproject/feature/Department_Exam/Exam_Schedule/data/repositories/exam_seating_repository.dart';
+import 'package:finalproject/feature/complaints_advanced_search/data/datasources/complaints_search_local_data_source.dart';
+import 'package:finalproject/feature/complaints_advanced_search/data/datasources/complaints_search_remote_data_source.dart';
+import 'package:finalproject/feature/complaints_advanced_search/data/repositories/complaints_search_repository_impl.dart';
+import 'package:finalproject/feature/complaints_advanced_search/domain/repositories/complaints_search_repository.dart';
+import 'package:finalproject/feature/complaints_advanced_search/domain/usecases/get_search_history_usecase.dart';
+import 'package:finalproject/feature/complaints_advanced_search/domain/usecases/save_search_history_usecase.dart';
+import 'package:finalproject/feature/complaints_advanced_search/domain/usecases/search_complaints_usecase.dart';
+import 'package:finalproject/feature/complaints_advanced_search/presentation/manger/complaints_search_cubit.dart';
 import 'package:finalproject/core/services/firebase_notification_service.dart';
 import 'package:finalproject/feature/Department_Exam/Exam_Session/repo/exam_session_repo.dart';
 import 'package:finalproject/feature/Department_Exam/Exam_Session/repo/exam_session_repo_impl.dart';
@@ -362,6 +370,36 @@ Future<void> initServiceLocator() async {
   );
   sl.registerFactory<AnnouncementsCubit>(
     () => AnnouncementsCubit(sl<AnnouncementsRepo>()),
+  );
+
+  /////////// complaints advanced search (Clean Architecture)
+  sl.registerLazySingleton<ComplaintsSearchRemoteDataSource>(
+    () => ComplaintsSearchRemoteDataSourceImpl(apiService: sl()),
+  );
+  sl.registerLazySingleton<ComplaintsSearchLocalDataSource>(
+    () => ComplaintsSearchLocalDataSourceImpl(storageService: sl()),
+  );
+  sl.registerLazySingleton<ComplaintsSearchRepository>(
+    () => ComplaintsSearchRepositoryImpl(
+      remoteDataSource: sl(),
+      localDataSource: sl(),
+    ),
+  );
+  sl.registerLazySingleton<SearchComplaintsUseCase>(
+    () => SearchComplaintsUseCase(repository: sl()),
+  );
+  sl.registerLazySingleton<GetSearchHistoryUseCase>(
+    () => GetSearchHistoryUseCase(repository: sl()),
+  );
+  sl.registerLazySingleton<SaveSearchHistoryUseCase>(
+    () => SaveSearchHistoryUseCase(repository: sl()),
+  );
+  sl.registerFactory<ComplaintsSearchCubit>(
+    () => ComplaintsSearchCubit(
+      searchComplaintsUseCase: sl(),
+      getSearchHistoryUseCase: sl(),
+      saveSearchHistoryUseCase: sl(),
+    ),
   );
 }
 

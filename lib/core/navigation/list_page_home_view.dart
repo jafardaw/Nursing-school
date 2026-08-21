@@ -47,6 +47,8 @@ import 'package:finalproject/feature/warehouse_officer/items/presentation/view/w
 
 import 'package:finalproject/feature/announcements/presentation/manger/announcements_cubit.dart';
 import 'package:finalproject/feature/announcements/presentation/view/announcements_view.dart';
+import 'package:finalproject/feature/complaints_advanced_search/presentation/manger/complaints_search_cubit.dart';
+import 'package:finalproject/feature/complaints_advanced_search/presentation/view/complaints_advanced_search_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -73,6 +75,18 @@ class NavConfig {
       page: BlocProvider(
         create: (_) => sl<AnnouncementsCubit>(),
         child: const AnnouncementsView(),
+      ),
+    );
+  }
+
+  static AppSection _complaintsAdvancedSearchSection() {
+    return AppSection(
+      title: "البحث في الشكاوى",
+      icon: Icons.manage_search_outlined,
+      selectedIcon: Icons.manage_search,
+      page: BlocProvider(
+        create: (_) => sl<ComplaintsSearchCubit>(),
+        child: const ComplaintsAdvancedSearchView(),
       ),
     );
   }
@@ -348,6 +362,7 @@ class NavConfig {
             page: const AttendanceMonitoringView(),
           ),
           _announcementsSection(),
+          _complaintsAdvancedSearchSection(),
         ];
       case 'entry_exit_supervisor':
         return [
