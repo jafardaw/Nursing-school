@@ -29,6 +29,7 @@ class ApiEndpoints {
       'complaints/stage/head_supervisor';
   static const String warehouseComplaints = 'complaints/stage/head_supervisor';
   static const String complaintsSearch = 'complaints/search';
+  static const String complaintsAdvancedSearch = 'complaints/advanced-search';
   static String forwardComplaint(int id) => 'complaints/$id/forward';
   static const String stockIn = 'stock-in';
   static const String stockOut = 'stock-out';
