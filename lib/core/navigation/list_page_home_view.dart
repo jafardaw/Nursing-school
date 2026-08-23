@@ -44,6 +44,8 @@ import 'package:finalproject/feature/warehouse_officer/stock_in_warehouse/presen
 import 'package:finalproject/feature/warehouse_officer/stock_in_warehouse/presentation/view/warehouse_stock_in_view.dart';
 import 'package:finalproject/feature/warehouse_officer/items/presentation/manger/warehouse_items_cubit.dart';
 import 'package:finalproject/feature/warehouse_officer/items/presentation/view/warehouse_items_view.dart';
+import 'package:finalproject/feature/warehouse_officer/clearance/presentation/manger/warehouse_clearance_cubit.dart';
+import 'package:finalproject/feature/warehouse_officer/clearance/presentation/view/warehouse_clearance_view.dart';
 
 import 'package:finalproject/feature/announcements/presentation/manger/announcements_cubit.dart';
 import 'package:finalproject/feature/announcements/presentation/view/announcements_view.dart';
@@ -432,6 +434,12 @@ class NavConfig {
               create: (_) => sl<WarehouseMaintenanceCubit>(),
               child: const WarehouseMaintenanceView(),
             ),
+          ),
+          AppSection(
+            title: "براءة الذمة (داخلي)",
+            icon: Icons.fact_check_outlined,
+            selectedIcon: Icons.fact_check,
+            page: const WarehouseClearanceView(),
           ),
           // _announcementsSection(),
         ];

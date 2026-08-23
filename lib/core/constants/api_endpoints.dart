@@ -54,6 +54,7 @@ class ApiEndpoints {
   static const String examSessions = 'exam/sessions';
   static String examSessionId(int id) => 'exam/sessions/$id';
   static const String bulkEvaluatePromotions = 'exam/promotions/bulk/evaluate';
+  static const String bulkGraduateStudents = 'students/graduate/bulk';
 
   // Halls
   static const String halls = 'halls';
@@ -97,6 +98,8 @@ class ApiEndpoints {
   // Matching Campaigns
   static const String matchingCampaigns = 'matching-campaigns';
   static String matchingCampaignSeats(int id) => 'matching-campaigns/$id/seats';
+  static String matchingCampaignExecute(int id) => 'matching-campaigns/$id/execute';
+  static String matchingCampaignResults(int id) => 'matching-campaigns/$id/results';
   static const String gateScanIn = 'gate/scan/in';
   static const String gateScanOut = 'gate/scan/out';
 

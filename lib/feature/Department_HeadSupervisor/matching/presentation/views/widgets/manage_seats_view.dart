@@ -36,7 +36,7 @@ class _ManageSeatsViewState extends State<ManageSeatsView> {
 
   @override
   Widget build(BuildContext context) {
-    final isSpecializationOnly = widget.campaign.type == 'Specialization';
+    final campaignType = widget.campaign.type;
 
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
@@ -65,13 +65,13 @@ class _ManageSeatsViewState extends State<ManageSeatsView> {
               padding: const EdgeInsets.all(24),
               physics: const BouncingScrollPhysics(),
               children: [
-                _buildInfoCard(isSpecializationOnly),
+                _buildInfoCard(campaignType),
                 const SizedBox(height: 24),
                 ..._seats.asMap().entries.map((entry) {
                   return _buildSeatCard(
                     entry.key,
                     entry.value,
-                    isSpecializationOnly,
+                    campaignType,
                   );
                 }),
                 const SizedBox(height: 12),
@@ -122,7 +122,25 @@ class _ManageSeatsViewState extends State<ManageSeatsView> {
     );
   }
 
-  Widget _buildInfoCard(bool isSpecializationOnly) {
+  Widget _buildInfoCard(String campaignType) {
+    String infoText;
+    switch (campaignType) {
+      case 'Specialization':
+        infoText =
+            'هذه المفاضلة مخصصة للاختصاصات فقط. يرجى تحديد الاختصاص والسعة المطلوبة في كل صف لتوزيعها بشكل صحيح.';
+        break;
+      case 'General_Hospital':
+        infoText =
+            'هذه المفاضلة مخصصة للمشافي العامة. يرجى تحديد المشفى والسعة المطلوبة في كل صف. لا حاجة لتحديد اختصاص.';
+        break;
+      case 'Specialized_Hospital':
+        infoText =
+            'هذه المفاضلة مخصصة للمشافي المتخصصة. يرجى تحديد المشفى والاختصاص والسعة المطلوبة في كل صف.';
+        break;
+      default:
+        infoText = 'يرجى تعبئة بيانات المقاعد أدناه.';
+    }
+
     return Container(
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
@@ -167,9 +185,7 @@ class _ManageSeatsViewState extends State<ManageSeatsView> {
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  isSpecializationOnly
-                      ? 'هذه المفاضلة مخصصة للاختصاصات فقط. يرجى تحديد الاختصاص والسعة المطلوبة في كل صف لتوزيعها بشكل صحيح.'
-                      : 'هذه المفاضلة مخصصة للمشافي. يمكنك تحديد المشفى فقط، أو تحديد المشفى مع اختصاص معين حسب الحاجة.',
+                  infoText,
                   style: const TextStyle(
                     color: Color(0xFF1D4ED8),
                     fontSize: 13,
@@ -187,8 +203,13 @@ class _ManageSeatsViewState extends State<ManageSeatsView> {
   Widget _buildSeatCard(
     int index,
     MatchingSeatInput seat,
-    bool isSpecializationOnly,
+    String campaignType,
   ) {
+    final showHospital = campaignType == 'General_Hospital' ||
+        campaignType == 'Specialized_Hospital';
+    final showSpecialization = campaignType == 'Specialization' ||
+        campaignType == 'Specialized_Hospital';
+
     return Container(
       margin: const EdgeInsets.only(bottom: 20),
       padding: const EdgeInsets.all(24),
@@ -280,7 +301,8 @@ class _ManageSeatsViewState extends State<ManageSeatsView> {
             ],
           ),
           const SizedBox(height: 24),
-          if (!isSpecializationOnly) ...[
+          // ──── Hospital dropdown (General_Hospital & Specialized_Hospital) ────
+          if (showHospital) ...[
             _buildDropdown<int>(
               label: 'المشفى',
               icon: Icons.local_hospital_rounded,
@@ -302,7 +324,8 @@ class _ManageSeatsViewState extends State<ManageSeatsView> {
             ),
             const SizedBox(height: 16),
           ],
-          if (isSpecializationOnly)
+          // ──── Specialization dropdown (Specialization & Specialized_Hospital) ────
+          if (showSpecialization)
             _buildDropdown<int>(
               label: 'الاختصاص',
               icon: Icons.school_rounded,
@@ -315,31 +338,6 @@ class _ManageSeatsViewState extends State<ManageSeatsView> {
               onChanged: (value) {
                 setState(() {
                   _seats[index] = MatchingSeatInput(
-                    hospitalId: null,
-                    specializationId: value,
-                    capacity: seat.capacity,
-                  );
-                });
-              },
-            )
-          else
-            _buildDropdown<int?>(
-              label: 'الاختصاص (اختياري)',
-              icon: Icons.school_rounded,
-              value: seat.specializationId,
-              items: [
-                const DropdownMenuItem<int?>(
-                  value: null,
-                  child: Text('بدون اختصاص (عام)'),
-                ),
-                ...widget.specializations.map(
-                  (s) =>
-                      DropdownMenuItem<int?>(value: s.id, child: Text(s.name)),
-                ),
-              ],
-              onChanged: (value) {
-                setState(() {
-                  _seats[index] = MatchingSeatInput(
                     hospitalId: seat.hospitalId,
                     specializationId: value,
                     capacity: seat.capacity,
@@ -347,7 +345,7 @@ class _ManageSeatsViewState extends State<ManageSeatsView> {
                 });
               },
             ),
-          const SizedBox(height: 16),
+          if (showSpecialization) const SizedBox(height: 16),
           _buildNumberField(
             label: 'السعة المطلوبة',
             icon: Icons.people_alt_rounded,

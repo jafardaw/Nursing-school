@@ -4,13 +4,11 @@ import 'package:finalproject/core/widgets/custome_text_field.dart';
 import 'package:flutter/material.dart';
 
 class EvaluatePromotionsDialog extends StatefulWidget {
-  final String academicYear;
-  final Function(int studyYear, int maxCarriedSubjects) onSubmit;
+  final Function(String academicYear, int studyYear, int maxCarriedSubjects) onSubmit;
   final bool isLoading;
 
   const EvaluatePromotionsDialog({
     super.key,
-    required this.academicYear,
     required this.onSubmit,
     required this.isLoading,
   });
@@ -33,10 +31,23 @@ class _EvaluatePromotionsDialogState extends State<EvaluatePromotionsDialog> {
     {"id": 5, "name": "السنة الخامسة"},
   ];
 
+  late String _selectedAcademicYear;
+  late final List<String> _academicYearsList;
+
   @override
   void initState() {
     super.initState();
     _maxCarriedController = TextEditingController(text: "2");
+    
+    // توليد الأعوام الدراسية ديناميكياً (5 سنوات للوراء و5 للأمام)
+    final currentYear = DateTime.now().year;
+    _academicYearsList = List.generate(11, (index) {
+      final startYear = currentYear - 5 + index;
+      return '$startYear-${startYear + 1}';
+    });
+    
+    // تعيين العام الحالي كقيمة افتراضية
+    _selectedAcademicYear = '$currentYear-${currentYear + 1}';
   }
 
   @override
@@ -48,7 +59,7 @@ class _EvaluatePromotionsDialogState extends State<EvaluatePromotionsDialog> {
   void _submit() {
     if (_formKey.currentState!.validate()) {
       final maxCarried = int.tryParse(_maxCarriedController.text.trim()) ?? 2;
-      widget.onSubmit(_selectedStudyYear, maxCarried);
+      widget.onSubmit(_selectedAcademicYear, _selectedStudyYear, maxCarried);
     }
   }
 
@@ -113,43 +124,60 @@ class _EvaluatePromotionsDialogState extends State<EvaluatePromotionsDialog> {
               ),
               const Divider(height: 28, color: Color(0xFFF1F5F9)),
 
-              // عرض السنة الدراسية كقيمة ثابتة مأخوذة من الدورة
+              // اختيار العام الدراسي
+              Row(
+                children: [
+                  Icon(Icons.date_range_rounded, size: 18, color: styles.primaryColor),
+                  const SizedBox(width: 6),
+                  Text(
+                    "العام الدراسي",
+                    style: styles.bodyMedium.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: const Color(0xFF334155),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
               Container(
-                padding: const EdgeInsets.all(14),
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFEEF2FF),
+                  color: const Color(0xFFF8FAFC),
                   borderRadius: BorderRadius.circular(14),
-                  border: Border.all(color: const Color(0xFFC7D2FE)),
+                  border: Border.all(color: const Color(0xFFE2E8F0)),
                 ),
-                child: Row(
-                  children: [
-                    const Icon(
-                      Icons.date_range_rounded,
-                      color: Color(0xFF4F46E5),
-                      size: 20,
+                child: DropdownButtonHideUnderline(
+                  child: DropdownButtonFormField<String>(
+                    value: _selectedAcademicYear,
+                    decoration: const InputDecoration(
+                      border: InputBorder.none,
+                      contentPadding: EdgeInsets.zero,
                     ),
-                    const SizedBox(width: 10),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          "العام الدراسي للدورة (تلقائي):",
-                          style: styles.bodyXSmall.copyWith(
-                            color: const Color(0xFF4338CA),
-                            fontWeight: FontWeight.w500,
+                    isExpanded: true,
+                    icon: Icon(
+                      Icons.keyboard_arrow_down_rounded,
+                      color: styles.primaryColor,
+                    ),
+                    items: _academicYearsList.map((yearItem) {
+                      return DropdownMenuItem<String>(
+                        value: yearItem,
+                        child: Text(
+                          yearItem,
+                          style: styles.bodyLarge.copyWith(
+                            color: const Color(0xFF1E293B),
+                            fontWeight: FontWeight.w600,
                           ),
                         ),
-                        const SizedBox(height: 2),
-                        Text(
-                          widget.academicYear,
-                          style: styles.headline6.copyWith(
-                            color: const Color(0xFF3730A3),
-                            fontWeight: FontWeight.w800,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
+                      );
+                    }).toList(),
+                    onChanged: (val) {
+                      if (val != null) {
+                        setState(() {
+                          _selectedAcademicYear = val;
+                        });
+                      }
+                    },
+                  ),
                 ),
               ),
               const SizedBox(height: 18),

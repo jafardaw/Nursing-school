@@ -82,4 +82,17 @@ class ExamSessionRepositoryImpl implements ExamSessionRepository {
       throw Exception("فشل تقييم وتدقيق ترفيع الطلاب: ${e.toString()}");
     }
   }
+
+  @override
+  Future<void> bulkGraduateStudents({
+    required String academicYear,
+  }) async {
+    try {
+      await apiService.post(ApiEndpoints.bulkGraduateStudents, {
+        "academic_year": academicYear,
+      });
+    } catch (e) {
+      throw Exception("فشل تخريج الطلاب: ${e.toString()}");
+    }
+  }
 }

@@ -19,4 +19,7 @@ abstract class ExamSessionRepository {
     required String academicYear,
     required int maxCarriedSubjects,
   });
+  Future<void> bulkGraduateStudents({
+    required String academicYear,
+  });
 }

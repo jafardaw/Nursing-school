@@ -8,6 +8,7 @@ import 'package:finalproject/feature/Department_HeadSupervisor/matching/presenta
 import 'package:finalproject/feature/Department_HeadSupervisor/matching/presentation/views/widgets/edit_campaign_dialog.dart';
 import 'package:finalproject/feature/Department_HeadSupervisor/matching/presentation/views/widgets/manage_seats_view.dart';
 import 'package:finalproject/feature/Department_HeadSupervisor/matching/presentation/views/widgets/seats_view_dialog.dart';
+import 'package:finalproject/feature/Department_HeadSupervisor/matching/presentation/views/matching_results_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -20,6 +21,7 @@ class MatchingCampaignsView extends StatefulWidget {
 
 class _MatchingCampaignsViewState extends State<MatchingCampaignsView> {
   late final MatchingCampaignCubit _cubit;
+  String _selectedFilter = 'الكل'; // 'الكل', 'Draft', 'Active', 'Completed'
 
   @override
   void initState() {
@@ -187,26 +189,54 @@ class _MatchingCampaignsViewState extends State<MatchingCampaignsView> {
                 );
               }
 
+              // Apply local filter
+              final filteredCampaigns = loaded.campaigns.where((c) {
+                if (_selectedFilter == 'الكل') return true;
+                return c.status == _selectedFilter;
+              }).toList();
+
               return CustomScrollView(
                 physics: const BouncingScrollPhysics(),
                 slivers: [
                   SliverPadding(
                     padding: const EdgeInsets.all(24),
                     sliver: SliverToBoxAdapter(
-                      child: _buildHeader(styles, loaded.campaigns.length),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          _buildHeader(styles, loaded.campaigns.length),
+                          const SizedBox(height: 24),
+                          _buildFilterChips(),
+                        ],
+                      ),
                     ),
                   ),
                   SliverPadding(
                     padding: const EdgeInsets.symmetric(horizontal: 24),
-                    sliver: SliverList(
-                      delegate: SliverChildBuilderDelegate((context, index) {
-                        final campaign = loaded.campaigns[index];
-                        return Padding(
-                          padding: const EdgeInsets.only(bottom: 12),
-                          child: _buildCampaignCard(campaign),
-                        );
-                      }, childCount: loaded.campaigns.length),
-                    ),
+                    sliver: filteredCampaigns.isEmpty
+                        ? SliverToBoxAdapter(
+                            child: Center(
+                              child: Padding(
+                                padding: const EdgeInsets.all(48.0),
+                                child: Text(
+                                  'لا توجد مفاضلات بهذه الحالة',
+                                  style: TextStyle(
+                                    color: Colors.grey.shade500,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          )
+                        : SliverList(
+                            delegate: SliverChildBuilderDelegate((context, index) {
+                              final campaign = filteredCampaigns[index];
+                              return Padding(
+                                padding: const EdgeInsets.only(bottom: 12),
+                                child: _buildCampaignCard(campaign),
+                              );
+                            }, childCount: filteredCampaigns.length),
+                          ),
                   ),
                 ],
               );
@@ -214,6 +244,48 @@ class _MatchingCampaignsViewState extends State<MatchingCampaignsView> {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildFilterChips() {
+    final filters = [
+      {'label': 'الكل', 'value': 'الكل'},
+      {'label': 'نشطة', 'value': 'Active'},
+      {'label': 'مسودة', 'value': 'Draft'},
+      {'label': 'مكتملة', 'value': 'Completed'},
+    ];
+
+    return Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      children: filters.map((f) {
+        final isSelected = _selectedFilter == f['value'];
+        return ChoiceChip(
+          label: Text(
+            f['label']!,
+            style: TextStyle(
+              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+              color: isSelected ? Colors.white : const Color(0xFF475569),
+            ),
+          ),
+          selected: isSelected,
+          onSelected: (selected) {
+            if (selected) {
+              setState(() {
+                _selectedFilter = f['value']!;
+              });
+            }
+          },
+          selectedColor: const Color(0xFF2563EB),
+          backgroundColor: Colors.white,
+          side: BorderSide(
+            color: isSelected ? const Color(0xFF2563EB) : const Color(0xFFCBD5E1),
+          ),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+        );
+      }).toList(),
     );
   }
 
@@ -362,40 +434,39 @@ class _MatchingCampaignsViewState extends State<MatchingCampaignsView> {
                   ],
                 ),
               ),
-              IconButton(
-                onPressed: () async {
-                  final result = await showDialog<bool>(
-                    context: context,
-                    builder: (context) =>
-                        EditCampaignDialog(campaign: campaign),
-                  );
-                  if (result == true && mounted) {
-                    showWebBanner(
-                      context,
-                      'تم تعديل المفاضلة بنجاح ✅',
-                      type: BannerType.success,
+              if (campaign.status != 'Completed') ...[
+                IconButton(
+                  onPressed: () async {
+                    final result = await showDialog<bool>(
+                      context: context,
+                      builder: (context) =>
+                          EditCampaignDialog(campaign: campaign),
                     );
-                    _cubit.loadInitialData(); // تحديث بعد التعديل
-                  }
-                },
-                icon: const Icon(Icons.edit_rounded, color: Color(0xFF2563EB)),
-                tooltip: 'تعديل المفاضلة',
-                style: IconButton.styleFrom(
-                  backgroundColor: const Color(0xFFDBEAFE),
-                  padding: const EdgeInsets.all(8),
+                    if (result == true && mounted) {
+                      showWebBanner(
+                        context,
+                        'تم تعديل المفاضلة بنجاح ✅',
+                        type: BannerType.success,
+                      );
+                      _cubit.loadInitialData(); // تحديث بعد التعديل
+                    }
+                  },
+                  icon: const Icon(Icons.edit_rounded, color: Color(0xFF64748B), size: 20),
+                  tooltip: 'تعديل المفاضلة',
+                  style: IconButton.styleFrom(
+                    backgroundColor: Colors.transparent,
+                    hoverColor: const Color(0xFFF1F5F9),
+                  ),
                 ),
-              ),
-              const SizedBox(width: 8),
+                const SizedBox(width: 4),
+              ],
               IconButton(
                 onPressed: () => _confirmDeleteCampaign(context, campaign),
-                icon: const Icon(
-                  Icons.delete_outline_rounded,
-                  color: Color(0xFFEF4444),
-                ),
+                icon: const Icon(Icons.delete_outline_rounded, color: Color(0xFFEF4444), size: 20),
                 tooltip: 'حذف المفاضلة',
                 style: IconButton.styleFrom(
-                  backgroundColor: const Color(0xFFFEF2F2),
-                  padding: const EdgeInsets.all(8),
+                  backgroundColor: Colors.transparent,
+                  hoverColor: const Color(0xFFFEF2F2),
                 ),
               ),
             ],
@@ -434,7 +505,7 @@ class _MatchingCampaignsViewState extends State<MatchingCampaignsView> {
                   const Color(0xFFF59E0B),
                 ),
                 const Spacer(),
-                ElevatedButton.icon(
+                OutlinedButton.icon(
                   onPressed: () {
                     showDialog(
                       context: context,
@@ -442,19 +513,66 @@ class _MatchingCampaignsViewState extends State<MatchingCampaignsView> {
                     );
                   },
                   icon: const Icon(Icons.visibility_rounded, size: 18),
-                  label: const Text('عرض المقاعد'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF2563EB),
-                    foregroundColor: Colors.white,
+                  label: const Text('المقاعد'),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: const Color(0xFF475569),
+                    side: const BorderSide(color: Color(0xFFCBD5E1)),
                     padding: const EdgeInsets.symmetric(
                       horizontal: 16,
                       vertical: 12,
                     ),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(10),
                     ),
                   ),
                 ),
+                if (campaign.status != 'Completed') ...[
+                  const SizedBox(width: 8),
+                  ElevatedButton.icon(
+                    onPressed: () => _confirmExecuteMatching(context, campaign),
+                    icon: const Icon(Icons.play_arrow_rounded, size: 18),
+                    label: const Text('تنفيذ الفرز'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF10B981), // Green but softer
+                      foregroundColor: Colors.white,
+                      elevation: 0,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 12,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                  ),
+                ],
+                if (campaign.status == 'Completed') ...[
+                  const SizedBox(width: 8),
+                  ElevatedButton.icon(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => MatchingResultsView(campaign: campaign),
+                        ),
+                      );
+                    },
+                    icon: const Icon(Icons.assessment_rounded, size: 18),
+                    label: const Text('النتائج'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF2563EB), // Primary Blue
+                      foregroundColor: Colors.white,
+                      elevation: 0,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 12,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                  ),
+                ],
               ],
             ),
           ] else ...[
@@ -627,6 +745,66 @@ class _MatchingCampaignsViewState extends State<MatchingCampaignsView> {
           type: BannerType.success,
         );
         _cubit.loadInitialData(); // تحديث البيانات من السيرفر بعد الحذف
+      }
+    }
+  }
+
+  Future<void> _confirmExecuteMatching(
+    BuildContext context,
+    MatchingCampaignModel campaign,
+  ) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Row(
+          children: [
+            Icon(Icons.play_circle_fill_rounded, color: Color(0xFF10B981)),
+            SizedBox(width: 12),
+            Text('تأكيد الفرز', style: TextStyle(fontWeight: FontWeight.w800)),
+          ],
+        ),
+        content: Text(
+          'هل أنت متأكد أنك تريد تنفيذ عملية الفرز للمفاضلة "${campaign.title}"؟\nستقوم الخوارزمية بتوزيع الطلاب وإغلاق المفاضلة (تصبح مكتملة).',
+          style: const TextStyle(height: 1.5),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            style: TextButton.styleFrom(
+              foregroundColor: const Color(0xFF64748B),
+            ),
+            child: const Text(
+              'إلغاء',
+              style: TextStyle(fontWeight: FontWeight.w700),
+            ),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF10B981),
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+            child: const Text(
+              'تأكيد الفرز',
+              style: TextStyle(fontWeight: FontWeight.w700),
+            ),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true && mounted) {
+      final success = await _cubit.executeMatching(campaign.id);
+      if (success && mounted) {
+        showWebBanner(
+          context,
+          'تم تنفيذ الفرز وإغلاق المفاضلة بنجاح ✅',
+          type: BannerType.success,
+        );
       }
     }
   }

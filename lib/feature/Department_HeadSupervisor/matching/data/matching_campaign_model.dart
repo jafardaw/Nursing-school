@@ -32,21 +32,20 @@ class MatchingCampaignModel {
 
   bool get hasSeats => seats.isNotEmpty;
 
-  int get totalCapacity =>
-      seats.fold(0, (sum, s) => sum + s.capacity);
+  int get totalCapacity => seats.fold(0, (sum, s) => sum + s.capacity);
 
-  int get totalMatched =>
-      seats.fold(0, (sum, s) => sum + s.matchedCount);
+  int get totalMatched => seats.fold(0, (sum, s) => sum + s.matchedCount);
 
-  int get totalRemaining =>
-      seats.fold(0, (sum, s) => sum + s.remaining);
+  int get totalRemaining => seats.fold(0, (sum, s) => sum + s.remaining);
 
   String get typeLabel {
     switch (type) {
       case 'Specialization':
         return 'اختصاص فقط';
       case 'General_Hospital':
-        return 'مشافي';
+        return 'مشافي عامة';
+      case 'Specialized_Hospital':
+        return 'مشافي متخصصة';
       default:
         return type.isEmpty ? 'غير محدد' : type;
     }

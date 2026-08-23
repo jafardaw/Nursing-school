@@ -2,6 +2,7 @@ import 'package:finalproject/core/constants/api_endpoints.dart';
 import 'package:finalproject/core/network/api_service.dart';
 import 'package:finalproject/core/errors/error_handler.dart';
 import 'package:finalproject/feature/Department_HeadSupervisor/matching/data/matching_campaign_model.dart';
+import 'package:finalproject/feature/Department_HeadSupervisor/matching/data/matching_result_model.dart';
 import 'matching_campaign_repository.dart';
 
 class MatchingCampaignRepositoryImpl implements MatchingCampaignRepository {
@@ -104,7 +105,10 @@ class MatchingCampaignRepositoryImpl implements MatchingCampaignRepository {
       if (endDate != null) body['end_date'] = endDate;
       if (status != null) body['status'] = status;
 
-      final response = await apiService.put('${ApiEndpoints.matchingCampaigns}/$id', body);
+      final response = await apiService.put(
+        '${ApiEndpoints.matchingCampaigns}/$id',
+        body,
+      );
       final data = response.data['data'] ?? response.data;
       return MatchingCampaignModel.fromJson(data);
     } catch (e) {
@@ -125,12 +129,56 @@ class MatchingCampaignRepositoryImpl implements MatchingCampaignRepository {
       throw Exception('فشل حفظ المقاعد: ${e.toString()}');
     }
   }
+
   @override
   Future<void> deleteCampaign(int id) async {
     try {
       await apiService.delete('${ApiEndpoints.matchingCampaigns}/$id');
     } catch (e) {
       throw Exception('فشل حذف المفاضلة: ${e.toString()}');
+    }
+  }
+
+  @override
+  Future<void> executeMatching(int id) async {
+    try {
+      await apiService.post(ApiEndpoints.matchingCampaignExecute(id), {});
+    } catch (e) {
+      if (e is ErrorHandler) {
+        throw Exception(e.userFriendlyMessage);
+      }
+      throw Exception('فشل تنفيذ خوارزمية الفرز: ${e.toString()}');
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> getCampaignResults(
+    int id, {
+    int page = 1,
+    int perPage = 15,
+  }) async {
+    try {
+      final response = await apiService.get(
+        ApiEndpoints.matchingCampaignResults(id),
+        queryParameters: {'page': page, 'per_page': perPage},
+      );
+
+      final List data = response.data['data'] ?? [];
+      final results = data
+          .map((json) => MatchingResultModel.fromJson(json))
+          .toList();
+
+      final meta = response.data['meta'];
+
+      return {
+        'data': results,
+        'meta': meta, // will be parsed by PaginationMeta later
+      };
+    } catch (e) {
+      if (e is ErrorHandler) {
+        throw Exception(e.userFriendlyMessage);
+      }
+      throw Exception('فشل جلب نتائج الفرز: ${e.toString()}');
     }
   }
 }
