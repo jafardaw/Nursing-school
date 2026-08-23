@@ -1,3 +1,4 @@
+import 'package:finalproject/core/di/service_locator.dart';
 import 'package:finalproject/core/widgets/error_widget_view.dart';
 import 'package:finalproject/core/widgets/pagination_footer.dart';
 import 'package:finalproject/feature/engineering_office/presentation/view/widget/stats_card.dart';
@@ -9,6 +10,9 @@ import 'package:finalproject/feature/warehouse_officer/complaint/presentation/vi
 import 'package:finalproject/feature/warehouse_officer/complaint/presentation/view/widget/warehouse_complaint_filter_bar.dart';
 import 'package:finalproject/feature/warehouse_officer/complaint/presentation/view/widget/warehouse_complaints_loading_view.dart';
 import 'package:finalproject/feature/warehouse_officer/complaint/presentation/view/widget/warehouse_complaints_table.dart';
+import 'package:finalproject/feature/warehouse_officer/maintenance_warehouse_officer/data/model/warehouse_maintenance_model.dart';
+import 'package:finalproject/feature/warehouse_officer/maintenance_warehouse_officer/domain/repositories/warehouse_maintenance_repo.dart';
+import 'package:finalproject/feature/warehouse_officer/maintenance_warehouse_officer/presentation/view/widget/warehouse_maintenance_form_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -382,6 +386,8 @@ class _WarehouseComplaintsViewState extends State<WarehouseComplaintsView> {
               isActionable: isActionable,
               onApprove: (complaint) => _confirmApprove(context, complaint),
               onOpenDetails: (complaint) => _showDetails(context, complaint),
+              onCreateMaintenanceRequest: (complaint) =>
+                  _openMaintenanceDialog(context, complaint),
             ),
           ),
           PaginationFooter(
@@ -399,6 +405,58 @@ class _WarehouseComplaintsViewState extends State<WarehouseComplaintsView> {
         ],
       ),
     );
+  }
+
+  Future<void> _openMaintenanceDialog(
+    BuildContext context,
+    WarehouseComplaintModel complaint,
+  ) async {
+    final request = await showDialog<CreateWarehouseMaintenanceRequest>(
+      context: context,
+      builder: (_) => WarehouseMaintenanceFormDialog(
+        initialComplaintId: complaint.id,
+        initialDescription: complaint.description,
+      ),
+    );
+
+    if (!context.mounted || request == null) return;
+
+    try {
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (_) => const Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+
+      final response =
+          await sl<WarehouseMaintenanceRepo>().createRequest(request);
+
+      if (!context.mounted) return;
+      Navigator.pop(context); // Close loading dialog
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            response.message.isNotEmpty
+                ? response.message
+                : 'تم إنشاء طلب الصيانة بنجاح للشكوى #${complaint.id}',
+          ),
+          backgroundColor: const Color(0xFF50CD89),
+        ),
+      );
+    } catch (e) {
+      if (!context.mounted) return;
+      Navigator.pop(context); // Close loading dialog
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('فشل إنشاء طلب الصيانة: ${e.toString()}'),
+          backgroundColor: const Color(0xFFF1416C),
+        ),
+      );
+    }
   }
 
   void _showDetails(BuildContext context, WarehouseComplaintModel complaint) {

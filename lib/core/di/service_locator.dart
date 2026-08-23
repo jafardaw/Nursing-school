@@ -96,6 +96,12 @@ import 'package:finalproject/feature/warehouse_officer/statistics/presentation/m
 import 'package:finalproject/feature/warehouse_officer/items/domain/repositories/warehouse_items_repo.dart';
 import 'package:finalproject/feature/warehouse_officer/items/domain/repositories/warehouse_items_repo_impl.dart';
 import 'package:finalproject/feature/warehouse_officer/items/presentation/manger/warehouse_items_cubit.dart';
+import 'package:finalproject/feature/warehouse_officer/notifications/data/datasources/warehouse_notifications_local_data_source.dart';
+import 'package:finalproject/feature/warehouse_officer/notifications/data/datasources/warehouse_notifications_remote_data_source.dart';
+import 'package:finalproject/feature/warehouse_officer/notifications/data/repositories/warehouse_notifications_repository_impl.dart';
+import 'package:finalproject/feature/warehouse_officer/notifications/domain/repositories/warehouse_notifications_repository.dart';
+import 'package:finalproject/feature/warehouse_officer/notifications/domain/usecases/get_warehouse_notifications_usecase.dart';
+import 'package:finalproject/feature/warehouse_officer/notifications/presentation/manger/warehouse_notifications_cubit.dart';
 import 'package:finalproject/feature/Department_HeadSupervisor/Hospitals/presentation/manger/hospital_cubit.dart';
 import 'package:finalproject/feature/Department_HeadSupervisor/Hospitals/repo/hospital_repo.dart';
 import 'package:finalproject/feature/Department_HeadSupervisor/Hospitals/repo/hospital_repo_impl.dart';
@@ -400,6 +406,26 @@ Future<void> initServiceLocator() async {
       getSearchHistoryUseCase: sl(),
       saveSearchHistoryUseCase: sl(),
     ),
+  );
+
+  /////////// warehouse notifications (Clean Architecture)
+  sl.registerLazySingleton<WarehouseNotificationsRemoteDataSource>(
+    () => WarehouseNotificationsRemoteDataSourceImpl(apiService: sl()),
+  );
+  sl.registerLazySingleton<WarehouseNotificationsLocalDataSource>(
+    () => WarehouseNotificationsLocalDataSourceImpl(storageService: sl()),
+  );
+  sl.registerLazySingleton<WarehouseNotificationsRepository>(
+    () => WarehouseNotificationsRepositoryImpl(
+      remoteDataSource: sl(),
+      localDataSource: sl(),
+    ),
+  );
+  sl.registerLazySingleton<GetWarehouseNotificationsUseCase>(
+    () => GetWarehouseNotificationsUseCase(sl()),
+  );
+  sl.registerFactory<WarehouseNotificationsCubit>(
+    () => WarehouseNotificationsCubit(sl<GetWarehouseNotificationsUseCase>()),
   );
 }
 

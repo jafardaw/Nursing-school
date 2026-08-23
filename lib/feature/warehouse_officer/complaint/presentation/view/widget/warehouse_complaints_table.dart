@@ -10,6 +10,7 @@ class WarehouseComplaintsTable extends StatelessWidget {
   final bool isActionable;
   final ValueChanged<WarehouseComplaintModel> onApprove;
   final ValueChanged<WarehouseComplaintModel> onOpenDetails;
+  final ValueChanged<WarehouseComplaintModel>? onCreateMaintenanceRequest;
 
   const WarehouseComplaintsTable({
     super.key,
@@ -18,6 +19,7 @@ class WarehouseComplaintsTable extends StatelessWidget {
     this.isActionable = true,
     required this.onApprove,
     required this.onOpenDetails,
+    this.onCreateMaintenanceRequest,
   });
 
   @override
@@ -37,7 +39,7 @@ class WarehouseComplaintsTable extends StatelessWidget {
       child: DataTable2(
         columnSpacing: 12,
         horizontalMargin: 12,
-        minWidth: 1080,
+        minWidth: 1250,
         headingRowHeight: 56,
         headingTextStyle: const TextStyle(
           fontWeight: FontWeight.bold,
@@ -48,13 +50,13 @@ class WarehouseComplaintsTable extends StatelessWidget {
         dataTextStyle: const TextStyle(color: Color(0xFF3F4254), fontSize: 13),
         dividerThickness: 0.5,
         columns: const [
-          DataColumn2(label: Text('الشكوى'), size: ColumnSize.S),
-          DataColumn2(label: Text('النوع'), size: ColumnSize.S),
+          DataColumn2(label: Text('الشكوى'), fixedWidth: 75),
+          DataColumn2(label: Text('النوع'), fixedWidth: 110),
           DataColumn2(label: Text('الوصف'), size: ColumnSize.L),
-          DataColumn2(label: Text('الغرفة'), size: ColumnSize.S),
-          DataColumn2(label: Text('المبنى'), size: ColumnSize.M),
-          DataColumn2(label: Text('الحالة'), size: ColumnSize.S),
-          DataColumn2(label: Text('إجراءات'), size: ColumnSize.M),
+          DataColumn2(label: Text('الغرفة'), fixedWidth: 85),
+          DataColumn2(label: Text('المبنى'), fixedWidth: 130),
+          DataColumn2(label: Text('الحالة'), fixedWidth: 120),
+          DataColumn2(label: Text('إجراءات'), fixedWidth: 300),
         ],
         rows: complaints.map(_buildRow).toList(),
       ),
@@ -87,66 +89,98 @@ class WarehouseComplaintsTable extends StatelessWidget {
         DataCell(Text(complaint.room?.building?.name ?? '-')),
         DataCell(WarehouseComplaintStatusBadge(status: complaint.status)),
         DataCell(
-          Row(
-            children: [
-              IconButton(
-                tooltip: 'عرض التفاصيل',
-                onPressed: () => onOpenDetails(complaint),
-                icon: const Icon(
-                  Icons.visibility_outlined,
-                  color: Color(0xFF0D47A1),
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: [
+                IconButton(
+                  tooltip: 'عرض التفاصيل',
+                  onPressed: () => onOpenDetails(complaint),
+                  icon: const Icon(
+                    Icons.visibility_outlined,
+                    color: Color(0xFF0D47A1),
+                  ),
                 ),
-              ),
-              const SizedBox(width: 6),
-              if (isActionable)
-                ElevatedButton.icon(
-                  onPressed: isLoading || complaint.isResolved
-                      ? null
-                      : () => onApprove(complaint),
-                  icon: isLoading
-                      ? const SizedBox(
-                          width: 14,
-                          height: 14,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : const Icon(Icons.check_circle_outline, size: 16),
-                  label: Text(complaint.isResolved ? 'منجزة' : 'اعتماد'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF50CD89),
-                    foregroundColor: Colors.white,
-                    disabledBackgroundColor: const Color(0xFFE4E6EF),
-                    disabledForegroundColor: const Color(0xFF7E8299),
-                    elevation: 0,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
+                if (isActionable && onCreateMaintenanceRequest != null) ...[
+                  const SizedBox(width: 6),
+                  OutlinedButton.icon(
+                    onPressed: () => onCreateMaintenanceRequest!(complaint),
+                    icon: const Icon(
+                      Icons.home_repair_service_outlined,
+                      size: 15,
+                    ),
+                    label: const Text('طلب صيانة'),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: const Color(0xFF0D47A1),
+                      side: const BorderSide(color: Color(0xFF0D47A1)),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 8,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
                     ),
                   ),
-                )
-              else
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFF1F5F9),
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: const Color(0xFFCBD5E1)),
-                  ),
-                  child: const Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(Icons.visibility_rounded, size: 14, color: Color(0xFF64748B)),
-                      SizedBox(width: 4),
-                      Text(
-                        'معاينة فقط',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Color(0xFF64748B),
-                          fontWeight: FontWeight.w600,
-                        ),
+                ],
+                const SizedBox(width: 6),
+                if (isActionable)
+                  ElevatedButton.icon(
+                    onPressed: isLoading || complaint.isResolved
+                        ? null
+                        : () => onApprove(complaint),
+                    icon: isLoading
+                        ? const SizedBox(
+                            width: 14,
+                            height: 14,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : const Icon(Icons.check_circle_outline, size: 16),
+                    label: Text(complaint.isResolved ? 'منجزة' : 'اعتماد'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF50CD89),
+                      foregroundColor: Colors.white,
+                      disabledBackgroundColor: const Color(0xFFE4E6EF),
+                      disabledForegroundColor: const Color(0xFF7E8299),
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
                       ),
-                    ],
+                    ),
+                  )
+                else
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 6,
+                    ),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF1F5F9),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: const Color(0xFFCBD5E1)),
+                    ),
+                    child: const Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.visibility_rounded,
+                          size: 14,
+                          color: Color(0xFF64748B),
+                        ),
+                        SizedBox(width: 4),
+                        Text(
+                          'معاينة فقط',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Color(0xFF64748B),
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-            ],
+              ],
+            ),
           ),
         ),
       ],

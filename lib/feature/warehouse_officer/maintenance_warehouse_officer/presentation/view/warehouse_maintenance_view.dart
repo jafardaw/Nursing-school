@@ -5,7 +5,6 @@ import 'package:finalproject/feature/warehouse_officer/maintenance_warehouse_off
 import 'package:finalproject/feature/warehouse_officer/maintenance_warehouse_officer/presentation/manger/warehouse_maintenance_cubit.dart';
 import 'package:finalproject/feature/warehouse_officer/maintenance_warehouse_officer/presentation/manger/warehouse_maintenance_state.dart';
 import 'package:finalproject/feature/warehouse_officer/maintenance_warehouse_officer/presentation/view/widget/warehouse_maintenance_details_dialog.dart';
-import 'package:finalproject/feature/warehouse_officer/maintenance_warehouse_officer/presentation/view/widget/warehouse_maintenance_form_dialog.dart';
 import 'package:finalproject/feature/warehouse_officer/maintenance_warehouse_officer/presentation/view/widget/warehouse_maintenance_loading_view.dart';
 import 'package:finalproject/feature/warehouse_officer/maintenance_warehouse_officer/presentation/view/widget/warehouse_maintenance_search_bar.dart';
 import 'package:finalproject/feature/warehouse_officer/maintenance_warehouse_officer/presentation/view/widget/warehouse_maintenance_table.dart';
@@ -163,7 +162,7 @@ class _WarehouseMaintenanceViewState extends State<WarehouseMaintenanceView> {
               ),
               SizedBox(height: 6),
               Text(
-                'إنشاء ومتابعة طلبات الصيانة المرتبطة بالشكاوى والمواد',
+                'متابعة طلبات الصيانة المرتبطة بالشكاوى والمواد',
                 style: TextStyle(color: Color(0xFF7E8299), fontSize: 14),
               ),
             ],
@@ -171,17 +170,17 @@ class _WarehouseMaintenanceViewState extends State<WarehouseMaintenanceView> {
         ),
         const SizedBox(width: 16),
         ElevatedButton.icon(
-          onPressed: state.isSubmitting
+          onPressed: state.isRefreshing
               ? null
-              : () => _openCreateDialog(context),
-          icon: state.isSubmitting
+              : () => context.read<WarehouseMaintenanceCubit>().refresh(),
+          icon: state.isRefreshing
               ? const SizedBox(
                   width: 16,
                   height: 16,
                   child: CircularProgressIndicator(strokeWidth: 2),
                 )
-              : const Icon(Icons.add_task_outlined, size: 18),
-          label: const Text('طلب جديد'),
+              : const Icon(Icons.refresh, size: 18),
+          label: const Text('تحديث'),
           style: ElevatedButton.styleFrom(
             backgroundColor: const Color(0xFF0D47A1),
             foregroundColor: Colors.white,
@@ -323,16 +322,6 @@ class _WarehouseMaintenanceViewState extends State<WarehouseMaintenanceView> {
         ],
       ),
     );
-  }
-
-  Future<void> _openCreateDialog(BuildContext context) async {
-    final request = await showDialog<CreateWarehouseMaintenanceRequest>(
-      context: context,
-      builder: (_) => const WarehouseMaintenanceFormDialog(),
-    );
-
-    if (!context.mounted || request == null) return;
-    context.read<WarehouseMaintenanceCubit>().createRequest(request);
   }
 
   void _showDetails(BuildContext context, WarehouseMaintenanceRequest request) {

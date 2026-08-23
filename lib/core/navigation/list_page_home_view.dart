@@ -44,6 +44,8 @@ import 'package:finalproject/feature/warehouse_officer/stock_in_warehouse/presen
 import 'package:finalproject/feature/warehouse_officer/stock_in_warehouse/presentation/view/warehouse_stock_in_view.dart';
 import 'package:finalproject/feature/warehouse_officer/items/presentation/manger/warehouse_items_cubit.dart';
 import 'package:finalproject/feature/warehouse_officer/items/presentation/view/warehouse_items_view.dart';
+import 'package:finalproject/feature/warehouse_officer/notifications/presentation/manger/warehouse_notifications_cubit.dart';
+import 'package:finalproject/feature/warehouse_officer/notifications/presentation/view/warehouse_notifications_view.dart';
 
 import 'package:finalproject/feature/announcements/presentation/manger/announcements_cubit.dart';
 import 'package:finalproject/feature/announcements/presentation/view/announcements_view.dart';
@@ -431,6 +433,15 @@ class NavConfig {
             page: BlocProvider<WarehouseMaintenanceCubit>(
               create: (_) => sl<WarehouseMaintenanceCubit>(),
               child: const WarehouseMaintenanceView(),
+            ),
+          ),
+          AppSection(
+            title: "الإشعارات",
+            icon: Icons.notifications_outlined,
+            selectedIcon: Icons.notifications,
+            page: BlocProvider<WarehouseNotificationsCubit>(
+              create: (_) => sl<WarehouseNotificationsCubit>(),
+              child: const WarehouseNotificationsView(),
             ),
           ),
           // _announcementsSection(),

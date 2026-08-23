@@ -7,7 +7,14 @@ import 'package:finalproject/feature/warehouse_officer/maintenance_warehouse_off
 import 'package:flutter/material.dart';
 
 class WarehouseMaintenanceFormDialog extends StatefulWidget {
-  const WarehouseMaintenanceFormDialog({super.key});
+  final int? initialComplaintId;
+  final String? initialDescription;
+
+  const WarehouseMaintenanceFormDialog({
+    super.key,
+    this.initialComplaintId,
+    this.initialDescription,
+  });
 
   @override
   State<WarehouseMaintenanceFormDialog> createState() =>
@@ -29,6 +36,12 @@ class _WarehouseMaintenanceFormDialogState
   @override
   void initState() {
     super.initState();
+    if (widget.initialComplaintId != null) {
+      _complaintIdController.text = '${widget.initialComplaintId}';
+    }
+    if (widget.initialDescription != null) {
+      _descriptionController.text = widget.initialDescription!;
+    }
     _dateController.text = _formatDateTime(DateTime.now());
     _fetchItems();
   }
@@ -85,6 +98,7 @@ class _WarehouseMaintenanceFormDialogState
                         controller: _complaintIdController,
                         label: 'رقم الشكوى',
                         icon: Icons.report_problem_outlined,
+                        readOnly: widget.initialComplaintId != null,
                       ),
                     ),
                     const SizedBox(width: 12),
@@ -315,9 +329,11 @@ Widget _numberField({
   required TextEditingController controller,
   required String label,
   required IconData icon,
+  bool readOnly = false,
 }) {
   return TextFormField(
     controller: controller,
+    readOnly: readOnly,
     keyboardType: TextInputType.number,
     validator: (value) {
       final error = _requiredValidator(value);
@@ -326,7 +342,15 @@ Widget _numberField({
       if (number == null || number <= 0) return 'أدخل رقم صحيح أكبر من صفر';
       return null;
     },
-    decoration: _inputDecoration(label: label, icon: icon),
+    decoration: _inputDecoration(label: label, icon: icon).copyWith(
+      fillColor: readOnly ? const Color(0xFFF3F6F9) : Colors.white,
+      suffixIcon: readOnly
+          ? const Tooltip(
+              message: 'تم تعيين رقم الشكوى تلقائياً',
+              child: Icon(Icons.lock_outline, size: 18, color: Color(0xFF7E8299)),
+            )
+          : null,
+    ),
   );
 }
 

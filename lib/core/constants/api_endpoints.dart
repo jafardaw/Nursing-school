@@ -106,6 +106,9 @@ class ApiEndpoints {
   static const String gateLogsFilter = 'gate/logs/filter';
   static const String dormitoryNightChecks = 'housing/night-checks';
 
+  // ====== Notifications ======
+  static const String notifications = 'notifications';
+
   ApiEndpoints._();
 
   static String examScheduleAllocateSeats(int id) =>
