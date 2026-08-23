@@ -29,9 +29,9 @@ class _EditCampaignDialogState extends State<EditCampaignDialog> {
     _endDateController = TextEditingController(text: widget.campaign.endDate);
     
     // Ensure that if it has unexpected type or status we fallback to a valid default for dropdown
-    _type = ['Specialization', 'General_Hospital'].contains(widget.campaign.type) 
+    _type = ['Specialization', 'General_Hospital', 'Specialized_Hospital'].contains(widget.campaign.type) 
         ? widget.campaign.type : 'Specialization';
-    _status = ['Draft', 'Active', 'Completed'].contains(widget.campaign.status)
+    _status = ['Draft', 'Active'].contains(widget.campaign.status)
         ? widget.campaign.status : 'Draft';
   }
 
@@ -185,7 +185,8 @@ class _EditCampaignDialogState extends State<EditCampaignDialog> {
                               value: _type,
                               items: const [
                                 DropdownMenuItem(value: 'Specialization', child: Text('اختصاص فقط')),
-                                DropdownMenuItem(value: 'General_Hospital', child: Text('مشافي')),
+                                DropdownMenuItem(value: 'General_Hospital', child: Text('مشافي عامة')),
+                                DropdownMenuItem(value: 'Specialized_Hospital', child: Text('مشافي متخصصة')),
                               ],
                               onChanged: (v) => setState(() => _type = v ?? 'Specialization'),
                             ),
@@ -199,7 +200,6 @@ class _EditCampaignDialogState extends State<EditCampaignDialog> {
                               items: const [
                                 DropdownMenuItem(value: 'Draft', child: Text('مسودة')),
                                 DropdownMenuItem(value: 'Active', child: Text('نشط')),
-                                DropdownMenuItem(value: 'Completed', child: Text('مكتملة')),
                               ],
                               onChanged: (v) => setState(() => _status = v ?? 'Draft'),
                             ),

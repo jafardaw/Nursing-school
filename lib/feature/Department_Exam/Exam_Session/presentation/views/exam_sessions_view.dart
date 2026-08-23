@@ -11,6 +11,7 @@ import 'package:finalproject/feature/Department_Exam/Exam_Session/presentation/m
 import 'package:finalproject/feature/Department_Exam/Exam_Session/presentation/manger/exam_session_state.dart';
 import 'package:finalproject/feature/Department_Exam/Exam_Session/presentation/views/widget/add_edit_session_dialog.dart';
 import 'package:finalproject/feature/Department_Exam/Exam_Session/presentation/views/widget/evaluate_promotions_dialog.dart';
+import 'package:finalproject/feature/Department_Exam/Exam_Session/presentation/views/widget/graduate_students_dialog.dart';
 import 'package:finalproject/feature/Department_Exam/Exam_Session/presentation/views/widget/session_statistics_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -148,7 +149,7 @@ class _ExamSessionsPageState extends State<ExamSessionsPage> {
     );
   }
 
-  void _openEvaluatePromotionsDialog(ExamSessionModel session) {
+  void _openEvaluatePromotionsDialog() {
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -164,14 +165,41 @@ class _ExamSessionsPageState extends State<ExamSessionsPage> {
             builder: (context, state) {
               final isLoading = state is ExamSessionActionLoading;
               return EvaluatePromotionsDialog(
-                academicYear: session.academicYear,
                 isLoading: isLoading,
-                onSubmit: (studyYear, maxCarriedSubjects) {
+                onSubmit: (academicYear, studyYear, maxCarriedSubjects) {
                   _cubit.evaluateBulkPromotions(
                     studyYear: studyYear,
-                    academicYear: session.academicYear,
+                    academicYear: academicYear,
                     maxCarriedSubjects: maxCarriedSubjects,
                   );
+                },
+              );
+            },
+          ),
+        );
+      },
+    );
+  }
+
+  void _openGraduateStudentsDialog() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (dialogContext) {
+        return BlocProvider.value(
+          value: _cubit,
+          child: BlocConsumer<ExamSessionCubit, ExamSessionState>(
+            listener: (context, state) {
+              if (state is ExamSessionActionSuccess) {
+                Navigator.of(dialogContext).pop();
+              }
+            },
+            builder: (context, state) {
+              final isLoading = state is ExamSessionActionLoading;
+              return GraduateStudentsDialog(
+                isLoading: isLoading,
+                onSubmit: (academicYear) {
+                  _cubit.bulkGraduateStudents(academicYear: academicYear);
                 },
               );
             },
@@ -348,23 +376,23 @@ class _ExamSessionsPageState extends State<ExamSessionsPage> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              "إدارة الدورات الامتحانية",
-              style: styles.headline2.copyWith(
-                color: const Color(0xFF1E293B),
-                fontWeight: FontWeight.w800,
-              ),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              "قم بإنشاء وتفعيل الدورات الامتحانية لإضافة امتحانات بداخلها",
-              style: styles.bodyMedium.copyWith(color: const Color(0xFF64748B)),
-            ),
-          ],
-        ),
+        // Column(
+        //   crossAxisAlignment: CrossAxisAlignment.start,
+        //   children: [
+        //     Text(
+        //       "إدارة الدورات الامتحانية",
+        //       style: styles.headline2.copyWith(
+        //         color: const Color(0xFF1E293B),
+        //         fontWeight: FontWeight.w800,
+        //       ),
+        //     ),
+        //     const SizedBox(height: 4),
+        //     Text(
+        //       "قم بإنشاء وتفعيل الدورات الامتحانية لإضافة امتحانات بداخلها",
+        //       style: styles.bodyMedium.copyWith(color: const Color(0xFF64748B)),
+        //     ),
+        //   ],
+        // ),
         Row(
           children: [
             SizedBox(
@@ -404,6 +432,24 @@ class _ExamSessionsPageState extends State<ExamSessionsPage> {
                   ),
                 ),
               ),
+            ),
+            const SizedBox(width: 12),
+            smallButton(
+              styles,
+              () => _openEvaluatePromotionsDialog(),
+              Icons.trending_up_rounded,
+              'ترفيع الطلاب',
+              const Color(0xFF4F46E5),
+              Colors.white,
+            ),
+            const SizedBox(width: 12),
+            smallButton(
+              styles,
+              () => _openGraduateStudentsDialog(),
+              Icons.school_rounded,
+              'تخريج الطلاب',
+              const Color(0xFF059669), // أخضر تخصصي
+              Colors.white,
             ),
             const SizedBox(width: 12),
             smallButton(
@@ -593,7 +639,9 @@ class _ExamSessionsPageState extends State<ExamSessionsPage> {
             fixedWidth: 175,
           ),
         ],
-        rows: sessions.map((session) => _buildDataRow(session, styles)).toList(),
+        rows: sessions
+            .map((session) => _buildDataRow(session, styles))
+            .toList(),
       ),
     );
   }
@@ -753,24 +801,6 @@ class _ExamSessionsPageState extends State<ExamSessionsPage> {
                 ),
                 tooltip: 'عرض الإحصائيات الشاملة',
                 onPressed: () => _openStatisticsDialog(session),
-              ),
-              // زر ترفيع الطلاب (متاح فقط للدورات غير النشطة)
-              IconButton(
-                padding: EdgeInsets.zero,
-                constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
-                icon: Icon(
-                  Icons.trending_up_rounded,
-                  size: 20,
-                  color: isInactive
-                      ? const Color(0xFF4F46E5) // أرجواني تخصصي
-                      : const Color(0xFFCBD5E1), // رمادي إذا كانت نشطة
-                ),
-                tooltip: isInactive
-                    ? 'ترفيع الطلاب'
-                    : 'الترفيع متاح فقط للدورات غير النشطة',
-                onPressed: isInactive
-                    ? () => _openEvaluatePromotionsDialog(session)
-                    : null,
               ),
               IconButton(
                 padding: EdgeInsets.zero,

@@ -29,4 +29,8 @@ abstract class MatchingCampaignRepository {
   });
 
   Future<void> deleteCampaign(int id);
+
+  Future<void> executeMatching(int id);
+
+  Future<Map<String, dynamic>> getCampaignResults(int id, {int page = 1, int perPage = 15});
 }

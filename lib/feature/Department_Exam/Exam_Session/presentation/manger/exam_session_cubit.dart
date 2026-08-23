@@ -90,4 +90,16 @@ class ExamSessionCubit extends Cubit<ExamSessionState> {
       emit(ExamSessionError(e.toString().replaceAll("Exception:", "").trim()));
     }
   }
+
+  Future<void> bulkGraduateStudents({
+    required String academicYear,
+  }) async {
+    emit(ExamSessionActionLoading());
+    try {
+      await repository.bulkGraduateStudents(academicYear: academicYear);
+      emit(ExamSessionActionSuccess("تم تخريج الطلاب بنجاح"));
+    } catch (e) {
+      emit(ExamSessionError(e.toString().replaceAll("Exception:", "").trim()));
+    }
+  }
 }

@@ -167,7 +167,8 @@ class _CreateCampaignDialogState extends State<CreateCampaignDialog> {
                               value: _type,
                               items: const [
                                 DropdownMenuItem(value: 'Specialization', child: Text('اختصاص فقط')),
-                                DropdownMenuItem(value: 'General_Hospital', child: Text('مشافي')),
+                                DropdownMenuItem(value: 'General_Hospital', child: Text('مشافي عامة')),
+                                DropdownMenuItem(value: 'Specialized_Hospital', child: Text('مشافي متخصصة')),
                               ],
                               onChanged: (v) => setState(() => _type = v ?? 'Specialization'),
                             ),

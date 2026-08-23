@@ -535,7 +535,7 @@ class _StudentsScreenState extends State<StudentsScreen> {
         borderRadius: BorderRadius.circular(6),
       ),
       child: Text(
-        isActive ? 'نشطة' : 'موقفة',
+        isActive ? 'بريئة الذمة' : 'غير بريئة الذمة',
         style: TextStyle(
           color: baseColor,
           fontSize: 12,

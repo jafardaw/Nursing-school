@@ -24,6 +24,7 @@ import 'package:finalproject/feature/Department_Student_Affair/Statistic/repo/st
 import 'package:finalproject/feature/Department_HeadSupervisor/matching/domain/repositories/matching_campaign_repository.dart';
 import 'package:finalproject/feature/Department_HeadSupervisor/matching/domain/repositories/matching_campaign_repository_impl.dart';
 import 'package:finalproject/feature/Department_HeadSupervisor/matching/presentation/manger/matching_campaign_cubit.dart';
+import 'package:finalproject/feature/Department_HeadSupervisor/matching/presentation/manger/matching_results_cubit.dart';
 import 'package:finalproject/feature/Department_HeadSupervisor/HospitalTrainingGroups/domain/repositories/hospital_training_groups_repo.dart';
 import 'package:finalproject/feature/Department_HeadSupervisor/HospitalTrainingGroups/domain/repositories/hospital_training_groups_repo_impl.dart';
 import 'package:finalproject/feature/Department_HeadSupervisor/HospitalTrainingGroups/presentation/manger/hospital_training_groups_cubit.dart';
@@ -96,6 +97,9 @@ import 'package:finalproject/feature/warehouse_officer/statistics/presentation/m
 import 'package:finalproject/feature/warehouse_officer/items/domain/repositories/warehouse_items_repo.dart';
 import 'package:finalproject/feature/warehouse_officer/items/domain/repositories/warehouse_items_repo_impl.dart';
 import 'package:finalproject/feature/warehouse_officer/items/presentation/manger/warehouse_items_cubit.dart';
+import 'package:finalproject/feature/warehouse_officer/clearance/domain/repositories/warehouse_clearance_repo.dart';
+import 'package:finalproject/feature/warehouse_officer/clearance/domain/repositories/warehouse_clearance_repo_impl.dart';
+import 'package:finalproject/feature/warehouse_officer/clearance/presentation/manger/warehouse_clearance_cubit.dart';
 import 'package:finalproject/feature/warehouse_officer/notifications/data/datasources/warehouse_notifications_local_data_source.dart';
 import 'package:finalproject/feature/warehouse_officer/notifications/data/datasources/warehouse_notifications_remote_data_source.dart';
 import 'package:finalproject/feature/warehouse_officer/notifications/data/repositories/warehouse_notifications_repository_impl.dart';
@@ -311,6 +315,12 @@ Future<void> initServiceLocator() async {
       sl<HospitalRepository>(),
     ),
   );
+  sl.registerFactoryParam<MatchingResultsCubit, int, void>(
+    (campaignId, _) => MatchingResultsCubit(
+      repository: sl<MatchingCampaignRepository>(),
+      campaignId: campaignId,
+    ),
+  );
 
   /////////// dormitory (buildings & rooms)
   sl.registerLazySingleton<DormitoryRepository>(
@@ -406,26 +416,6 @@ Future<void> initServiceLocator() async {
       getSearchHistoryUseCase: sl(),
       saveSearchHistoryUseCase: sl(),
     ),
-  );
-
-  /////////// warehouse notifications (Clean Architecture)
-  sl.registerLazySingleton<WarehouseNotificationsRemoteDataSource>(
-    () => WarehouseNotificationsRemoteDataSourceImpl(apiService: sl()),
-  );
-  sl.registerLazySingleton<WarehouseNotificationsLocalDataSource>(
-    () => WarehouseNotificationsLocalDataSourceImpl(storageService: sl()),
-  );
-  sl.registerLazySingleton<WarehouseNotificationsRepository>(
-    () => WarehouseNotificationsRepositoryImpl(
-      remoteDataSource: sl(),
-      localDataSource: sl(),
-    ),
-  );
-  sl.registerLazySingleton<GetWarehouseNotificationsUseCase>(
-    () => GetWarehouseNotificationsUseCase(sl()),
-  );
-  sl.registerFactory<WarehouseNotificationsCubit>(
-    () => WarehouseNotificationsCubit(sl<GetWarehouseNotificationsUseCase>()),
   );
 }
 

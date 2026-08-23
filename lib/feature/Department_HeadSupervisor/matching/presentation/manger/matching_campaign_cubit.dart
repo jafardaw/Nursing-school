@@ -197,4 +197,30 @@ class MatchingCampaignCubit extends Cubit<MatchingCampaignState> {
       return false;
     }
   }
+
+  Future<bool> executeMatching(int id) async {
+    emit(MatchingCampaignActionLoading());
+    try {
+      await repository.executeMatching(id);
+      
+      // Update the campaign status locally to Completed to avoid a full fetch if possible,
+      // but matching affects seats (matchedCount) too. A full fetch is safer.
+      await fetchCampaigns(page: 1);
+      
+      emit(MatchingCampaignActionSuccess('تم تنفيذ عملية الفرز بنجاح'));
+      emit(
+        MatchingCampaignLoaded(
+          campaigns: campaigns,
+          hospitals: hospitals,
+          specializations: specializations,
+        ),
+      );
+      return true;
+    } catch (e) {
+      emit(
+        MatchingCampaignError(e.toString().replaceAll('Exception:', '').trim()),
+      );
+      return false;
+    }
+  }
 }
